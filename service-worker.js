@@ -5,6 +5,8 @@ const urlsToCache = [
   '/disciplin/manifest.json',
   '/disciplin/icon-192.png',
   '/disciplin/icon-512.png'
+  '/disciplin/app.js',
+  '/disciplin/storage.js'
 ];
 
 // Install event
