@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js');
+}
+</script>
+    <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#667eea">
+<link rel="icon" href="icon-192.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disciplin - Personal Accountability</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkRpc2NpcGxpbiAtIFBlcnNvbmFsIEFjY291bnRhYmlsaXR5IiwKICAic2hvcnRfbmFtZSI6ICJEaXNjaXBsaW4iLAogICJkZXNjcmlwdGlvbiI6ICJQcml2YXRlIHBlcnNvbmFsIGFjY291bnRhYmlsaXR5IGFuZCBoYWJpdCB0cmFja2luZyIsCiAgInN0YXJ0X3VybCI6ICIvIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjNjY3ZWVhIiwKICAidGhlbWVfY29sb3IiOiAiIzY2N2VlYSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqRTVNaUlnZG1sbGQwSnZlRDBpTUNBd0lERTVNaUF4T1RJaUlHWnBiR3c5SW01dmJtVWlJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQR05wY21Oc1pTQmplRDBpT1RZaUlHTjVQU0k1TmlJZ2NqMGlOREFpSUdacGJHdzlJaU0yTmpkbFpXRWlMejQ4ZEdWNGRDQjRQU0k1TmlJZ2VUMGlNVEUySWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1hV3hzUFNJamRqZGpkR1Y0ZENJZ1ptOXVkQzF6YVhwbFBTSXpNaUlnWm05dWRDMTNaV2xuYUhROUltSnZiR1FpUGprMGJqd3ZkR1Y0ZEQ0OEwzTjJaejQ9IiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURJMU5pQXlOVFlpSUdacGJHdzlJbTV2Ym1VaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xtY3pMbTl5Wnk4eU1EQXdMM04yWnlJK1BHTnBjbU5zWlNCamVEMGlNalUySWlCamVUMGlNalUySWlCeVBTSTFNQ0lnWm1sc2JEMGlJelkyTjJWbFlTSXZQangwWlhoMElIZzlJakkxTmlJZ2VUMGlNall3SWlCMFpYaDBMV0Z1WTJodmNqMGliV2xrWkd4bElpQm1hV3hzUFNJamRqZGpkR1Y0ZENJZ1ptOXVkQzF6YVhwbFBTSTROQ0lnWm05dWRDMTNaV2xuYUhROUltSnZiR1FpUGprMGJqd3ZkR1Y0ZEQ0OEwzTjJaejQ9IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Disciplin">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNDAiIGZpbGw9IiM2NjdlZWEiLz48dGV4dCB4PSI5NiIgeT0iMTE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjdjdjdGV4dCIgZm9udC1zaXplPSIzMiIgZm9udC13ZWlnaHQ9ImJvbGQiPjk0bjwvdGV4dD48L3N2Zz4=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #4a5568;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quick-log {
+            text-align: center;
+        }
+        
+        .log-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .log-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4a5568;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-date {
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .history-time {
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .delete-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .mood-btn {
+            background: none;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mood-btn.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .notes-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+            margin-top: 10px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .chart-container {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            margin-top: 15px;
+        }
+        
+        .export-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .popup {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 350px;
+            margin: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+        
+        .popup p {
+            color: #718096;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .popup-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .motivational-text {
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+            color: #000;
+            font-size: 14px;
+        }
+        
+        .notification-text {
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #2f855a;
+            font-weight: 500;
+        }
+        
+        .install-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .install-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .pwa-status {
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #2f855a;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .offline-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(245, 101, 101, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: none;
+            z-index: 999;
+        }
+        
+        .offline-indicator.online {
+            background: rgba(72, 187, 120, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="offline-indicator">馃敶 Offline</div>
+    
+    
+        
+        <!-- Install Banner -->
+        <div id="install-banner" class="install-banner">
+            <div>馃摫 Install Disciplin as an app for better experience</div>
+            <button class="install-btn" id="install-button">Install App</button>
+            <button class="install-btn" onclick="showInstallInstructions()">Manual Install</button>
+        </div>
+        
+        <div class="header">
+            <h1>馃幆 Disciplin</h1>
+            <p>Private & Secure Personal Accountability</p>
+        </div>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('log')">Log</button>
+            <button class="tab-btn" onclick="switchTab('stats')">Stats</button>
+            <button class="tab-btn" onclick="switchTab('goals')">Goals</button>
+            <button class="tab-btn" onclick="switchTab('history')">History</button>
+        </div>
+        
+        <div id="log-tab" class="tab-content active">
+            <div class="card quick-log">
+                <h3 style="margin-bottom: 15px;">Quick Log Entry</h3>
+                
+                <!-- Clean Days Notification -->
+                <div id="clean-days-notification" style="display: none;" class="notification-text"></div>
+                
+                <p style="margin-bottom: 10px; color: #4a5568; font-weight: 500; text-align: center;">Did you masturbate/relapse yesterday?</p>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="yesterday" value="yes" style="margin-right: 8px;">
+                        <span style="color: #4a5568; font-weight: 500;">Yes</span>
+                    </label>
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="radio" name="yesterday" value="no" style="margin-right: 8px;">
+                        <span style="color: #4a5568; font-weight: 500;">No</span>
+                    </label>
+                </div>
+                
+                <p style="margin-bottom: 10px; color: #4a5568; font-weight: 500; text-align: center;">How do you feel today?</p>
+                <div class="mood-selector">
+                    <button class="mood-btn" data-mood="1" onclick="selectMood(1)">馃様</button>
+                    <button class="mood-btn" data-mood="2" onclick="selectMood(2)">馃槓</button>
+                    <button class="mood-btn" data-mood="3" onclick="selectMood(3)">馃檪</button>
+                    <button class="mood-btn" data-mood="4" onclick="selectMood(4)">馃槉</button>
+                    <button class="mood-btn" data-mood="5" onclick="selectMood(5)">馃槃</button>
+                </div>
+                
+                <p style="margin-top: 15px; margin-bottom: 10px; color: #4a5568; font-size: 14px; text-align: center;">If you masturbated, what caused it? (write on the optional notes if any)</p>
+                
+                <textarea class="notes-input" id="notes" placeholder="Optional notes or observations..."></textarea>
+                
+                <button class="log-btn" onclick="quickLog()">馃摑 Log Activity</button>
+                
+                <div id="motivational-text" class="motivational-text">Everyday is a new day, to achieve something new</div>
+            </div>
+        </div>
+        
+        <div id="goals-tab" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">馃幆 Goals & Streaks</h3>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; color: #4a5568;">Current Streak</h4>
+                    <div class="stat-item" style="text-align: center; margin-bottom: 15px;">
+                        <span class="stat-number" id="current-streak" style="color: #48bb78;">0</span>
+                        <span class="stat-label">Days</span>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 20px;">
+                        <div class="stat-item">
+                            <span class="stat-number" id="longest-streak">0</span>
+                            <span class="stat-label">Longest Streak</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-streaks">0</span>
+                            <span class="stat-label">Total Streaks</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #4a5568;">Weekly Goal</h4>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #718096;">Target frequency per week:</label>
+                        <select id="weekly-goal" onchange="updateWeeklyGoal()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <option value="0">No specific goal</option>
+                            <option value="1">1 time per week</option>
+                            <option value="2">2 times per week</option>
+                            <option value="3">3 times per week</option>
+                            <option value="4">4 times per week</option>
+                            <option value="5">5 times per week</option>
+                            <option value="6">6 times per week</option>
+                            <option value="7">Daily (7 times per week)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="goal-progress" style="display: none;">
+                        <div style="background: rgba(255,255,255,0.5); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #4a5568;">This Week's Progress</span>
+                                <span id="goal-fraction" style="font-size: 14px; font-weight: 600; color: #4a5568;">0/0</span>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
+                                <div id="goal-bar" style="background: linear-gradient(90deg, #48bb78, #38a169); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div id="goal-status" style="margin-top: 8px; font-size: 12px; text-align: center;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #4a5568;">Streak Goal</h4>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #718096;">Target streak length (days):</label>
+                        <input type="number" id="streak-goal" onchange="updateStreakGoal()" min="0" max="365" placeholder="e.g., 7" 
+                               style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                    </div>
+                    
+                    <div id="streak-progress" style="display: none;">
+                        <div style="background: rgba(255,255,255,0.5); border-radius: 10px; padding: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #4a5568;">Streak Progress</span>
+                                <span id="streak-fraction" style="font-size: 14px; font-weight: 600; color: #4a5568;">0/0</span>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
+                                <div id="streak-bar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+                            </div>
+                            <div id="streak-status" style="margin-top: 8px; font-size: 12px; text-align: center;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="stats-tab" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="total-count">0</span>
+                        <span class="stat-label">Total Entries</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="this-week">0</span>
+                        <span class="stat-label">This Week</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="avg-per-week">0</span>
+                        <span class="stat-label">Avg/Week</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="longest-gap">0</span>
+                        <span class="stat-label">Longest Gap</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div>馃搳 Activity patterns over time</div>
+                </div>
+                <button class="export-btn" onclick="exportData()">馃摛 Export Data</button>
+            </div>
+        </div>
+        
+        <div id="history-tab" class="tab-content">
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Recent History</h3>
+                <div class="history" id="history-list">
+                    <div style="text-align: center; color: #718096; padding: 40px 0;">
+                        No entries yet. Start logging to see your history here.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entries = [];
+        let selectedMood = null;
+        let weeklyGoal = 0;
+        let streakGoal = 0;
+        let motivationalTexts = [
+            "Everyday is a new day, to achieve something new",
+            "Every urge resisted is a win"
+        ];
+        let currentTextIndex = 0;
+        let deferredPrompt;
+        
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'disciplin-v1';
+                const urlsToCache = [
+                    '/disciplin',
+                    '/disciplin/index.html'
+                ];
+
+                // Install event - cache resources
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(cache => cache.addAll(urlsToCache))
+                    );
+                });
+
+                // Fetch event - serve from cache when offline
+                self.addEventListener('fetch', event => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(response => {
+                                return response || fetch(event.request);
+                            })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swURL)
+                .then(registration => {
+                    console.log('PWA: Service Worker registered successfully');
+                    document.getElementById('pwa-status').style.display = 'block';
+                })
+                .catch(error => {
+                    console.log('PWA: Service Worker registration failed');
+                });
+        }
+        
+        // PWA Install Prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-banner').style.display = 'block';
+        });
+        
+        document.getElementById('install-button').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('install-banner').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+        
+        // Online/Offline Status
+        function updateOnlineStatus() {
+            const indicator = document.getElementById('offline-indicator');
+            if (navigator.onLine) {
+                indicator.textContent = '馃煝 Online';
+                indicator.className = 'offline-indicator online';
+                indicator.style.display = 'block';
+                setTimeout(() => {
+                    indicator.style.display = 'none';
+                }, 3000);
+            } else {
+                indicator.textContent = '馃敶 Offline';
+                indicator.className = 'offline-indicator';
+                indicator.style.display = 'block';
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Load data from memory on page load
+        function loadData() {
+            updateStats();
+            updateHistory();
+            updateStreaks();
+            updateGoalProgress();
+            updateCleanDaysNotification();
+            showInstallBanner();
+        }
+        
+        function closeWelcomePopup() {
+            document.getElementById('welcome-popup').style.display = 'none';
+        }
+        
+        function showInstallBanner() {
+            // Show install banner if app is not already installed
+            if (!window.matchMedia('(display-mode: standalone)').matches && !deferredPrompt) {
+                document.getElementById('install-banner').style.display = 'block';
+            }
+        }
+        
+        function showInstallInstructions() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            let instructions = '';
+            if (isIOS) {
+                instructions = 'Tap the Share button (square with arrow) at the bottom of Safari, then tap "Add to Home Screen"';
+            } else if (isAndroid) {
+                instructions = 'Tap the menu (three dots) in your browser, then tap "Add to Home screen" or "Install app"';
+            } else {
+                instructions = 'In your browser menu, look for "Add to Home Screen" or "Install" option';
+            }
+            
+            alert('馃摫 Add Disciplin to Home Screen:\n\n' + instructions);
+        }
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function selectMood(mood) {
+            selectedMood = mood;
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-mood="${mood}"]`).classList.add('selected');
+        }
+        
+        function quickLog() {
+            const yesterdayAnswer = document.querySelector('input[name="yesterday"]:checked')?.value;
+            
+            // Check if radio button is answered
+            if (!yesterdayAnswer) {
+                alert('Please answer whether you masturbated/relapsed yesterday before logging.');
+                return;
+            }
+            
+            // Check if already logged today
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const todayEntry = entries.find(entry => {
+                const entryDate = new Date(entry.date);
+                entryDate.setHours(0, 0, 0, 0);
+                return entryDate.getTime() === today.getTime();
+            });
+            
+            if (todayEntry) {
+                alert('You have already logged an entry for today. You can only log one entry per day.');
+                return;
+            }
+            
+            const now = new Date();
+            const notes = document.getElementById('notes').value;
+            
+            const entry = {
+                id: Date.now(),
+                date: now.toISOString(),
+                mood: selectedMood,
+                notes: notes.trim(),
+                yesterday: yesterdayAnswer
+            };
+            
+            entries.unshift(entry);
+            
+            // Reset form
+            document.getElementById('notes').value = '';
+            selectedMood = null;
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelectorAll('input[name="yesterday"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            updateStats();
+            updateHistory();
+            
+            // Only update streaks and goals if user said "no" to masturbating
+            if (yesterdayAnswer === 'no') {
+                updateStreaks();
+                updateGoalProgress();
+            }
+            
+            updateCleanDaysNotification();
+            
+            // Rotate motivational text
+            currentTextIndex = (currentTextIndex + 1) % motivationalTexts.length;
+            document.getElementById('motivational-text').textContent = motivationalTexts[currentTextIndex];
+            
+            // Show confirmation
+            const btn = document.querySelector('.log-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '鉁� Logged!';
+            btn.style.background = '#48bb78';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }, 1500);
+        }
+        
+        function updateStats() {
+            const totalCount = entries.length;
+            document.getElementById('total-count').textContent = totalCount;
+            
+            // This week count
+            const weekStart = new Date();
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const thisWeekCount = entries.filter(entry => 
+                new Date(entry.date) >= weekStart
+            ).length;
+            document.getElementById('this-week').textContent = thisWeekCount;
+            
+            // Average per week
+            if (entries.length > 0) {
+                const firstEntry = new Date(entries[entries.length - 1].date);
+                const now = new Date();
+                const weeksDiff = Math.max(1, (now - firstEntry) / (7 * 24 * 60 * 60 * 1000));
+                const avgPerWeek = Math.round((totalCount / weeksDiff) * 10) / 10;
+                document.getElementById('avg-per-week').textContent = avgPerWeek;
+            } else {
+                document.getElementById('avg-per-week').textContent = '0';
+            }
+            
+            // Longest gap
+            let longestGap = 0;
+            if (entries.length > 1) {
+                for (let i = 0; i < entries.length - 1; i++) {
+                    const gap = (new Date(entries[i].date) - new Date(entries[i + 1].date)) / (24 * 60 * 60 * 1000);
+                    longestGap = Math.max(longestGap, Math.floor(gap));
+                }
+            }
+            document.getElementById('longest-gap').textContent = longestGap + 'd';
+        }
+        
+        function updateHistory() {
+            const historyList = document.getElementById('history-list');
+            
+            if (entries.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px 0;">
+                        No entries yet. Start logging to see your history here.
+                    </div>
+                `;
+                return;
+            }
+            
+            historyList.innerHTML = entries.slice(0, 20).map(entry => {
+                const date = new Date(entry.date);
+                const dateStr = date.toLocaleDateString();
+                const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const moodEmoji = ['', '馃様', '馃槓', '馃檪', '馃槉', '馃槃'][entry.mood] || '';
+                
+                return `
+                    <div class="history-item">
+                        <div>
+                            <div class="history-date">${dateStr} ${moodEmoji}</div>
+                            <div class="history-time">${timeStr}${entry.yesterday ? ' 鈥� Yesterday: ' + (entry.yesterday === 'yes' ? 'Yes' : 'No') : ''}${entry.notes ? ' 鈥� ' + entry.notes.substring(0, 30) + (entry.notes.length > 30 ? '...' : '') : ''}</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteEntry(${entry.id})">脳</button>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function deleteEntry(id) {
+            if (confirm('Are you sure you want to delete this entry? This action cannot be undone.')) {
+                entries = entries.filter(entry => entry.id !== id);
+                updateStats();
+                updateHistory();
+                updateStreaks();
+                updateGoalProgress();
+                updateCleanDaysNotification();
+            }
+        }
+        
+        function updateCleanDaysNotification() {
+            const notification = document.getElementById('clean-days-notification');
+            
+            if (entries.length === 0) {
+                notification.style.display = 'none';
+                return;
+            }
+            
+            // Calculate clean days (days without relapsing)
+            let cleanDays = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Sort entries by date (newest first)
+            const sortedEntries = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Count consecutive "no" answers from most recent
+            for (const entry of sortedEntries) {
+                if (entry.yesterday === 'no') {
+                    cleanDays++;
+                } else if (entry.yesterday === 'yes') {
+                    break; // Stop counting when we hit a "yes"
+                }
+            }
+            
+            if (cleanDays > 0) {
+                notification.textContent = `You've gone ${cleanDays} day${cleanDays === 1 ? '' : 's'} without relapsing`;
+                notification.style.display = 'block';
+            } else {
+                notification.style.display = 'none';
+            }
+        }
+        
+        function updateStreaks() {
+            if (entries.length === 0) {
+                document.getElementById('current-streak').textContent = '0';
+                document.getElementById('longest-streak').textContent = '0';
+                document.getElementById('total-streaks').textContent = '0';
+                return;
+            }
+            
+            // Only consider entries where user said "no" to masturbating
+            const cleanEntries = entries.filter(entry => entry.yesterday === 'no');
+            
+            if (cleanEntries.length === 0) {
+                document.getElementById('current-streak').textContent = '0';
+                document.getElementById('longest-streak').textContent = '0';
+                document.getElementById('total-streaks').textContent = '0';
+                return;
+            }
+            
+            // Sort entries by date (newest first)
+            const sortedEntries = [...cleanEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Calculate current streak
+            let currentStreak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Check if there's a clean entry today or yesterday to start counting
+            const latestEntry = new Date(sortedEntries[0].date);
+            latestEntry.setHours(0, 0, 0, 0);
+            const daysSinceLatest = Math.floor((today - latestEntry) / (24 * 60 * 60 * 1000));
+            
+            if (daysSinceLatest <= 1) {
+                const entryDates = new Set();
+                sortedEntries.forEach(entry => {
+                    const entryDate = new Date(entry.date);
+                    entryDate.setHours(0, 0, 0, 0);
+                    entryDates.add(entryDate.getTime());
+                });
+                
+                let checkDate = new Date(today);
+                if (daysSinceLatest === 1) {
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+                
+                while (entryDates.has(checkDate.getTime())) {
+                    currentStreak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+            }
+            
+            // Calculate all streaks
+            const streaks = [];
+            let tempStreak = 0;
+            let lastDate = null;
+            
+            const uniqueDates = [...new Set(sortedEntries.map(entry => {
+                const d = new Date(entry.date);
+                d.setHours(0, 0, 0, 0);
+                return d.getTime();
+            }))].sort((a, b) => b - a);
+            
+            for (let i = 0; i < uniqueDates.length; i++) {
+                const currentDate = new Date(uniqueDates[i]);
+                
+                if (lastDate === null) {
+                    tempStreak = 1;
+                } else {
+                    const dayDiff = Math.floor((lastDate - currentDate) / (24 * 60 * 60 * 1000));
+                    if (dayDiff === 1) {
+                        tempStreak++;
+                    } else {
+                        if (tempStreak > 0) streaks.push(tempStreak);
+                        tempStreak = 1;
+                    }
+                }
+                lastDate = currentDate;
+            }
+            if (tempStreak > 0) streaks.push(tempStreak);
+            
+            const longestStreak = streaks.length > 0 ? Math.max(...streaks) : 0;
+            const totalStreaks = streaks.filter(s => s > 1).length;
+            
+            document.getElementById('current-streak').textContent = currentStreak;
+            document.getElementById('longest-streak').textContent = longestStreak;
+            document.getElementById('total-streaks').textContent = totalStreaks;
+        }
+        
+        function updateWeeklyGoal() {
+            weeklyGoal = parseInt(document.getElementById('weekly-goal').value);
+            const progressDiv = document.getElementById('goal-progress');
+            
+            if (weeklyGoal > 0) {
+                progressDiv.style.display = 'block';
+                updateGoalProgress();
+            } else {
+                progressDiv.style.display = 'none';
+            }
+        }
+        
+        function updateStreakGoal() {
+            streakGoal = parseInt(document.getElementById('streak-goal').value) || 0;
+            const progressDiv = document.getElementById('streak-progress');
+            
+            if (streakGoal > 0) {
+                progressDiv.style.display = 'block';
+                updateGoalProgress();
+            } else {
+                progressDiv.style.display = 'none';
+            }
+        }
+        
+        function updateGoalProgress() {
+            // Weekly goal progress
+            if (weeklyGoal > 0) {
+                const weekStart = new Date();
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                weekStart.setHours(0, 0, 0, 0);
+                
+                const thisWeekCount = entries.filter(entry => 
+                    new Date(entry.date) >= weekStart
+                ).length;
+                
+                const progress = Math.min(100, (thisWeekCount / weeklyGoal) * 100);
+                
+                document.getElementById('goal-fraction').textContent = `${thisWeekCount}/${weeklyGoal}`;
+                document.getElementById('goal-bar').style.width = progress + '%';
+                
+                let statusText = '';
+                let statusColor = '#4a5568';
+                
+                if (thisWeekCount >= weeklyGoal) {
+                    statusText = '馃帀 Goal achieved this week!';
+                    statusColor = '#48bb78';
+                } else if (thisWeekCount === weeklyGoal - 1) {
+                    statusText = '猸� Almost there! One more to reach your goal.';
+                    statusColor = '#ed8936';
+                } else {
+                    const remaining = weeklyGoal - thisWeekCount;
+                    statusText = `馃搱 ${remaining} more needed to reach weekly goal`;
+                }
+                
+                const statusEl = document.getElementById('goal-status');
+                statusEl.textContent = statusText;
+                statusEl.style.color = statusColor;
+            }
+            
+            // Streak goal progress
+            if (streakGoal > 0) {
+                const currentStreak = parseInt(document.getElementById('current-streak').textContent);
+                const progress = Math.min(100, (currentStreak / streakGoal) * 100);
+                
+                document.getElementById('streak-fraction').textContent = `${currentStreak}/${streakGoal}`;
+                document.getElementById('streak-bar').style.width = progress + '%';
+                
+                let statusText = '';
+                let statusColor = '#4a5568';
+                
+                if (currentStreak >= streakGoal) {
+                    statusText = '馃敟 Streak goal achieved! Keep it going!';
+                    statusColor = '#48bb78';
+                } else if (currentStreak === streakGoal - 1) {
+                    statusText = '鈿� One day away from your streak goal!';
+                    statusColor = '#ed8936';
+                } else {
+                    const remaining = streakGoal - currentStreak;
+                    statusText = `馃幆 ${remaining} more days to reach streak goal`;
+                }
+                
+                const statusEl = document.getElementById('streak-status');
+                statusEl.textContent = statusText;
+                statusEl.style.color = statusColor;
+            }
+        }
+        
+        function exportData() {
+            if (entries.length === 0) {
+                alert('No data to export yet!');
+                return;
+            }
+            
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Date,Time,Mood,Yesterday,Notes\n"
+                + entries.map(entry => {
+                    const date = new Date(entry.date);
+                    const dateStr = date.toLocaleDateString();
+                    const timeStr = date.toLocaleTimeString();
+                    const moodStr = ['', 'Low', 'Poor', 'Neutral', 'Good', 'Excellent'][entry.mood] || '';
+                    const yesterdayStr = entry.yesterday ? (entry.yesterday === 'yes' ? 'Yes' : 'No') : '';
+                    return `"${dateStr}","${timeStr}","${moodStr}","${yesterdayStr}","${entry.notes.replace(/"/g, '""')}"`;
+                }).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "disciplin_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Initialize app
+        loadData();
+        updateOnlineStatus();
+    </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('✅ Service Worker registered'))
+      .catch(err => console.error('❌ SW registration failed:', err));
+  }
+</script>
+
+</body>
+</html>
