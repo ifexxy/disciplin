@@ -370,16 +370,16 @@ if ('serviceWorker' in navigator) {
 </head>
 <body>
     <!-- Offline Indicator -->
-    <div id="offline-indicator" class="offline-indicator">🔴 Offline</div>
+    <div id="offline-indicator" class="offline-indicator">ð´ Offline</div>
     
     <div class="container">
         <!-- Welcome Popup -->
         <div id="welcome-popup" class="popup-overlay">
             <div class="popup">
-                <h3>🎯 Welcome to Disciplin</h3>
+                <h3>ð¯ Welcome to Disciplin</h3>
                 <p>All information you put here (Disciplin app) is strictly between you and your browser, and the data is saved by the browser you use to engage the app, no internet connection is required.</p>
                 <div class="pwa-status" id="pwa-status">
-                    ✄1�7 PWA Mode: This app works completely offline!
+                    â1¤7 PWA Mode: This app works completely offline!
                 </div>
                 <button class="popup-btn" onclick="closeWelcomePopup()">Continue</button>
             </div>
@@ -387,13 +387,13 @@ if ('serviceWorker' in navigator) {
         
         <!-- Install Banner -->
         <div id="install-banner" class="install-banner">
-            <div>📱 Install Disciplin as an app for better experience</div>
+            <div>ð± Install Disciplin as an app for better experience</div>
             <button class="install-btn" id="install-button">Install App</button>
             <button class="install-btn" onclick="showInstallInstructions()">Manual Install</button>
         </div>
         
         <div class="header">
-            <h1>🎯 Disciplin</h1>
+            <h1>ð¯ Disciplin</h1>
             <p>Private & Secure Personal Accountability</p>
         </div>
         
@@ -425,18 +425,18 @@ if ('serviceWorker' in navigator) {
                 
                 <p style="margin-bottom: 10px; color: #4a5568; font-weight: 500; text-align: center;">How do you feel today?</p>
                 <div class="mood-selector">
-                    <button class="mood-btn" data-mood="1" onclick="selectMood(1)">😔</button>
-                    <button class="mood-btn" data-mood="2" onclick="selectMood(2)">😐</button>
-                    <button class="mood-btn" data-mood="3" onclick="selectMood(3)">🙂</button>
-                    <button class="mood-btn" data-mood="4" onclick="selectMood(4)">😊</button>
-                    <button class="mood-btn" data-mood="5" onclick="selectMood(5)">😄</button>
+                    <button class="mood-btn" data-mood="1" onclick="selectMood(1)">ð</button>
+                    <button class="mood-btn" data-mood="2" onclick="selectMood(2)">ð</button>
+                    <button class="mood-btn" data-mood="3" onclick="selectMood(3)">ð</button>
+                    <button class="mood-btn" data-mood="4" onclick="selectMood(4)">ð</button>
+                    <button class="mood-btn" data-mood="5" onclick="selectMood(5)">ð</button>
                 </div>
                 
                 <p style="margin-top: 15px; margin-bottom: 10px; color: #4a5568; font-size: 14px; text-align: center;">If you masturbated, what caused it? (write on the optional notes if any)</p>
                 
                 <textarea class="notes-input" id="notes" placeholder="Optional notes or observations..."></textarea>
                 
-                <button class="log-btn" onclick="quickLog()">📝 Log Activity</button>
+                <button class="log-btn" onclick="quickLog()">ð Log Activity</button>
                 
                 <div id="motivational-text" class="motivational-text">Everyday is a new day, to achieve something new</div>
             </div>
@@ -444,7 +444,7 @@ if ('serviceWorker' in navigator) {
         
         <div id="goals-tab" class="tab-content">
             <div class="card">
-                <h3 style="margin-bottom: 15px;">🎯 Goals & Streaks</h3>
+                <h3 style="margin-bottom: 15px;">ð¯ Goals & Streaks</h3>
                 
                 <div style="margin-bottom: 20px;">
                     <h4 style="margin-bottom: 10px; color: #4a5568;">Current Streak</h4>
@@ -541,9 +541,9 @@ if ('serviceWorker' in navigator) {
                     </div>
                 </div>
                 <div class="chart-container">
-                    <div>📊 Activity patterns over time</div>
+                    <div>ð Activity patterns over time</div>
                 </div>
-                <button class="export-btn" onclick="exportData()">📤 Export Data</button>
+                <button class="export-btn" onclick="exportData()">ð¤ Export Data</button>
             </div>
         </div>
         
@@ -576,8 +576,11 @@ if ('serviceWorker' in navigator) {
             const swCode = `
                 const CACHE_NAME = 'disciplin-v1';
                 const urlsToCache = [
-                    '/',
-                    '/index.html'
+                    '/disciplin/',
+                    '/disciplin/index.html'
+                      '/disciplin/manifest.json',
+     '/disciplin/icon-192.png',
+  '/disciplin/icon-512.png'
                 ];
 
                 // Install event - cache resources
@@ -634,14 +637,14 @@ if ('serviceWorker' in navigator) {
         function updateOnlineStatus() {
             const indicator = document.getElementById('offline-indicator');
             if (navigator.onLine) {
-                indicator.textContent = '🟢 Online';
+                indicator.textContent = 'ð¢ Online';
                 indicator.className = 'offline-indicator online';
                 indicator.style.display = 'block';
                 setTimeout(() => {
                     indicator.style.display = 'none';
                 }, 3000);
             } else {
-                indicator.textContent = '🔴 Offline';
+                indicator.textContent = 'ð´ Offline';
                 indicator.className = 'offline-indicator';
                 indicator.style.display = 'block';
             }
@@ -684,7 +687,7 @@ if ('serviceWorker' in navigator) {
                 instructions = 'In your browser menu, look for "Add to Home Screen" or "Install" option';
             }
             
-            alert('📱 Add Disciplin to Home Screen:\n\n' + instructions);
+            alert('ð± Add Disciplin to Home Screen:\n\n' + instructions);
         }
         
         function switchTab(tabName) {
@@ -774,7 +777,7 @@ if ('serviceWorker' in navigator) {
             // Show confirmation
             const btn = document.querySelector('.log-btn');
             const originalText = btn.textContent;
-            btn.textContent = '✄1�7 Logged!';
+            btn.textContent = 'â1¤7 Logged!';
             btn.style.background = '#48bb78';
             setTimeout(() => {
                 btn.textContent = originalText;
@@ -834,15 +837,15 @@ if ('serviceWorker' in navigator) {
                 const date = new Date(entry.date);
                 const dateStr = date.toLocaleDateString();
                 const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const moodEmoji = ['', '😔', '😐', '🙂', '😊', '😄'][entry.mood] || '';
+                const moodEmoji = ['', 'ð', 'ð', 'ð', 'ð', 'ð'][entry.mood] || '';
                 
                 return `
                     <div class="history-item">
                         <div>
                             <div class="history-date">${dateStr} ${moodEmoji}</div>
-                            <div class="history-time">${timeStr}${entry.yesterday ? '  1�7 Yesterday: ' + (entry.yesterday === 'yes' ? 'Yes' : 'No') : ''}${entry.notes ? '  1�7 ' + entry.notes.substring(0, 30) + (entry.notes.length > 30 ? '...' : '') : ''}</div>
+                            <div class="history-time">${timeStr}${entry.yesterday ? ' â1¤7 Yesterday: ' + (entry.yesterday === 'yes' ? 'Yes' : 'No') : ''}${entry.notes ? ' â1¤7 ' + entry.notes.substring(0, 30) + (entry.notes.length > 30 ? '...' : '') : ''}</div>
                         </div>
-                        <button class="delete-btn" onclick="deleteEntry(${entry.id})">×</button>
+                        <button class="delete-btn" onclick="deleteEntry(${entry.id})">Ã</button>
                     </div>
                 `;
             }).join('');
@@ -1023,14 +1026,14 @@ if ('serviceWorker' in navigator) {
                 let statusColor = '#4a5568';
                 
                 if (thisWeekCount >= weeklyGoal) {
-                    statusText = '🎉 Goal achieved this week!';
+                    statusText = 'ð Goal achieved this week!';
                     statusColor = '#48bb78';
                 } else if (thisWeekCount === weeklyGoal - 1) {
-                    statusText = '⭄1�7 Almost there! One more to reach your goal.';
+                    statusText = 'â­1¤7 Almost there! One more to reach your goal.';
                     statusColor = '#ed8936';
                 } else {
                     const remaining = weeklyGoal - thisWeekCount;
-                    statusText = `📈 ${remaining} more needed to reach weekly goal`;
+                    statusText = `ð ${remaining} more needed to reach weekly goal`;
                 }
                 
                 const statusEl = document.getElementById('goal-status');
@@ -1050,14 +1053,14 @@ if ('serviceWorker' in navigator) {
                 let statusColor = '#4a5568';
                 
                 if (currentStreak >= streakGoal) {
-                    statusText = '🔥 Streak goal achieved! Keep it going!';
+                    statusText = 'ð¥ Streak goal achieved! Keep it going!';
                     statusColor = '#48bb78';
                 } else if (currentStreak === streakGoal - 1) {
-                    statusText = '⚄1�7 One day away from your streak goal!';
+                    statusText = 'â1¤7 One day away from your streak goal!';
                     statusColor = '#ed8936';
                 } else {
                     const remaining = streakGoal - currentStreak;
-                    statusText = `🎯 ${remaining} more days to reach streak goal`;
+                    statusText = `ð¯ ${remaining} more days to reach streak goal`;
                 }
                 
                 const statusEl = document.getElementById('streak-status');
@@ -1099,8 +1102,8 @@ if ('serviceWorker' in navigator) {
     <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('�7�3 Service Worker registered'))
-      .catch(err => console.error('�7�4 SW registration failed:', err));
+      .then(() => console.log('7¼3 Service Worker registered'))
+      .catch(err => console.error('7Ã4 SW registration failed:', err));
   }
 </script>
 
