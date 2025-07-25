@@ -2,7 +2,7 @@
   "name": "Disciplin",
   "short_name": "Disciplin",
   "description": "Personal habit tracking app for building discipline and maintaining streaks",
-  "start_url": "/",
+  "start_url": "/disciplin",
   "display": "standalone",
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
