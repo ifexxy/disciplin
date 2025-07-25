@@ -4,7 +4,7 @@ const DYNAMIC_CACHE_NAME = 'disciplin-dynamic-v1.0.0';
 
 // Files to cache immediately
 const STATIC_ASSETS = [
-  '/',
+  '/disciplin',
   '/index.html',
   '/manifest.json',
   '/icon-72.png',
