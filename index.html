@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P2BFCJMQ3Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-P2BFCJMQ3Y');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disciplin</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4F46E5">
+    <!-- Version for cache busting -->
+    <meta name="app-version" content="1.1.0">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header {
+            background: #4F46E5;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .install-prompt {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .install-prompt:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .notification-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .notification-btn.enabled {
+            background: rgba(16, 185, 129, 0.8);
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4F46E5;
+            border-bottom: 2px solid #4F46E5;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .motivational-text {
+            text-align: center;
+            margin: 20px 0;
+            font-style: italic;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Achievement Badges */
+        .achievements-section {
+            margin-bottom: 30px;
+        }
+
+        .achievements-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #333;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .achievement-badge {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-badge.earned {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            color: white;
+        }
+
+        .achievement-badge.earned:hover {
+            transform: scale(1.05);
+        }
+
+        .achievement-emoji {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .achievement-text {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Weekly Insights */
+        .weekly-insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .insights-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .insight-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .insight-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Backup section */
+        .backup-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .backup-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .backup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .backup-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .backup-btn.export {
+            background: #10b981;
+            color: white;
+        }
+
+        .backup-btn.import {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .backup-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #4F46E5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-option:hover {
+            background: #e8f0fe;
+        }
+
+        .checkbox-option.selected {
+            border-color: #4F46E5;
+            background: #e8f0fe;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .conditional-question {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4F46E5;
+        }
+
+        .conditional-question.show {
+            display: block;
+        }
+
+        .emoji-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .emoji-btn {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .emoji-btn:hover, .emoji-btn.selected {
+            border-color: #4F46E5;
+            background: #e8f0fe;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #4F46E5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #3730a3;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .streak-notification {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-date {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-relapse {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary {
+            background: #4F46E5;
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-hint {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .update-notification {
+            background: #3b82f6;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1002;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .update-notification.show {
+            transform: translateY(0);
+        }
+
+        .update-btn {
+            background: white;
+            color: #3b82f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="updateNotification" class="update-notification">
+        <span>New version available!</span>
+        <button class="update-btn" onclick="updateApp()">Update Now</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Disciplin</h1>
+            <button class="notification-btn" id="notificationBtn" onclick="toggleNotifications()">🔔 Notify</button>
+            <button class="install-prompt" id="installBtn" style="display: none;">📱 Install App</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="home">Home</button>
+            <button class="tab" data-tab="insights">Insights</button>
+            <button class="tab" data-tab="log">Log Activity</button>
+            <button class="tab" data-tab="history">History</button>
+            <button class="tab" data-tab="backup">Backup</button>
+        </div>
+
+        <div id="home" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="currentStreak">0</div>
+                    <div class="stat-label">Current Streak</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="longestStreak">0</div>
+                    <div class="stat-label">Longest Streak</div>
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="achievements-title">🏆 Achievements</div>
+                <div class="achievements-grid" id="achievementsGrid"></div>
+            </div>
+
+            <br><p style="text-align:left;">
+How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
+<br>Each day, the user should log an entry of how the previous day went in the "log activity" tab and that will be saved in the "history tab", the user can only log one entry per day, to log another entry on same day, the user will have to delete the previous entry.
+<br>The app keeps record of your "clean days" and restarts the streak if you relapsed.</p>
+
+            <div id="streakNotification" class="streak-notification" style="display: none;"></div>
+
+            <div class="motivational-text" id="motivationalText">
+                Everyday is a new day, to achieve something new
+            </div>
+        </div>
+
+        <div id="insights" class="tab-content">
+            <div class="weekly-insights">
+                <div class="insights-title">📊 Weekly Insights</div>
+                <div id="weeklyInsights"></div>
+            </div>
+
+            <div class="motivational-text" id="insightsMotivationalText">
+                Everyday is a new day, to achieve something new
+            </div>
+        </div>
+
+        <div id="log" class="tab-content">
+            <div class="motivational-text" id="logMotivationalText">
+                Everyday is a new day, to achieve something new
+            </div>
+
+            <form id="logForm">
+                <div class="form-group">
+                    <label>Did you masturbate yesterday? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="no" name="masturbated" value="no" required>
+                            <label for="no">No</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="yes" name="masturbated" value="yes" required>
+                        </div>
+                    </div>
+
+                    <div id="timeQuestion" class="conditional-question">
+                        <label>What time of day did you masturbate? (Multiple answers allowed)</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="morning" name="timeOfDay" value="morning">
+                                <label for="morning">Morning</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="afternoon" name="timeOfDay" value="afternoon">
+                                <label for="afternoon">Afternoon</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="evening" name="timeOfDay" value="evening">
+                                <label for="evening">Evening</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="nighttime" name="timeOfDay" value="nighttime">
+                                <label for="nighttime">Nighttime</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>How are you feeling today?</label>
+                    <div class="emoji-selector">
+                        <button type="button" class="emoji-btn" data-mood="😊">😊</button>
+                        <button type="button" class="emoji-btn" data-mood="😔">😔</button>
+                        <button type="button" class="emoji-btn" data-mood="😤">😤</button>
+                        <button type="button" class="emoji-btn" data-mood="💪">💪</button>
+                        <button type="button" class="emoji-btn" data-mood="😌">😌</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <p class="form-hint">If you masturbated, what caused it? (write on the optional notes if any)</p>
+                    <label>Optional Notes</label>
+                    <textarea class="form-control" id="notes" rows="4" placeholder="Any additional thoughts or triggers..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="logSubmitBtn">Log Entry</button>
+            </form>
+        </div>
+
+        <div id="history" class="tab-content">
+            <div id="historyList"></div>
+        </div>
+
+        <div id="backup" class="tab-content">
+            <div class="backup-section">
+                <div class="backup-title">💾 Backup & Import</div>
+                <p style="margin-bottom: 15px; color: #666; text-align: center; font-size: 14px;">
+                    Export your data to keep it safe, or import from a previous backup.
+                </p>
+                
+                <div class="backup-buttons">
+                    <button class="backup-btn export" onclick="exportData()">📤 Export Data</button>
+                    <button class="backup-btn import" onclick="document.getElementById('fileInput').click()">📥 Import Data</button>
+                </div>
+
+                <input type="file" id="fileInput" accept=".json" onchange="importData(event)">
+                
+                <div class="file-input" onclick="document.getElementById('fileInput').click()">
+                    Click here or use the Import button to select your backup file
+                </div>
+            </div>
+
+            <div class="motivational-text">
+                Keep your progress safe with regular backups
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Disciplin</h2>
+            <p>All information you put here (Disciplin app) is strictly between you and your browser, and the data is saved by the browser you use to engage the app, no internet connection is required.</p>
+            <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h2>Delete Entry</h2>
+            <p>Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <h2>Enable Notifications</h2>
+            <p>Get reminded to check in with your progress if you haven't opened the app in 6 hours. This helps maintain consistency in your journey.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeNotificationModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="enableNotifications()">Enable</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // App version for cache busting
+        const APP_VERSION = '1.1.0';
+        
+        // Service Worker Registration with version check
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered');
+                    
+                    // Check for updates every 30 seconds
+                    setInterval(() => {
+                        registration.update();
+                    }, 30000);
+                    
+                    // Listen for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+
+        // App State
+        let currentMood = '';
+        let deleteEntryId = null;
+        let deferredPrompt = null;
+        let notificationPermission = false;
+        let inactivityTimer = null;
+
+        // Achievement definitions
+        const achievements = [
+            { id: 'first_day', emoji: '🌱', text: 'First Day', condition: (streak) => streak >= 1 },
+            { id: 'week_warrior', emoji: '⚡', text: 'Week Warrior', condition: (streak) => streak >= 7 },
+            { id: 'month_master', emoji: '🔥', text: 'Month Master', condition: (streak) => streak >= 30 },
+            { id: 'quarter_champion', emoji: '💎', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
+            { id: 'three_days', emoji: '🎯', text: '3 Days Strong', condition: (streak) => streak >= 3 },
+            { id: 'two_weeks', emoji: '🚀', text: 'Two Weeks', condition: (streak) => streak >= 14 },
+            { id: 'six_months', emoji: '👑', text: 'Half Year King', condition: (streak) => streak >= 180 },
+            { id: 'year_legend', emoji: '🏆', text: 'Year Legend', condition: (streak) => streak >= 365 }
+        ];
+
+        // Motivational texts
+        const motivationalTexts = [
+            "Everyday is a new day, to achieve something new",
+            "Every urge resisted is a win",
+            "Progress is Progress no matter how small"
+        ];
+
+        // Notification messages
+        const notificationMessages = [
+            "Time to check in with your progress! 💪",
+            "Remember your goals - how are you doing today? 🎯",
+            "Your streak is waiting for you to log today's progress! 🔥",
+            "Stay consistent - check in with Disciplin now! 📈",
+            "Don't break the chain - log your daily progress! ⛓️"
+        ];
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            checkForUpdates();
+            initializeApp();
+            setupEventListeners();
+            updateStats();
+            loadHistory();
+            updateAchievements();
+            updateWeeklyInsights();
+            showWelcomeModal();
+            rotateMotiationTexts();
+            initializeNotifications();
+            setupInactivityTimer();
+        });
+
+        function checkForUpdates() {
+            const storedVersion = localStorage.getItem('disciplin_version');
+            if (storedVersion && storedVersion !== APP_VERSION) {
+                // New version detected
+                setTimeout(() => {
+                    showUpdateNotification();
+                }, 2000);
+            }
+            localStorage.setItem('disciplin_version', APP_VERSION);
+        }
+
+        function showUpdateNotification() {
+            document.getElementById('updateNotification').classList.add('show');
+        }
+
+        function updateApp() {
+            // Clear cache and reload
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+            
+            // Reload the page
+            window.location.reload(true);
+        }
+
+        function initializeNotifications() {
+            // Check notification permission status
+            if ('Notification' in window) {
+                const permission = Notification.permission;
+                const isEnabled = localStorage.getItem('disciplin_notifications') === 'true';
+                
+                if (permission === 'granted' && isEnabled) {
+                    notificationPermission = true;
+                    updateNotificationButton(true);
+                } else {
+                    updateNotificationButton(false);
+                }
+            }
+        }
+
+        function updateNotificationButton(enabled) {
+            const btn = document.getElementById('notificationBtn');
+            if (enabled) {
+                btn.classList.add('enabled');
+                btn.textContent = '🔔 Enabled';
+            } else {
+                btn.classList.remove('enabled');
+                btn.textContent = '🔔 Notify';
+            }
+        }
+
+        function toggleNotifications() {
+            if (notificationPermission) {
+                // Disable notifications
+                notificationPermission = false;
+                localStorage.setItem('disciplin_notifications', 'false');
+                updateNotificationButton(false);
+                clearInactivityTimer();
+                showNotification('Notifications disabled', 'success');
+            } else {
+                // Show notification modal
+                document.getElementById('notificationModal').classList.add('show');
+            }
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('show');
+        }
+
+        function enableNotifications() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationPermission = true;
+                        localStorage.setItem('disciplin_notifications', 'true');
+                        updateNotificationButton(true);
+                        setupInactivityTimer();
+                        closeNotificationModal();
+                        showNotification('Notifications enabled!', 'success');
+                        
+                        // Show a test notification
+                        setTimeout(() => {
+                            showPushNotification('Notifications are now active! 🎉');
+                        }, 1000);
+                    } else {
+                        showNotification('Notification permission denied');
+                        closeNotificationModal();
+                    }
+                });
+            } else {
+                showNotification('Notifications not supported in this browser');
+                closeNotificationModal();
+            }
+        }
+
+        function showPushNotification(message = null) {
+            if (!notificationPermission || !('Notification' in window)) return;
+            
+            const randomMessage = message || notificationMessages[Math.floor(Math.random() * notificationMessages.length)];
+            
+            const notification = new Notification('Disciplin', {
+                body: randomMessage,
+                icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==',
+                badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTIiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSIxOCIgeT0iMTgiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==',
+                tag: 'disciplin-reminder',
+                requireInteraction: false,
+                silent: false
+            });
+
+            notification.onclick = function() {
+                window.focus();
+                notification.close();
+            };
+
+            // Auto close after 10 seconds
+            setTimeout(() => {
+                notification.close();
+            }, 10000);
+        }
+
+        function setupInactivityTimer() {
+            if (!notificationPermission) return;
+            
+            // Clear existing timer
+            clearInactivityTimer();
+            
+            // Set timer for 6 hours (21600000 ms)
+            inactivityTimer = setTimeout(() => {
+                showPushNotification();
+                // Set up recurring notifications every 2 hours after the first one
+                setupRecurringNotifications();
+            }, 21600000); // 6 hours
+            
+            // Update last activity timestamp
+            localStorage.setItem('disciplin_last_activity', Date.now().toString());
+        }
+
+        function setupRecurringNotifications() {
+            if (!notificationPermission) return;
+            
+            // Send notification every 2 hours after initial 6-hour period
+            const recurringTimer = setInterval(() => {
+                const lastActivity = parseInt(localStorage.getItem('disciplin_last_activity') || '0');
+                const timeSinceActivity = Date.now() - lastActivity;
+                
+                // If user has been inactive for more than 6 hours, send notification
+                if (timeSinceActivity > 21600000) { // 6 hours
+                    showPushNotification();
+                } else {
+                    // User has been active, clear the recurring timer and reset
+                    clearInterval(recurringTimer);
+                    setupInactivityTimer();
+                }
+            }, 7200000); // 2 hours
+        }
+
+        function clearInactivityTimer() {
+            if (inactivityTimer) {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = null;
+            }
+        }
+
+        function resetInactivityTimer() {
+            if (notificationPermission) {
+                setupInactivityTimer();
+            }
+        }
+
+        // Track user activity
+        function trackActivity() {
+            localStorage.setItem('disciplin_last_activity', Date.now().toString());
+            resetInactivityTimer();
+        }
+
+        // Add activity tracking to various user interactions
+        document.addEventListener('click', trackActivity);
+        document.addEventListener('scroll', trackActivity);
+        document.addEventListener('keypress', trackActivity);
+        document.addEventListener('touchstart', trackActivity);
+
+        function initializeApp() {
+            // Check if user has already logged today
+            const today = new Date().toDateString();
+            const todayEntry = getEntryForDate(today);
+            
+            if (todayEntry) {
+                updateStreakNotification();
+            }
+            
+            // Track app opening
+            trackActivity();
+        }
+
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    switchTab(this.dataset.tab);
+                    trackActivity();
+                });
+            });
+
+            // Radio button change listener for masturbation question
+            document.querySelectorAll('input[name="masturbated"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const timeQuestion = document.getElementById('timeQuestion');
+                    if (this.value === 'yes') {
+                        timeQuestion.classList.add('show');
+                    } else {
+                        timeQuestion.classList.remove('show');
+                        // Clear all time checkboxes when hiding
+                        document.querySelectorAll('input[name="timeOfDay"]').forEach(checkbox => {
+                            checkbox.checked = false;
+                            checkbox.closest('.checkbox-option').classList.remove('selected');
+                        });
+                    }
+                });
+            });
+
+            // Checkbox styling for time of day
+            document.querySelectorAll('input[name="timeOfDay"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const option = this.closest('.checkbox-option');
+                    if (this.checked) {
+                        option.classList.add('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+            });
+
+            // Emoji selection
+            document.querySelectorAll('.emoji-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentMood = this.dataset.mood;
+                });
+            });
+
+            // Form submission - Fix event listener
+            const logForm = document.getElementById('logForm');
+            if (logForm) {
+                logForm.addEventListener('submit', handleFormSubmit);
+            }
+
+            // Also add click event listener to the submit button as backup
+            const submitBtn = logForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleFormSubmit(e);
+                });
+            }
+
+            // Install prompt - Fix visibility
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn) {
+                    installBtn.style.display = 'block';
+                }
+            });
+
+            document.getElementById('installBtn').addEventListener('click', () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        deferredPrompt = null;
+                        const installBtn = document.getElementById('installBtn');
+                        if (installBtn) {
+                            installBtn.style.display = 'none';
+                        }
+                    });
+                }
+            });
+
+            // Show install button on supported browsers
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const installBtn = document.getElementById('installBtn');
+                if (installBtn && !window.matchMedia('(display-mode: standalone)').matches) {
+                    // Show install button if not already installed
+                    setTimeout(() => {
+                        installBtn.style.display = 'block';
+                    }, 3000);
+                }
+            }
+
+            // Hide update notification when clicking outside
+            document.addEventListener('click', function(e) {
+                const updateNotification = document.getElementById('updateNotification');
+                if (!updateNotification.contains(e.target) && updateNotification.classList.contains('show')) {
+                    updateNotification.classList.remove('show');
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+
+            // Refresh data when switching to relevant tabs
+            if (tabName === 'home') {
+                updateStats();
+                updateStreakNotification();
+                updateAchievements();
+            } else if (tabName === 'history') {
+                loadHistory();
+            } else if (tabName === 'insights') {
+                updateWeeklyInsights();
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Form submission triggered'); // Debug log
+            
+            const today = new Date().toDateString();
+            const existingEntry = getEntryForDate(today);
+            
+            if (existingEntry) {
+                showNotification('You can only log one entry per day!');
+                alert('You can only log one entry per day!');
+                return;
+            }
+
+            // Get form data directly from elements
+            const masturbatedYes = document.getElementById('yes').checked;
+            const masturbatedNo = document.getElementById('no').checked;
+            const notes = document.getElementById('notes').value;
+
+            if (!masturbatedYes && !masturbatedNo) {
+                showNotification('Please answer if you masturbated yesterday');
+                alert('Please answer if you masturbated yesterday');
+                return;
+            }
+
+            const masturbated = masturbatedYes;
+
+            // Get selected times of day
+            const timeOfDay = [];
+            document.querySelectorAll('input[name="timeOfDay"]:checked').forEach(checkbox => {
+                timeOfDay.push(checkbox.value);
+            });
+
+            const entry = {
+                id: Date.now(),
+                date: today,
+                masturbated: masturbated,
+                timeOfDay: timeOfDay,
+                mood: currentMood,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('Entry to save:', entry); // Debug log
+
+            try {
+                saveEntry(entry);
+                updateStats();
+                updateStreakNotification();
+                updateAchievements();
+                updateWeeklyInsights();
+                resetForm();
+                trackActivity(); // Track this as user activity
+                
+                // Show success notification and alert
+                showNotification('Entry logged successfully!', 'success');
+                alert('✅ Entry saved successfully!');
+                
+                // Switch to home tab after a brief delay
+                setTimeout(() => {
+                    switchTab('home');
+                }, 500);
+            } catch (error) {
+                console.error('Error saving entry:', error); // Debug log
+                showNotification('Error saving entry. Please try again.');
+                alert('❌ Error saving entry. Please try again.');
+            }
+        }
+
+        function saveEntry(entry) {
+            const entries = getEntries();
+            entries.push(entry);
+            localStorage.setItem('disciplin_entries', JSON.stringify(entries));
+        }
+
+        function getEntries() {
+            const entries = localStorage.getItem('disciplin_entries');
+            return entries ? JSON.parse(entries) : [];
+        }
+
+        function getEntryForDate(dateString) {
+            const entries = getEntries();
+            return entries.find(entry => entry.date === dateString);
+        }
+
+        function updateStats() {
+            const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            let currentStreak = 0;
+            let longestStreak = 0;
+            let tempStreak = 0;
+
+            // Calculate streaks
+            for (let i = 0; i < entries.length; i++) {
+                if (!entries[i].masturbated) {
+                    tempStreak++;
+                    longestStreak = Math.max(longestStreak, tempStreak);
+                } else {
+                    tempStreak = 0;
+                }
+            }
+
+            // Calculate current streak (from most recent entries)
+            for (let i = entries.length - 1; i >= 0; i--) {
+                if (!entries[i].masturbated) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+
+            document.getElementById('currentStreak').textContent = currentStreak;
+            document.getElementById('longestStreak').textContent = longestStreak;
+        }
+
+        function updateAchievements() {
+            const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            let longestStreak = 0;
+            let tempStreak = 0;
+
+            // Calculate longest streak
+            for (let i = 0; i < entries.length; i++) {
+                if (!entries[i].masturbated) {
+                    tempStreak++;
+                    longestStreak = Math.max(longestStreak, tempStreak);
+                } else {
+                    tempStreak = 0;
+                }
+            }
+
+            const achievementsGrid = document.getElementById('achievementsGrid');
+            achievementsGrid.innerHTML = achievements.map(achievement => {
+                const earned = achievement.condition(longestStreak);
+                return `
+                    <div class="achievement-badge ${earned ? 'earned' : ''}">
+                        <div class="achievement-emoji">${achievement.emoji}</div>
+                        <div class="achievement-text">${achievement.text}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateWeeklyInsights() {
+            const entries = getEntries();
+            if (entries.length === 0) {
+                document.getElementById('weeklyInsights').innerHTML = `
+                    <div class="empty-state">
+                        <h3>No data yet</h3>
+                        <p>Start logging entries to see your weekly insights.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Get entries from the last 7 days
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            const weeklyEntries = entries.filter(entry => 
+                new Date(entry.timestamp) > oneWeekAgo
+            );
+
+            const totalEntries = weeklyEntries.length;
+            const cleanDays = weeklyEntries.filter(entry => !entry.masturbated).length;
+            const relapseDays = weeklyEntries.filter(entry => entry.masturbated).length;
+            const successRate = totalEntries > 0 ? Math.round((cleanDays / totalEntries) * 100) : 0;
+
+            // Most common time of day for relapses
+            const timeData = {};
+            weeklyEntries.forEach(entry => {
+                if (entry.masturbated && entry.timeOfDay) {
+                    entry.timeOfDay.forEach(time => {
+                        timeData[time] = (timeData[time] || 0) + 1;
+                    });
+                }
+            });
+
+            const mostCommonTime = Object.keys(timeData).length > 0 
+                ? Object.keys(timeData).reduce((a, b) => timeData[a] > timeData[b] ? a : b)
+                : 'None';
+
+            // Most common mood
+            const moodData = {};
+            weeklyEntries.forEach(entry => {
+                if (entry.mood) {
+                    moodData[entry.mood] = (moodData[entry.mood] || 0) + 1;
+                }
+            });
+
+            const mostCommonMood = Object.keys(moodData).length > 0 
+                ? Object.keys(moodData).reduce((a, b) => moodData[a] > moodData[b] ? a : b)
+                : 'Not tracked';
+
+            document.getElementById('weeklyInsights').innerHTML = `
+                <div class="insight-item">
+                    <div class="insight-label">Total Entries (7 days)</div>
+                    <div class="insight-value">${totalEntries}</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Clean Days</div>
+                    <div class="insight-value">${cleanDays}</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Relapse Days</div>
+                    <div class="insight-value">${relapseDays}</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Success Rate</div>
+                    <div class="insight-value">${successRate}%</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Most Common Relapse Time</div>
+                    <div class="insight-value">${mostCommonTime}</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Most Common Mood</div>
+                    <div class="insight-value">${mostCommonMood}</div>
+                </div>
+            `;
+        }
+
+        function exportData() {
+            const entries = getEntries();
+            const data = {
+                entries: entries,
+                exportDate: new Date().toISOString(),
+                version: APP_VERSION
+            };
+
+            try {
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `disciplin_backup_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                showNotification('Data exported successfully!', 'success');
+                alert('✅ Data exported successfully!');
+            } catch (error) {
+                showNotification('Error exporting data');
+                alert('❌ Error exporting data');
+            }
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure
+                    if (!data.entries || !Array.isArray(data.entries)) {
+                        throw new Error('Invalid backup file format');
+                    }
+
+                    // Ask for confirmation before importing
+                    if (confirm('This will replace all your current data. Are you sure you want to import?')) {
+                        localStorage.setItem('disciplin_entries', JSON.stringify(data.entries));
+                        
+                        // Refresh all views
+                        updateStats();
+                        updateAchievements();
+                        updateWeeklyInsights();
+                        loadHistory();
+                        updateStreakNotification();
+                        trackActivity(); // Track this as user activity
+                        
+                        showNotification('Data imported successfully!', 'success');
+                        alert('✅ Data imported successfully!');
+                    }
+                } catch (error) {
+                    showNotification('Error importing data: Invalid file format');
+                    alert('❌ Error importing data: Invalid file format');
+                }
+            };
+            
+            reader.readAsText(file);
+            // Reset the file input
+            event.target.value = '';
+        }
+
+        function updateStreakNotification() {
+            const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            let currentStreak = 0;
+
+            // Calculate current streak
+            for (let i = entries.length - 1; i >= 0; i--) {
+                if (!entries[i].masturbated) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+
+            const notification = document.getElementById('streakNotification');
+            if (currentStreak > 0) {
+                notification.style.display = 'block';
+                notification.textContent = `You've gone ${currentStreak} day${currentStreak !== 1 ? 's' : ''} without relapsing`;
+            } else {
+                notification.style.display = 'none';
+            }
+        }
+
+        function loadHistory() {
+            const entries = getEntries().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const historyList = document.getElementById('historyList');
+
+            if (entries.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No entries yet</h3>
+                        <p>Start logging your daily activities to see your history here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            historyList.innerHTML = entries.map(entry => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-date">${new Date(entry.timestamp).toLocaleDateString()}</div>
+                        <div class="history-status">
+                            <span class="status-badge ${entry.masturbated ? 'status-relapse' : 'status-success'}">
+                                ${entry.masturbated ? 'Relapsed' : 'Clean Day'}
+                            </span>
+                            ${entry.mood ? entry.mood : ''}
+                        </div>
+                        ${entry.timeOfDay && entry.timeOfDay.length > 0 ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">Time: ${entry.timeOfDay.join(', ')}</div>` : ''}
+                        ${entry.notes ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${entry.notes}</div>` : ''}
+                    </div>
+                    <button class="delete-btn" onclick="showDeleteModal(${entry.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function showDeleteModal(entryId) {
+            deleteEntryId = entryId;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('show');
+            deleteEntryId = null;
+        }
+
+        function confirmDelete() {
+            if (deleteEntryId) {
+                const entries = getEntries().filter(entry => entry.id !== deleteEntryId);
+                localStorage.setItem('disciplin_entries', JSON.stringify(entries));
+                loadHistory();
+                updateStats();
+                updateAchievements();
+                updateWeeklyInsights();
+                updateStreakNotification();
+                closeDeleteModal();
+                trackActivity(); // Track this as user activity
+                showNotification('Entry deleted successfully!', 'success');
+                alert('✅ Entry deleted successfully!');
+            }
+        }
+
+        function showWelcomeModal() {
+            const hasVisited = localStorage.getItem('disciplin_visited');
+            if (!hasVisited) {
+                document.getElementById('welcomeModal').classList.add('show');
+            }
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.remove('show');
+            localStorage.setItem('disciplin_visited', 'true');
+            trackActivity();
+        }
+
+        function resetForm() {
+            document.getElementById('logForm').reset();
+            document.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.checkbox-option').forEach(option => option.classList.remove('selected'));
+            document.getElementById('timeQuestion').classList.remove('show');
+            currentMood = '';
+        }
+
+        function showNotification(message, type = 'error') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'success' ? '#10b981' : '#ef4444';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function rotateMotiationTexts() {
+            let currentIndex = 0;
+            
+            function updateText() {
+                document.getElementById('motivationalText').textContent = motivationalTexts[currentIndex];
+                document.getElementById('logMotivationalText').textContent = motivationalTexts[currentIndex];
+                document.getElementById('insightsMotivationalText').textContent = motivationalTexts[currentIndex];
+                currentIndex = (currentIndex + 1) % motivationalTexts.length;
+            }
+            
+            updateText();
+            setInterval(updateText, 5000); // Change every 5 seconds
+        }
+
+        // Check if user returns to app and reset activity timer
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                trackActivity();
+            }
+        });
+
+        // Check for missed check-ins on app start
+        window.addEventListener('load', function() {
+            const lastActivity = parseInt(localStorage.getItem('disciplin_last_activity') || '0');
+            const timeSinceActivity = Date.now() - lastActivity;
+            
+            // If it's been more than 24 hours since last activity, show a gentle reminder
+            if (timeSinceActivity > 86400000 && notificationPermission) { // 24 hours
+                setTimeout(() => {
+                    showNotification('Welcome back! Don\'t forget to log your daily progress.', 'success');
+                }, 2000);
+            }
+        });
+    </script>
+
+    <!-- Service Worker Script (inline) -->
+    <script>
+        // Service Worker code as a string to be registered
+        const serviceWorkerCode = `
+            const CACHE_NAME = 'disciplin-v${APP_VERSION}';
+            const urlsToCache = [
+                './',
+                './index.html'
+            ];
+
+            self.addEventListener('install', function(event) {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(function(cache) {
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+                // Force the waiting service worker to become active
+                self.skipWaiting();
+            });
+
+            self.addEventListener('activate', function(event) {
+                event.waitUntil(
+                    caches.keys().then(function(cacheNames) {
+                        return Promise.all(
+                            cacheNames.map(function(cacheName) {
+                                if (cacheName !== CACHE_NAME) {
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    })
+                );
+                // Claim control of all clients
+                return self.clients.claim();
+            });
+
+            self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(function(response) {
+                            // Return cached version or fetch from network
+                            return response || fetch(event.request);
+                        }
+                    )
+                );
+            });
+
+            // Background sync for notifications (if supported)
+            self.addEventListener('sync', function(event) {
+                if (event.tag === 'disciplin-reminder') {
+                    event.waitUntil(sendReminderNotification());
+                }
+            });
+
+            function sendReminderNotification() {
+                const notificationOptions = {
+                    body: 'Time to check in with your progress! 💪',
+                    icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==',
+                    badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTIiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSIxOCIgeT0iMTgiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==',
+                    tag: 'disciplin-reminder',
+                    requireInteraction: false
+                };
+
+                return self.registration.showNotification('Disciplin', notificationOptions);
+            }
+        `;
+
+        // Create and register the service worker
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([serviceWorkerCode.replace('${APP_VERSION}', APP_VERSION)], {
+                type: 'application/javascript'
+            });
+            const serviceWorkerUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(serviceWorkerUrl)
+                .then(registration => {
+                    console.log('Service Worker registered successfully');
+                    
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+
+    <!-- Manifest JSON (inline for single file) -->
+    <script>
+        // Create and inject manifest
+        const manifest = {
+            "name": "Disciplin",
+            "short_name": "Disciplin",
+            "description": "Personal habit tracking app with notifications",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#4F46E5",
+            "theme_color": "#4F46E5",
+            "orientation": "portrait",
+            "scope": "/",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==",
+                    "sizes": "192x192",
+                    "type": "image/svg+xml"
+                },
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSIxMjgiIHk9IjEyOCIgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIj4KPHBhdGggZD0ibTkgMTIgMiAyIDQtNCIvPgo8cGF0aCBkPSJtMjEgMjEtMS0xYTcuNzQgNy43NCAwIDAgMCAwLTEwbDEtMWExIDEgMCAwIDAgMC0xLjQxbC01LTVhMSAxIDAgMCAwLTEuNDEgMGwtMSAxYTcuNzQgNy43NCAwIDAgMC0xMCAwbC0xLTFhMSAxIDAgMCAwLTEuNDEgMGwtNSA1YTEgMSAwIDAgMCAwIDEuNDFsMS4xYTcuNzQgNy43NCAwIDAgMCAwIDEwbC0xIDFhMSAxIDAgMCAwIDAgMS40MWw1IDVhMSAxIDAgMCAwIDEuNDEgMGwxLTFhNy43NCA3Ljc0IDAgMCAwIDEwIDBsMS4xYTEgMSAwIDAgMCAxLjQxIDBsNS01YTEgMSAwIDAgMCAwLTEuNDFaIi8+Cjwvc3ZnPgo8L3N2Zz4=",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        document.querySelector('link[rel="manifest"]').href = manifestURL;
+    </script>
+</body>
+</html>
