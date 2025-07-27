@@ -676,18 +676,18 @@
                 <div class="achievements-title">🏆 Achievements</div>
                 <div class="achievements-grid" id="achievementsGrid"></div>
             </div>
-
-            <br><p style="text-align:left;">
-How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
-<br>Each day, the user should log an entry of how the previous day went in the "log activity" tab and that will be saved in the "history tab", the user can only log one entry per day, to log another entry on same day, the user will have to delete the previous entry.
-<br>The app keeps record of your "clean days" and restarts the streak if you relapsed.</p>
-
-            <div id="streakNotification" class="streak-notification" style="display: none;"></div>
+<div id="streakNotification" class="streak-notification" style="display: none;"></div>
 
             <div class="motivational-text" id="motivationalText">
                 Everyday is a new day, to achieve something new
             </div>
         </div>
+            <br><p style="text-align:left;">
+How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
+<br>Each day, the user should log an entry of how the previous day went in the "log activity" tab and that will be saved in the "history tab", the user can only log one entry per day, to log another entry on same day, the user will have to delete the previous entry.
+<br>The app keeps record of your "clean days" and restarts the streak if you relapsed.</p>
+
+            
 
         <div id="insights" class="tab-content">
             <div class="weekly-insights">
@@ -826,7 +826,7 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
 
     <script>
         // App version for cache busting
-        const APP_VERSION = '1.1.0';
+        const APP_VERSION = '1.1.1';
         
         // Service Worker Registration with version check
         if ('serviceWorker' in navigator) {
