@@ -1,6 +1,6 @@
 // Disciplin Service Worker
 // Update this version when making changes to trigger cache updates
-const CACHE_VERSION = '1.2.0';
+const CACHE_VERSION = '1.4.0';
 const CACHE_NAME = `disciplin-v${CACHE_VERSION}`;
 
 // Files to cache
