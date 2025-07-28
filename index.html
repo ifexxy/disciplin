@@ -1863,6 +1863,30 @@ ${entry.timeOfDay && entry.timeOfDay.length > 0 ? `<div style="font-size: 12px; 
         const manifestURL = URL.createObjectURL(manifestBlob);
         document.querySelector('link[rel="manifest"]').href = manifestURL;
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      reg.onupdatefound = () => {
+        const installingWorker = reg.installing;
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              // New content is available
+              const userConfirmed = confirm("A new update is available. Please backup your entries and refresh to update.");
+              if (userConfirmed) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+              }
+            }
+          }
+        };
+      };
+    }).catch(err => {
+      console.error('Service Worker registration failed:', err);
+    });
+  }
+</script>
+
 </body>
 </html>
             
