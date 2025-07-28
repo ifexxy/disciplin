@@ -890,7 +890,7 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
 
     <script>
         // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-        const APP_VERSION = '1.9.0';
+        const APP_VERSION = '2.1';
         
         // Service Worker Registration with proper version checking
         if ('serviceWorker' in navigator) {
@@ -1255,17 +1255,29 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
             });
 
             document.getElementById('installBtn').addEventListener('click', () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        deferredPrompt = null;
-                        const installBtn = document.getElementById('installBtn');
-                        if (installBtn) {
-                            installBtn.style.display = 'none';
-                        }
-                    });
-                }
-            });
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+                // 🔥 Google Analytics install event
+                gtag('event', 'pwa_install', {
+                    event_category: 'engagement',
+                    event_label: 'User Installed PWA'
+                });
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+
+            deferredPrompt = null;
+            const installBtn = document.getElementById('installBtn');
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+        });
+    }
+});
+                                    
 
             // Show install button on supported browsers
             if ('serviceWorker' in navigator && 'PushManager' in window) {
