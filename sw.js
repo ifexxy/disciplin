@@ -1,4 +1,4 @@
-const CACHE_NAME = 'disciplin-v2'; // Change this version to trigger update
+const CACHE_NAME = 'disciplin-v3'; // Change this version to trigger update
 const urlsToCache = [
   '/',
   '/index.html',
