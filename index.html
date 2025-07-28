@@ -16,7 +16,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5">
     <!-- Version for cache busting - UPDATE THIS WHEN MAKING CHANGES -->
-    <meta name="app-version" content="1.7.0">
+    <meta name="app-version" content="1.8.0">
     <link rel="icon" type="image/png" sizes="192x192" href="https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg">
     <style>
         * {
@@ -687,12 +687,13 @@
             <div class="achievements-section">
                 <div class="achievements-title"> Achievements</div>
                 <div class="achievements-grid" id="achievementsGrid"></div>
-            </div>
-
-            <br><p style="text-align:left;">
-How to Use: <b>Disciplin</b> is a "GitHubb" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
+                 <br><p style="text-align:left;">
+How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
 <br>Each day, the user should log an entry of how the previous day went in the "log activity" tab and that will be saved in the "history tab", the user can only log one entry per day, to log another entry on same day, the user will have to delete the previous entry.
 <br>The app keeps record of your "clean days" and restarts the streak if you relapsed.</p>
+            </div>
+
+           
 
             <div id="streakNotification" class="streak-notification" style="display: none;"></div>
 
@@ -855,7 +856,7 @@ How to Use: <b>Disciplin</b> is a "GitHubb" powered offline PWA, this means it c
 
     <script>
         // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-        const APP_VERSION = '1.7.0';
+        const APP_VERSION = '1.8.0';
         
         // Service Worker Registration with proper version checking
         if ('serviceWorker' in navigator) {
