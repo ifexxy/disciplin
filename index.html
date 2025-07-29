@@ -890,19 +890,276 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
     <div id="notification" class="notification"></div>
 
     <script>
-        // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-        const APP_VERSION = '2.1';
+        <!-- Replace the existing service worker registration scripts with this improved version -->
+
+<script>
+    // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
+    const APP_VERSION = '1.9.0';
+    
+    // Hybrid Service Worker Registration - tries external file first, falls back to inline
+    if ('serviceWorker' in navigator) {
+        // Try to register external service worker first
+        navigator.serviceWorker.register('service-worker.js')
+            .then(registration => {
+                console.log('External Service Worker registered successfully');
+                setupServiceWorkerHandlers(registration);
+            })
+            .catch(error => {
+                console.log('External Service Worker failed, falling back to inline:', error);
+                // Fallback to inline service worker
+                registerInlineServiceWorker();
+            });
+    }
+
+    function setupServiceWorkerHandlers(registration) {
+        registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateNotification();
+                }
+            });
+        });
+    }
+
+    function registerInlineServiceWorker() {
+        // Inline Service Worker code as fallback
+        const serviceWorkerCode = `
+            const CACHE_NAME = 'disciplin-v${APP_VERSION}';
+            const urlsToCache = [
+                './',
+                './index.html'
+            ];
+
+            // Notification messages for reminders
+            const notificationMessages = [
+                "Time to check in with your progress! 💪",
+                "Remember your goals - how are you doing today? 🎯", 
+                "Your streak is waiting for you to log today's progress! 🔥",
+                "Stay consistent - check in with Disciplin now! 📈",
+                "Don't break the chain - log your daily progress! ⛓️"
+            ];
+
+            self.addEventListener('install', function(event) {
+                console.log('Inline Service Worker installing...');
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(function(cache) {
+                            console.log('Opened cache');
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+                self.skipWaiting();
+            });
+
+            self.addEventListener('activate', function(event) {
+                console.log('Inline Service Worker activating...');
+                event.waitUntil(
+                    caches.keys().then(function(cacheNames) {
+                        return Promise.all(
+                            cacheNames.map(function(cacheName) {
+                                if (cacheName !== CACHE_NAME) {
+                                    console.log('Deleting old cache:', cacheName);
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    })
+                );
+                return self.clients.claim();
+            });
+
+            self.addEventListener('fetch', function(event) {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(function(response) {
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request).then(function(response) {
+                                if (!response || response.status !== 200 || response.type !== 'basic') {
+                                    return response;
+                                }
+                                const responseToCache = response.clone();
+                                caches.open(CACHE_NAME)
+                                    .then(function(cache) {
+                                        cache.put(event.request, responseToCache);
+                                    });
+                                return response;
+                            });
+                        }
+                    )
+                );
+            });
+
+            self.addEventListener('sync', function(event) {
+                if (event.tag === 'disciplin-reminder') {
+                    event.waitUntil(sendReminderNotification());
+                }
+            });
+
+            self.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'SKIP_WAITING') {
+                    self.skipWaiting();
+                }
+            });
+
+            self.addEventListener('push', function(event) {
+                if (event.data) {
+                    const notificationData = event.data.json();
+                    event.waitUntil(
+                        self.registration.showNotification(notificationData.title, {
+                            body: notificationData.body,
+                            icon: notificationData.icon || getDefaultIcon(),
+                            badge: getDefaultBadge(),
+                            tag: 'disciplin-reminder',
+                            requireInteraction: false
+                        })
+                    );
+                }
+            });
+
+            self.addEventListener('notificationclick', function(event) {
+                event.notification.close();
+                event.waitUntil(
+                    clients.matchAll({ type: 'window', includeUncontrolled: true })
+                        .then(function(clientList) {
+                            for (let i = 0; i < clientList.length; i++) {
+                                const client = clientList[i];
+                                if (client.url.includes('disciplin') && 'focus' in client) {
+                                    return client.focus();
+                                }
+                            }
+                            if (clients.openWindow) {
+                                return clients.openWindow('./');
+                            }
+                        })
+                );
+            });
+
+            function sendReminderNotification() {
+                const randomMessage = notificationMessages[Math.floor(Math.random() * notificationMessages.length)];
+                const notificationOptions = {
+                    body: randomMessage,
+                    icon: getDefaultIcon(),
+                    badge: getDefaultBadge(),
+                    tag: 'disciplin-reminder',
+                    requireInteraction: false,
+                    actions: [
+                        { action: 'open', title: 'Open App' },
+                        { action: 'dismiss', title: 'Dismiss' }
+                    ]
+                };
+                return self.registration.showNotification('Disciplin', notificationOptions);
+            }
+
+            function getDefaultIcon() {
+                return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==';
+            }
+
+            function getDefaultBadge() {
+                return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTIiIGZpbGw9IiM0RjQ2RTUiLz4KPHN2ZyB4PSIxOCIgeT0iMTgiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPgo8cGF0aCBkPSJtOSAxMiAyIDIgNC00Ii8+CjxwYXRoIGQ9Im0yMSAyMS0xLTFhNy43NCA3Ljc0IDAgMCAwIDAtMTBsMS0xYTEgMSAwIDAgMCAwLTEuNDFsLTUtNWExIDEgMCAwIDAtMS40MSAwbC0xIDFhNy43NCA3Ljc0IDAgMCAwLTEwIDBsLTEtMWExIDEgMCAwIDAtMS40MSAwbC01IDVhMSAxIDAgMCAwIDAgMS40MWwxIDFhNy43NCA3Ljc0IDAgMCAwIDAgMTBsLTEgMWExIDEgMCAwIDAgMCAxLjQxbDUgNWExIDEgMCAwIDAgMS40MSAwbDEtMWE3Ljc0IDcuNzQgMCAwIDAgMTAgMGwxIDFhMSAxIDAgMCAwIDEuNDEgMGw1LTVhMSAxIDAgMCAwIDAtMS40MVoiLz4KPC9zdmc+Cjwvc3ZnPg==';
+            }
+        `;
+
+        const blob = new Blob([serviceWorkerCode.replace('${APP_VERSION}', APP_VERSION)], {
+            type: 'application/javascript'
+        });
+        const serviceWorkerUrl = URL.createObjectURL(blob);
         
-        // Service Worker Registration with proper version checking
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered');
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        }
+        navigator.serviceWorker.register(serviceWorkerUrl)
+            .then(registration => {
+                console.log('Inline Service Worker registered successfully');
+                setupServiceWorkerHandlers(registration);
+            })
+            .catch(error => {
+                console.log('Inline Service Worker registration failed:', error);
+            });
+    }
+
+    // Hybrid Manifest approach - try external first, fallback to inline
+    function setupManifest() {
+        // Check if external manifest.json exists
+        fetch('manifest.json')
+            .then(response => {
+                if (response.ok) {
+                    console.log('Using external manifest.json');
+                    // External manifest exists, use it (already linked in HTML)
+                } else {
+                    throw new Error('External manifest not found');
+                }
+            })
+            .catch(() => {
+                console.log('External manifest not found, using inline version');
+                // Create inline manifest as fallback
+                const manifest = {
+                    "name": "Disciplin",
+                    "short_name": "Disciplin", 
+                    "description": "Personal habit tracking app with notifications",
+                    "start_url": "./",
+                    "display": "standalone",
+                    "background_color": "#4F46E5",
+                    "theme_color": "#4F46E5",
+                    "orientation": "portrait",
+                    "scope": "./",
+                    "icons": [
+                        {
+                            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg",
+                            "sizes": "192x192",
+                            "type": "image/png",
+                            "purpose": "any maskable"
+                        },
+                        {
+                            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512.jpg",
+                            "sizes": "512x512", 
+                            "type": "image/png",
+                            "purpose": "any maskable"
+                        }
+                    ],
+                    "categories": ["productivity", "health", "lifestyle"],
+                    "lang": "en-US",
+                    "dir": "ltr"
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+                const manifestURL = URL.createObjectURL(manifestBlob);
+                
+                // Update the manifest link to use inline version
+                const manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) {
+                    manifestLink.href = manifestURL;
+                }
+            });
+    }
+
+    // Initialize manifest setup
+    setupManifest();
+</script>
+
+<!-- Keep your existing update notification script but add this improved version -->
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').then(reg => {
+            reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                    if (installingWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                            // New content is available
+                            const userConfirmed = confirm("A new update is available. Please backup your entries and refresh to update.");
+                            if (userConfirmed) {
+                                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                                window.location.reload();
+                            }
+                        }
+                    }
+                };
+            };
+        }).catch(err => {
+            console.log('External Service Worker registration failed, inline version will be used:', err);
+        });
+    }
+</script>
 
         // App State
         let currentMood = '';
