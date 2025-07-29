@@ -1,0 +1,28 @@
+{
+    "name": "Disciplin",
+    "short_name": "Disciplin",
+    "description": "Personal habit tracking app with notifications",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#4F46E5",
+    "theme_color": "#4F46E5",
+    "orientation": "portrait",
+    "scope": "./",
+    "icons": [
+        {
+            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512.jpg",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["productivity", "health", "lifestyle"],
+    "lang": "en-US",
+    "dir": "ltr"
+}
