@@ -892,9 +892,9 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
     <script>
         <!-- Replace the existing service worker registration scripts with this improved version -->
 
-<script>
+
     // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-    const APP_VERSION = '2.1.0';
+    const APP_VERSION = '2.2.0';
     
     // Hybrid Service Worker Registration - tries external file first, falls back to inline
     if ('serviceWorker' in navigator) {
@@ -1134,10 +1134,10 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
 
     // Initialize manifest setup
     setupManifest();
-</script>
+   
 
 <!-- Keep your existing update notification script but add this improved version -->
-<script>
+
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js').then(reg => {
             reg.onupdatefound = () => {
@@ -1159,7 +1159,7 @@ How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it ca
             console.log('External Service Worker registration failed, inline version will be used:', err);
         });
     }
-</script>
+    
 
         // App State
         let currentMood = '';
