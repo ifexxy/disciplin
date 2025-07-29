@@ -1,7 +1,7 @@
 // Disciplin Service Worker
-// Version: 1.9.0 - Update this when making changes
+// Version: 2.1.0 - Update this when making changes
 
-const CACHE_NAME = 'disciplin-v1.9.0';
+const CACHE_NAME = 'disciplin-v2.1.0';
 const urlsToCache = [
     './',
     './index.html',
@@ -10,11 +10,11 @@ const urlsToCache = [
 
 // Notification messages for reminders
 const notificationMessages = [
-    "Time to check in with your progress! ”9Ú4",
-    "Remember your goals - how are you doing today? ”9Á3", 
-    "Your streak is waiting for you to log today's progress! ”9æ7",
-    "Stay consistent - check in with Disciplin now! ”9Ý4",
-    "Don't break the chain - log your daily progress! 7·3„1‚5"
+    "Time to check in with your progress! â€9Ãš4",
+    "Remember your goals - how are you doing today? â€9Ã3", 
+    "Your streak is waiting for you to log today's progress! â€9Ã¦7",
+    "Stay consistent - check in with Disciplin now! â€9Ã4",
+    "Don't break the chain - log your daily progress! Â7Â·3â€ž1â€š5"
 ];
 
 self.addEventListener('install', function(event) {
