@@ -709,6 +709,22 @@
         </div>
 
         <div id="home" class="tab-content active">
+            <!-- ADD THIS STANDALONE BUTTON HERE -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="switchTab('howto')" style="
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4F46E5'">
+            How to use this App
+        </button>
+    </div>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="currentStreak">0</div>
@@ -726,22 +742,7 @@
                  
             </div>
 
-           <!-- ADD THIS STANDALONE BUTTON HERE -->
-    <div style="text-align: center; margin: 20px 0;">
-        <button onclick="switchTab('howto')" style="
-            background: #4F46E5;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        " onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4F46E5'">
-            How to use this App
-        </button>
-    </div>
+          
 
             <div id="streakNotification" class="streak-notification" style="display: none;"></div>
 
