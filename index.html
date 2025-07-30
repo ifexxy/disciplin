@@ -723,7 +723,22 @@
             <div class="achievements-section">
                 <div class="achievements-title"> Achievements</div>
                 <div class="achievements-grid" id="achievementsGrid"></div>
-                 
+                 <!-- ADD THIS STANDALONE BUTTON HERE -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="switchTab('howto')" style="
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        " onmouseover="this.style.background='#3730a3'" onmouseout="this.style.background='#4F46E5'">
+            How to use this App
+        </button>
+    </div>
             </div>
 
            
@@ -973,7 +988,7 @@
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
             <h2>Welcome to Disciplin</h2>
-            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Minimal data connection is required when using the app. Have a fun progrss!</p>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Minimal data connection is required when using the app. Make sure to read the how to use tab.</p>
             <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
         </div>
     </div>
