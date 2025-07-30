@@ -701,9 +701,10 @@
 
         <div class="tabs">
             <button class="tab active" data-tab="home">Home</button>
+            <button class="tab" data-tab="howto">How to</button>
             <button class="tab" data-tab="insights">Insights</button>
-            <button class="tab" data-tab="log">Log Activity</button>
-            <button class="tab" data-tab="history">History</button>
+            <button class="tab" data-tab="log">Log Act</button>
+            <button class="tab" data-tab="history">Hist</button>
             <button class="tab" data-tab="backup">Backup</button>
         </div>
 
@@ -722,12 +723,124 @@
             <div class="achievements-section">
                 <div class="achievements-title"> Achievements</div>
                 <div class="achievements-grid" id="achievementsGrid"></div>
-                 <br><p style="text-align:left;">
-How to Use: <b>Disciplin</b> is a "GitHub" powered offline PWA, this means it can also be accessible offline if the user has installed the app as shown on the top right corner.
-<br>Each day, the user should log an entry of how the previous day went in the "log activity" tab and that will be saved in the "history tab", the user can only log one entry per day, to log another entry on same day, the user will have to delete the previous entry.
-<br>The app keeps record of your "clean days" and restarts the streak if you relapsed.</p>
+                 
             </div>
+<div id="howto" class="tab-content">
+    <div style="background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #4F46E5; font-size: 22px;">HOW TO USE DISCIPLIN</h2>
+        <div style="line-height: 1.6; color: #333; font-size: 14px;">
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">WHAT IS DISCIPLIN?</h3>
+            <p>Disciplin is a GitHub-powered offline Progressive Web App (PWA) designed to help you track your daily habits and maintain streaks. The app works both online and offline once installed, giving you complete control over your progress tracking.</p>
 
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">INSTALLATION</h3>
+            <p>• Look for the "📱 Install App" button in the top-right corner of the header<br>
+            • Click to install the app on your device for full offline capabilities<br>
+            • Once installed, you can use the app without an internet connection<br>
+            • Installation enables push notifications and a native app experience</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">DAILY LOGGING</h3>
+            <p>• Navigate to the "Log Activity" tab to record your daily progress<br>
+            • Answer whether you relapsed the previous day (Yes/No)<br>
+            • Select your current energy level (Low/Medium/High)<br>
+            • If you relapsed, specify the time(s) of day it occurred<br>
+            • Choose your current mood using the emoji selector<br>
+            • Add optional notes about triggers or thoughts<br>
+            • Submit your entry to save it</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">IMPORTANT RULES</h3>
+            <p>• You can only log ONE entry per day<br>
+            • To make a new entry on the same day, you must first delete the existing entry<br>
+            • Entries track the PREVIOUS day's activities, not the current day<br>
+            • All data is saved locally on your device</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">TRACKING YOUR PROGRESS</h3>
+            <p><strong>HOME TAB:</strong><br>
+            • View your current streak (consecutive clean days)<br>
+            • See your longest streak achievement<br>
+            • Check earned achievement badges<br>
+            • Monitor streak notifications</p>
+
+            <p><strong>INSIGHTS TAB:</strong><br>
+            • Review weekly statistics and patterns<br>
+            • See success rates and relapse frequency<br>
+            • Identify common relapse times<br>
+            • Track mood and energy patterns</p>
+
+            <p><strong>HISTORY TAB:</strong><br>
+            • View all your logged entries chronologically<br>
+            • See detailed information for each day<br>
+            • Delete individual entries if needed<br>
+            • Review your progress over time</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">STREAK SYSTEM</h3>
+            <p>• Clean days (no relapse) build your streak<br>
+            • Any relapse resets your current streak to zero<br>
+            • Your longest streak is always preserved<br>
+            • Achievement badges unlock at milestone streaks</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">ACHIEVEMENTS</h3>
+            <p>Earn badges for reaching streak milestones:<br>
+            • 🌱 First Day (1 day)<br>
+            • 🎯 3 Days Strong (3 days)<br>
+            • ⚡ Week Warrior (7 days)<br>
+            • 🚀 Two Weeks (14 days)<br>
+            • 🔥 Month Master (30 days)<br>
+            • 💎 Quarter Champion (90 days)<br>
+            • 👑 Half Year King (180 days)<br>
+            • 🏆 Year Legend (365 days)</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">NOTIFICATIONS</h3>
+            <p>• Enable notifications to receive gentle reminders<br>
+            • Get alerts if you haven't checked in for 6 hours<br>
+            • Notifications help maintain consistency<br>
+            • Can be enabled/disabled in the header</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">DATA BACKUP & IMPORT</h3>
+            <p><strong>BACKUP TAB:</strong><br>
+            • Export your data as a JSON file for safekeeping<br>
+            • Regular backups protect against data loss<br>
+            • Import previous backups to restore data<br>
+            • Essential before app updates</p>
+
+            <p><strong>BACKUP BEST PRACTICES:</strong><br>
+            • Export data weekly or before major updates<br>
+            • Store backup files in multiple safe locations<br>
+            • Always backup before importing new data<br>
+            • Importing replaces ALL current data</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">PRIVACY & SECURITY</h3>
+            <p>• All data stays on YOUR device<br>
+            • No data is sent to external servers<br>
+            • Complete privacy and control<br>
+            • Data only leaves your device through manual export</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">TROUBLESHOOTING</h3>
+            <p>• If entries won't save, check if you already logged today<br>
+            • For update issues, backup data first then refresh<br>
+            • Clear browser cache if app behaves unexpectedly<br>
+            • Reinstall the app if persistent problems occur</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">TIPS FOR SUCCESS</h3>
+            <p>• Log consistently every day<br>
+            • Be honest in your entries<br>
+            • Review insights weekly to identify patterns<br>
+            • Use notes to track triggers and thoughts<br>
+            • Celebrate milestone achievements<br>
+            • Backup your data regularly</p>
+
+            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">TECHNICAL NOTES</h3>
+            <p>• Works on all modern browsers<br>
+            • Requires JavaScript enabled<br>
+            • Best experience on mobile devices<br>
+            • Offline functionality requires installation<br>
+            • Uses browser local storage for data</p>
+        </div>
+    </div>
+    
+    <div class="motivational-text" id="howtoMotivationalText">
+        Everyday is a new day, to achieve something new
+    </div>
+</div>
            
 
             <div id="streakNotification" class="streak-notification" style="display: none;"></div>
@@ -2011,18 +2124,19 @@ ${entry.timeOfDay && entry.timeOfDay.length > 0 ? `<div style="font-size: 12px; 
         }
 
         function rotateMotiationTexts() {
-            let currentIndex = 0;
-            
-            function updateText() {
-                document.getElementById('motivationalText').textContent = motivationalTexts[currentIndex];
-                document.getElementById('logMotivationalText').textContent = motivationalTexts[currentIndex];
-                document.getElementById('insightsMotivationalText').textContent = motivationalTexts[currentIndex];
-                currentIndex = (currentIndex + 1) % motivationalTexts.length;
-            }
-            
-            updateText();
-            setInterval(updateText, 5000); // Change every 5 seconds
-        }
+    let currentIndex = 0;
+    
+    function updateText() {
+        document.getElementById('motivationalText').textContent = motivationalTexts[currentIndex];
+        document.getElementById('logMotivationalText').textContent = motivationalTexts[currentIndex];
+        document.getElementById('insightsMotivationalText').textContent = motivationalTexts[currentIndex];
+        document.getElementById('howtoMotivationalText').textContent = motivationalTexts[currentIndex];
+        currentIndex = (currentIndex + 1) % motivationalTexts.length;
+    }
+    
+    updateText();
+    setInterval(updateText, 5000); // Change every 5 seconds
+}
 
         // Check if user returns to app and reset activity timer
         document.addEventListener('visibilitychange', function() {
