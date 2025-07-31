@@ -934,7 +934,23 @@
                         </div>
                     </div>
                 </div>
-
+<div class="form-group">
+    <label>What time did you sleep last night? <span class="required">*</span></label>
+    <div class="radio-group">
+        <div class="radio-option">
+            <input type="radio" id="before8pm" name="sleepTime" value="Before 8pm" required>
+            <label for="before8pm">Before 8pm</label>
+        </div>
+        <div class="radio-option">
+            <input type="radio" id="8pm11pm" name="sleepTime" value="8pm - 11pm" required>
+            <label for="8pm11pm">8pm - 11pm</label>
+        </div>
+        <div class="radio-option">
+            <input type="radio" id="after12am" name="sleepTime" value="After 12am" required>
+            <label for="after12am">After 12am</label>
+        </div>
+    </div>
+</div>
                 <div class="form-group">
                     <label>How are you feeling today?</label>
                     <div class="emoji-selector">
@@ -1737,7 +1753,12 @@ if (!energyLevel) {
     alert('Please select your energy level');
     return;
 }
-
+const sleepTime = document.querySelector('input[name="sleepTime"]:checked');
+if (!sleepTime) {
+    showNotification('Please select your sleep time');
+    alert('Please select your sleep time');
+    return;
+}
 
             if (!masturbatedYes && !masturbatedNo) {
                 showNotification('Please answer if you masturbated yesterday');
@@ -1761,6 +1782,7 @@ if (!energyLevel) {
                 mood: currentMood,
                 notes: notes,
                 energy: energyLevel.value,
+                sleepTime: sleepTime.value,
 timestamp: new Date().toISOString()
             };
 
@@ -1915,7 +1937,16 @@ weeklyEntries.forEach(entry => {
 const mostCommonEnergy = Object.keys(energyData).length > 0 
     ? Object.keys(energyData).reduce((a, b) => energyData[a] > energyData[b] ? a : b)
     : 'Not tracked';
-
+// Most common sleep time
+const sleepData = {};
+weeklyEntries.forEach(entry => {
+    if (entry.sleepTime) {
+        sleepData[entry.sleepTime] = (sleepData[entry.sleepTime] || 0) + 1;
+    }
+});
+const mostCommonSleepTime = Object.keys(sleepData).length > 0 
+    ? Object.keys(sleepData).reduce((a, b) => sleepData[a] > sleepData[b] ? a : b)
+    : 'Not tracked';
 // Most common mood
             const moodData = {};
             weeklyEntries.forEach(entry => {
@@ -1949,6 +1980,10 @@ const mostCommonEnergy = Object.keys(energyData).length > 0
                     <div class="insight-label">Most Common Relapse Time</div>
                     <div class="insight-value">${mostCommonTime}</div>
                 </div>
+                <div class="insight-item">
+    <div class="insight-label">Most Common Sleep Time</div>
+    <div class="insight-value">${mostCommonSleepTime}</div>
+</div>
                 <div class="insight-item">
                     <div class="insight-label">Most Common Mood</div>
                     <div class="insight-item"><div class="insight-value">${mostCommonMood}</div>
@@ -2074,6 +2109,7 @@ const mostCommonEnergy = Object.keys(energyData).length > 0
                         </div>
                         ${entry.energy ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">Energy: ${entry.energy}</div>` : ''}
 ${entry.timeOfDay && entry.timeOfDay.length > 0 ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">Time: ${entry.timeOfDay.join(', ')}</div>` : ''}
+${entry.sleepTime ? `<div style="font-size: 12px; color: #666; margin-top: 3px;">Sleep: ${entry.sleepTime}</div>` : ''}
                         ${entry.notes ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${entry.notes}</div>` : ''}
                     </div>
                     <button class="delete-btn" onclick="showDeleteModal(${entry.id})">Delete</button>
