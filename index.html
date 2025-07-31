@@ -17,7 +17,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5">
     <!-- Version for cache busting - UPDATE THIS WHEN MAKING CHANGES -->
-    <meta name="app-version" content="2.16.0">
+    <meta name="app-version" content="2.20.0">
     <link rel="icon" type="image/png" sizes="192x192" href="https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg">
     <style>
         * {
@@ -1009,6 +1009,12 @@
                     Click here or use the Import button to select your backup file
                 </div>
             </div>
+
+            <div class="motivational-text">
+                Keep your progress safe with regular backups
+            </div>
+        </div>
+    </div>
 <div id="resources" class="tab-content">
     <div style="background: #f8f9fa; border-radius: 15px; padding: 20px; margin-bottom: 20px;">
         <h2 style="text-align: center; margin-bottom: 20px; color: #4F46E5; font-size: 22px;">Welcome to Resources Docs</h2>
@@ -1039,12 +1045,6 @@
         Everyday is a new day, to achieve something new
     </div>
 </div>
-            <div class="motivational-text">
-                Keep your progress safe with regular backups
-            </div>
-        </div>
-    </div>
-
     <!-- Modals -->
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
@@ -1083,7 +1083,7 @@
 
 
     // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-    const APP_VERSION = '2.16.0';
+    const APP_VERSION = '2.20.0';
     
     // Hybrid Service Worker Registration - tries external file first, falls back to inline
     if ('serviceWorker' in navigator) {
@@ -2232,14 +2232,19 @@ ${entry.sleepTime ? `<div style="font-size: 12px; color: #666; margin-top: 3px;"
         document.getElementById('logMotivationalText').textContent = motivationalTexts[currentIndex];
         document.getElementById('insightsMotivationalText').textContent = motivationalTexts[currentIndex];
         document.getElementById('howtoMotivationalText').textContent = motivationalTexts[currentIndex];
-        document.getElementById('resourcesMotivationalText').textContent = motivationalTexts[currentIndex]; 
+        
+        // Add this line for resources tab
+        const resourcesText = document.getElementById('resourcesMotivationalText');
+        if (resourcesText) {
+            resourcesText.textContent = motivationalTexts[currentIndex];
+        }
+        
         currentIndex = (currentIndex + 1) % motivationalTexts.length;
     }
     
     updateText();
-    setInterval(updateText, 5000); // Change every 5 seconds
+    setInterval(updateText, 5000);
 }
-
         // Check if user returns to app and reset activity timer
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
