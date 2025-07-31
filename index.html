@@ -737,7 +737,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
     " onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
-        📚 Resources Docs
+        Anti Relapse Button
     </button>
 </div>
             <div class="stats-grid">
@@ -1747,29 +1747,34 @@
         }
 
         function switchTab(tabName) {
-            // Update tab buttons
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    // Update tab buttons (only for main tabs)
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Only highlight main tab if it exists
+    const mainTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (mainTab) {
+        mainTab.classList.add('active');
+    }
 
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(tabName).classList.add('active');
 
-            // Refresh data when switching to relevant tabs
-            if (tabName === 'home') {
-                updateStats();
-                updateStreakNotification();
-                updateAchievements();
-            } else if (tabName === 'history') {
-                loadHistory();
-            } else if (tabName === 'insights') {
-                updateWeeklyInsights();
-            }
-        }
+    // Refresh data when switching to relevant tabs
+    if (tabName === 'home') {
+        updateStats();
+        updateStreakNotification();
+        updateAchievements();
+    } else if (tabName === 'history') {
+        loadHistory();
+    } else if (tabName === 'insights') {
+        updateWeeklyInsights();
+    }
+}
 
         function handleFormSubmit(e) {
             e.preventDefault();
