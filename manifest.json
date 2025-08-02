@@ -1,28 +1,95 @@
 {
-    "name": "Disciplin",
-    "short_name": "Disciplin",
-    "description": "Personal habit tracking app with notifications",
-    "start_url": "./",
-    "display": "standalone",
-    "background_color": "#4F46E5",
-    "theme_color": "#4F46E5",
-    "orientation": "portrait",
-    "scope": "./",
-    "icons": [
+  "id": "https://ifexxy.github.io/disciplin/",
+  "dir": "ltr",
+  "lang": "en-US",
+  "name": "Disciplin",
+  "scope": "https://ifexxy.github.io/disciplin/",
+  "display": "standalone",
+  "start_url": "https://ifexxy.github.io/disciplin/",
+  "short_name": "Disciplin",
+  "theme_color": "#4F46E5",
+  "description": "Personal habit tracking app with notifications",
+  "orientation": "portrait",
+  "background_color": "#4F46E5",
+  "prefer_related_applications": false,
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screen.png"
+    },
+    {
+      "src": "assets/screen.png"
+    },
+    {
+      "src": "assets/screen.png"
+    }
+  ],
+  "features": [
+    "Habit Tracking",
+    "Push Notifications",
+    "Progress Analytics",
+    "Goal Setting"
+  ],
+  "icons": [
+    {
+      "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ifexxy.github.io/disciplin/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://ifexxy.github.io/disciplin/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://ifexxy.github.io/disciplin/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "health",
+    "lifestyle"
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "shortcuts": [
+    {
+      "name": "Add New Habit",
+      "short_name": "Add Habit",
+      "description": "Quickly add a new habit to track",
+      "url": "https://ifexxy.github.io/disciplin/?addHabit",
+      "icons": [
         {
-            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512.jpg",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
+          "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
+          "sizes": "192x192"
         }
-    ],
-    "categories": ["productivity", "health", "lifestyle"],
-    "lang": "en-US",
-    "dir": "ltr"
+      ]
+    },
+    {
+      "name": "View Progress",
+      "short_name": "Progress",
+      "description": "Check your habit tracking progress",
+      "url": "https://ifexxy.github.io/disciplin/?progress",
+      "icons": [
+        {
+          "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }
