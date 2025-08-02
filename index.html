@@ -1401,6 +1401,8 @@
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
+            handleHashChange(); // Handle initial hash on page load
+            window.addEventListener('hashchange', handleHashChange); // Handle hash changes
         });
 
         // Fixed version checking function
@@ -1754,6 +1756,14 @@
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
     });
+
+            // Add this function with your other JavaScript functions
+function handleHashChange() {
+    const hash = window.location.hash.substring(1); // Remove the # symbol
+    if (hash && document.getElementById(hash)) {
+        switchTab(hash);
+    }
+}
     
     // Only highlight main tab if it exists
     const mainTab = document.querySelector(`[data-tab="${tabName}"]`);
@@ -2571,10 +2581,10 @@ document.addEventListener('backbutton', function(e) {
   },
   "shortcuts": [
     {
-      "name": "Add New Habit",
-      "short_name": "Add Habit",
-      "description": "Quickly add a new habit to track",
-      "url": "https://ifexxy.github.io/disciplin/?addHabit",
+      "name": "Log New Entry",
+      "short_name": "Log Entry",
+      "description": "Quickly log a new entry",
+      "url": "https://ifexxy.github.io/disciplin/#log",
       "icons": [
         {
           "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
@@ -2583,10 +2593,10 @@ document.addEventListener('backbutton', function(e) {
       ]
     },
     {
-      "name": "View Progress",
-      "short_name": "Progress",
-      "description": "Check your habit tracking progress",
-      "url": "https://ifexxy.github.io/disciplin/?progress",
+      "name": "View History",
+      "short_name": "History",
+      "description": "Check your progress history",
+      "url": "https://ifexxy.github.io/disciplin/#history",
       "icons": [
         {
           "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
