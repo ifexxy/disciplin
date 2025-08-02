@@ -25,46 +25,22 @@
             padding: 0;
             box-sizing: border-box;
         }
-:root {
-  /* Light mode colors (default) */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --border-color: #e9ecef;
-  --card-bg: #ffffff;
-  --input-bg: #ffffff;
-  --modal-bg: #ffffff;
-}
 
-[data-theme="dark"] {
-  /* Dark mode colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d2d2d;
-  --bg-gradient: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-  --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --border-color: #4a5568;
-  --card-bg: #2d2d2d;
-  --input-bg: #374151;
-  --modal-bg: #2d2d2d;
-}
         body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-gradient);
-    min-height: 100vh;
-    color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
 
         .container {
-    max-width: 400px;
-    margin: 0 auto;
-    background: var(--bg-primary);
-    min-height: 100vh;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    position: relative;
-}
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
 
         .header {
             background: #4F46E5;
@@ -119,11 +95,11 @@
             background: rgba(16, 185, 129, 0.8);
         }
 
-       .tabs {
-    display: flex;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-}
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
 
         .tab {
             flex: 1;
@@ -138,12 +114,11 @@
             transition: all 0.3s ease;
         }
 
-       .tab.active {
-    background: var(--bg-primary);
-    color: #4F46E5;
-    border-bottom: 2px solid #4F46E5;
-}
-
+        .tab.active {
+            background: white;
+            color: #4F46E5;
+            border-bottom: 2px solid #4F46E5;
+        }
 
         .tab-content {
             display: none;
@@ -243,12 +218,12 @@
         }
 
         /* Weekly Insights */
-       .weekly-insights {
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
+        .weekly-insights {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
         .insights-title {
             font-size: 18px;
@@ -282,11 +257,11 @@
 
         /* Backup section */
         .backup-section {
-    background: var(--bg-secondary);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
         .backup-title {
             font-size: 18px;
@@ -386,10 +361,9 @@
             transition: all 0.3s ease;
         }
 
-       .checkbox-option, .emoji-btn {
-    background: var(--bg-secondary);
-    border: 2px solid transparent;
-}
+        .checkbox-option:hover {
+            background: #e8f0fe;
+        }
 
         .checkbox-option.selected {
             border-color: #4F46E5;
@@ -401,10 +375,14 @@
             height: 18px;
         }
 
-       .conditional-question {
-    background: var(--bg-secondary);
-    border-left: 4px solid #4F46E5;
-}
+        .conditional-question {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4F46E5;
+        }
 
         .conditional-question.show {
             display: block;
@@ -418,25 +396,30 @@
         }
 
         .emoji-btn {
-    background: var(--bg-secondary);
-    border: 2px solid transparent;
-}
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
         .emoji-btn:hover, .emoji-btn.selected {
             border-color: #4F46E5;
             background: #e8f0fe;
         }
 
-       .form-control {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-    background: var(--input-bg);
-    color: var(--text-primary);
-}
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
         .form-control:focus {
             outline: none;
             border-color: #4F46E5;
@@ -477,14 +460,14 @@
         }
 
         .history-item {
-    background: var(--bg-secondary);
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
         .history-date {
             font-weight: 600;
@@ -541,15 +524,14 @@
             justify-content: center;
         }
 
-      .modal-content {
-    background: var(--modal-bg);
-    padding: 30px;
-    border-radius: 15px;
-    max-width: 350px;
-    width: 90%;
-    text-align: center;
-    color: var(--text-primary);
-}
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+        }
 
         .modal-content h2 {
             margin-bottom: 15px;
@@ -709,7 +691,6 @@
         <div class="header">
             <h1>Disciplin</h1>
             <button class="notification-btn" id="notificationBtn" onclick="toggleNotifications()">🔔 Notify</button>
-            <button class="notification-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark(beta)</button><br>
             <button class="install-prompt" id="installBtn" style="display: none;">📱 Install App</button>
 <div id="connectionStatus" class="status-container">
   <span id="statusIcon" class="status-dot"></span>
@@ -1071,7 +1052,7 @@
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
             <h2>Welcome to Disciplin</h2>
-            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Minimal data connection is required when using the app. Disciplin is an app for tracking your recovery from compulsive sexual behavior, such as masturbation and porn addiction, you can track patterns, record streaks and watch your progess. Please read "How to use the app" to get started.</p>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Minimal data connection is required when using the app. Make sure to read the how to use tab.</p>
             <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
         </div>
     </div>
@@ -1420,9 +1401,6 @@
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
-            handleHashChange(); // Handle initial hash on page load
-            window.addEventListener('hashchange', handleHashChange); // Handle hash changes
-            initializeDarkMode();
         });
 
         // Fixed version checking function
@@ -1776,14 +1754,6 @@
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
     });
-
-            // Add this function with your other JavaScript functions
-function handleHashChange() {
-    const hash = window.location.hash.substring(1); // Remove the # symbol
-    if (hash && document.getElementById(hash)) {
-        switchTab(hash);
-    }
-}
     
     // Only highlight main tab if it exists
     const mainTab = document.querySelector(`[data-tab="${tabName}"]`);
@@ -1895,38 +1865,7 @@ timestamp: new Date().toISOString()
                 alert('❌ Error saving entry. Please try again.');
             }
         }
-function toggleDarkMode() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('disciplin_theme', newTheme);
-    updateDarkModeButton(newTheme);
-}
 
-function updateDarkModeButton(theme) {
-    const btn = document.getElementById('darkModeBtn');
-    if (theme === 'dark') {
-        btn.textContent = '☀️ Light';
-    } else {
-        btn.textContent = '🌙 Dark';
-    }
-}
-
-function initializeDarkMode() {
-    const savedTheme = localStorage.getItem('disciplin_theme');
-    let theme;
-    
-    if (savedTheme) {
-        theme = savedTheme;
-    } else {
-        // Detect system preference
-        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    
-    document.documentElement.setAttribute('data-theme', theme);
-    updateDarkModeButton(theme);
-}
         function saveEntry(entry) {
             const entries = getEntries();
             entries.push(entry);
@@ -2632,10 +2571,10 @@ document.addEventListener('backbutton', function(e) {
   },
   "shortcuts": [
     {
-      "name": "Log New Entry",
-      "short_name": "Log Entry",
-      "description": "Quickly log a new entry",
-      "url": "https://ifexxy.github.io/disciplin/#log",
+      "name": "Add New Habit",
+      "short_name": "Add Habit",
+      "description": "Quickly add a new habit to track",
+      "url": "https://ifexxy.github.io/disciplin/?addHabit",
       "icons": [
         {
           "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
@@ -2644,10 +2583,10 @@ document.addEventListener('backbutton', function(e) {
       ]
     },
     {
-      "name": "View History",
-      "short_name": "History",
-      "description": "Check your progress history",
-      "url": "https://ifexxy.github.io/disciplin/#history",
+      "name": "View Progress",
+      "short_name": "Progress",
+      "description": "Check your habit tracking progress",
+      "url": "https://ifexxy.github.io/disciplin/?progress",
       "icons": [
         {
           "src": "https://ifexxy.github.io/disciplin/icons/icon-192.png",
