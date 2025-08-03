@@ -844,7 +844,7 @@
         <div class="tabs">
             <button class="tab active" data-tab="home">Home</button>
             <button class="tab" data-tab="howto">How to</button>
-            <button class="tab" data-tab="insights">Insights</button>
+            <button class="tab" data-tab="insights">Stats</button>
             <button class="tab" data-tab="log">Log Act</button>
             <button class="tab" data-tab="history">Hist</button>
             <button class="tab" data-tab="backup">Backup</button>
@@ -923,7 +923,7 @@
                     • The app adapts all colors and contrast for optimal readability</p>
 
                     <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">DAILY LOGGING</h3>
-                    <p>• Navigate to the "Log Activity" tab to record your daily progress<br>
+                    <p>• Navigate to the "Log Act" tab to record your daily progress<br>
                     • Answer whether you relapsed the previous day (Yes/No)<br>
                     • Select your current energy level (Low/Medium/High)<br>
                     • If you relapsed, specify the time(s) of day it occurred<br>
@@ -945,7 +945,7 @@
                     • Check earned achievement badges<br>
                     • Monitor streak notifications</p>
 
-                    <p><strong>INSIGHTS TAB:</strong><br>
+                    <p><strong>STATS TAB:</strong><br>
                     • Review weekly and monthly statistics and patterns<br>
                     • See success rates and relapse frequency<br>
                     • Identify common relapse times<br>
@@ -1029,7 +1029,7 @@
 
         <div id="insights" class="tab-content">
             <div class="weekly-insights">
-                <div class="insights-title"> Insights Dashboard</div>
+                <div class="insights-title"> Stats Overview</div>
                 <div id="weeklyInsights"></div>
             </div>
 
@@ -1988,9 +1988,9 @@
             const monthlyStats = calculateInsightStats(monthlyEntries);
 
             document.getElementById('weeklyInsights').innerHTML = `
-                <!-- Weekly Insights Section -->
+                <!-- Weekly Stats Section -->
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">📅 Weekly Insights (7 Days)</h3>
+                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;"> Weekly Stats (7 Days)</h3>
                     <div style="background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
                         ${generateInsightHTML(weeklyStats, 7)}
                     </div>
@@ -1998,7 +1998,7 @@
 
                 <!-- Monthly Insights Section -->
                 <div>
-                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">📊 Monthly Insights (30 Days)</h3>
+                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">Monthly Stats (30 Days)</h3>
                     <div style="background: var(--card-bg); border-radius: 10px; padding: 15px;">
                         ${generateInsightHTML(monthlyStats, 30)}
                     </div>
