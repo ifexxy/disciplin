@@ -2095,7 +2095,7 @@
                 tab.addEventListener('click', function() {
                     switchTab(this.dataset.tab);
                     trackActivity();
-                    trackTabSwitch(this.dataset.tab); // Track tab switches
+                    
                 });
             });
 
@@ -2436,7 +2436,7 @@
             document.getElementById('weeklyInsights').innerHTML = `
                 <!-- Weekly Insights Section -->
                 <div style="margin-bottom: 30px;">
-                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">📅 Weekly Insights (7 Days)</h3>
+                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;"> Weekly Stats (7 Days)</h3>
                     <div style="background: var(--card-bg); border-radius: 10px; padding: 15px; margin-bottom: 20px;">
                         ${generateInsightHTML(weeklyStats, 7)}
                     </div>
@@ -2444,7 +2444,7 @@
 
                 <!-- Monthly Insights Section -->
                 <div>
-                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">📊 Monthly Insights (30 Days)</h3>
+                    <h3 style="color: #4F46E5; font-weight: 600; margin-bottom: 15px; text-align: center;">Monthly Stats (30 Days)</h3>
                     <div style="background: var(--card-bg); border-radius: 10px; padding: 15px;">
                         ${generateInsightHTML(monthlyStats, 30)}
                     </div>
