@@ -604,6 +604,17 @@
             transform: none;
         }
 
+        .btn.offline {
+    background: #9ca3af !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn.offline:hover {
+    background: #9ca3af !important;
+    transform: none !important;
+}
+        
         .streak-notification {
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
@@ -2093,6 +2104,9 @@
             if (todayEntry) {
                 updateStreakNotification();
             }
+
+            // Initialize submit button state
+    updateSubmitButtonState();
             
             // Track app opening
             trackActivity();
@@ -2215,41 +2229,56 @@
             });
         }
 
-        function switchTab(tabName) {
-            // Update tab buttons (only for main tabs)
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Only highlight main tab if it exists
-            const mainTab = document.querySelector(`[data-tab="${tabName}"]`);
-            if (mainTab) {
-                mainTab.classList.add('active');
-            }
+       function switchTab(tabName) {
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Update tab buttons (only for main tabs)
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Only highlight main tab if it exists
+    const mainTab = document.querySelector(`[data-tab="${tabName}"]`);
+    if (mainTab) {
+        mainTab.classList.add('active');
+    }
 
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(tabName).classList.add('active');
 
-            // Refresh data when switching to relevant tabs
-            if (tabName === 'home') {
-                updateStats();
-                updateStreakNotification();
-                updateAchievements();
-            } else if (tabName === 'history') {
-                loadHistory();
-            } else if (tabName === 'insights') {
-                updateWeeklyInsights();
-            }
-        }
+    // Update submit button state when switching to log tab
+    if (tabName === 'log') {
+        updateSubmitButtonState();
+    }
+
+    // Refresh data when switching to relevant tabs
+    if (tabName === 'home') {
+        updateStats();
+        updateStreakNotification();
+        updateAchievements();
+    } else if (tabName === 'history') {
+        loadHistory();
+    } else if (tabName === 'insights') {
+        updateWeeklyInsights();
+    }
+}
 
         function handleFormSubmit(e) {
             e.preventDefault();
             e.stopPropagation();
             
             console.log('Form submission triggered'); // Debug log
+
+            // Check if user is online first
+    if (!navigator.onLine) {
+        showNotification('You must be online to log entries. Please check your internet connection.');
+        alert('No Internet Connection, You need to be online to log entries as they are counted in our global statistics. Please check your internet connection and try again.');
+        return; // Stop execution if offline
+    }
             
             const today = new Date().toDateString();
             const existingEntry = getEntryForDate(today);
@@ -2948,6 +2977,56 @@
         window.addEventListener('online', updateConnectionStatusAnimated);
         window.addEventListener('offline', updateConnectionStatusAnimated);
         document.addEventListener('DOMContentLoaded', updateConnectionStatusAnimated);
+
+        // Connection status functions
+function updateConnectionStatusAnimated() {
+    const statusIcon = document.getElementById('statusIcon');
+    const statusText = document.getElementById('statusText');
+
+    if (navigator.onLine) {
+        statusIcon.style.background = 'limegreen';
+        statusText.textContent = 'Online';
+    } else {
+        statusIcon.style.background = 'red';
+        statusText.textContent = 'Offline';
+    }
+
+    const statusContainer = document.getElementById('connectionStatus');
+    statusContainer.classList.remove('status-container');
+    void statusContainer.offsetWidth;
+    statusContainer.classList.add('status-container');
+}
+
+window.addEventListener('online', updateConnectionStatusAnimated);
+window.addEventListener('offline', updateConnectionStatusAnimated);
+document.addEventListener('DOMContentLoaded', updateConnectionStatusAnimated);
+
+// ADD THE NEW FUNCTION HERE:
+function updateSubmitButtonState() {
+    const submitBtn = document.getElementById('logSubmitBtn');
+    if (!submitBtn) return;
+    
+    if (navigator.onLine) {
+        submitBtn.classList.remove('offline');
+        submitBtn.textContent = 'Log Entry';
+        submitBtn.disabled = false;
+    } else {
+        submitBtn.classList.add('offline');
+        submitBtn.textContent = 'Offline - Cannot Log Entry';
+        submitBtn.disabled = true;
+    }
+}
+
+// Update the existing event listeners to also call the new function
+window.addEventListener('online', function() {
+    updateConnectionStatusAnimated();
+    updateSubmitButtonState();
+});
+
+window.addEventListener('offline', function() {
+    updateConnectionStatusAnimated();
+    updateSubmitButtonState();
+});
     </script>
 
     <!-- Service Worker Script (inline) -->
