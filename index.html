@@ -90,6 +90,7 @@
             box-shadow: 0 0 20px var(--shadow);
             position: relative;
             transition: all 0.3s ease;
+            padding-bottom: 60px;
         }
 
         .header {
@@ -165,24 +166,32 @@
         }
 
         .tabs {
-            display: flex;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-        }
+    display: flex;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: none;
+    transition: all 0.3s ease;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 400px;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 -2px 10px var(--shadow);
+}
+       .tab {
+    flex: 1;
+    padding: 15px 11px; /* Increase padding for better touch targets */
+    text-align: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
 
         .tab.active {
             background: var(--bg-secondary);
