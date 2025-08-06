@@ -327,10 +327,22 @@
             transform: scale(1.05);
         }
 
-        .achievement-emoji {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
+        .achievement-badge:not(.earned) .achievement-icon {
+    color: #666; /* Dark gray for unearned */
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .achievement-badge:not(.earned) .achievement-icon {
+    color: #999; /* Light gray for unearned in dark mode */
+}
+
+       .achievement-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: var(--text-secondary); /* Gray for unearned */
+    transition: color 0.3s ease;
+    font-weight: bold;
+}
 
         .achievement-text {
             font-size: 10px;
@@ -339,9 +351,9 @@
             transition: color 0.3s ease;
         }
 
-        .achievement-badge.earned .achievement-text {
-            color: white;
-        }
+        .achievement-badge.earned .achievement-icon {
+    color: white; /* White for earned badges */
+}
 
         /* Analytics Section */
         .analytics-section {
@@ -2075,15 +2087,15 @@
 
         // Achievement definitions
         const achievements = [
-            { id: 'first_day', emoji: '🌱', text: 'First Day', condition: (streak) => streak >= 1 },
-            { id: 'week_warrior', emoji: '⚡', text: 'Week Warrior', condition: (streak) => streak >= 7 },
-            { id: 'month_master', emoji: '🔥', text: 'Month Master', condition: (streak) => streak >= 30 },
-            { id: 'quarter_champion', emoji: '💎', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
-            { id: 'three_days', emoji: '🎯', text: '3 Days Strong', condition: (streak) => streak >= 3 },
-            { id: 'two_weeks', emoji: '🚀', text: 'Two Weeks', condition: (streak) => streak >= 14 },
-            { id: 'six_months', emoji: '👑', text: 'Half Year King', condition: (streak) => streak >= 180 },
-            { id: 'year_legend', emoji: '🏆', text: 'Year Legend', condition: (streak) => streak >= 365 }
-        ];
+    { id: 'first_day', icon: '●', text: 'First Day', condition: (streak) => streak >= 1 },
+    { id: 'week_warrior', icon: '⚡', text: 'Week Warrior', condition: (streak) => streak >= 7 },
+    { id: 'month_master', icon: '▲', text: 'Month Master', condition: (streak) => streak >= 30 },
+    { id: 'quarter_champion', icon: '♦', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
+    { id: 'three_days', icon: '◆', text: '3 Days Strong', condition: (streak) => streak >= 3 },
+    { id: 'two_weeks', icon: '★', text: 'Two Weeks', condition: (streak) => streak >= 14 },
+    { id: 'six_months', icon: '♚', text: 'Half Year King', condition: (streak) => streak >= 180 },
+    { id: 'year_legend', icon: '♛', text: 'Year Legend', condition: (streak) => streak >= 365 }
+];
 
         // Motivational texts
         const motivationalTexts = [
@@ -2854,7 +2866,7 @@
                 const earned = achievement.condition(longestStreak);
                 return `
                     <div class="achievement-badge ${earned ? 'earned' : ''}">
-                        <div class="achievement-emoji">${achievement.emoji}</div>
+                        <div class="achievement-emoji">${achievement.icon}</div>
                         <div class="achievement-text">${achievement.text}</div>
                     </div>
                 `;
