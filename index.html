@@ -1858,7 +1858,7 @@
 
         function trackDataExport() {
             if (disciplinAnalytics) {
-                disciplinAnalytics.trackEntry(1, 'data_export', {
+                disciplinAnalytics.trackEntry(0, 'data_export', {
                     action: 'export'
                 });
             }
@@ -1866,7 +1866,7 @@
 
         function trackDataImport() {
             if (disciplinAnalytics) {
-                disciplinAnalytics.trackEntry(1, 'data_import', {
+                disciplinAnalytics.trackEntry(0, 'data_import', {
                     action: 'import'
                 });
             }
@@ -1883,7 +1883,7 @@
 
     <script>
         // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-        const APP_VERSION = '3.2.9';
+        const APP_VERSION = '3.2.21';
         
         // History pagination variables
         let currentHistoryPage = 1;
