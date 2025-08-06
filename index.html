@@ -19,6 +19,7 @@
     <!-- Version for cache busting - UPDATE THIS WHEN MAKING CHANGES -->
     <meta name="app-version" content="3.2.9">
     <link rel="icon" type="image/png" sizes="192x192" href="https://miseducatemen.wordpress.com/wp-content/uploads/2025/07/dp_512x512_1_192x192.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
             /* Light mode colors */
@@ -140,6 +141,10 @@
             background: var(--accent-hover);
         }
 
+        .header-btn i {
+    margin-right: 4px;
+}
+
         .header-btn.enabled {
             background: rgba(16, 185, 129, 0.8);
         }
@@ -159,6 +164,10 @@
             justify-content: center;
             font-size: 16px;
         }
+
+        .dark-mode-toggle i {
+    font-size: 16px;
+}
 
         .dark-mode-toggle:hover {
             background: var(--accent-hover);
@@ -328,20 +337,19 @@
         }
 
         .achievement-badge:not(.earned) .achievement-icon {
-    color: #666; /* Dark gray for unearned */
+    color: #666;
     opacity: 0.5;
 }
 
 [data-theme="dark"] .achievement-badge:not(.earned) .achievement-icon {
-    color: #999; /* Light gray for unearned in dark mode */
+    color: #999;
 }
 
-       .achievement-icon {
+      .achievement-icon {
     font-size: 24px;
     margin-bottom: 5px;
-    color: var(--text-secondary); /* Gray for unearned */
+    color: var(--text-secondary);
     transition: color 0.3s ease;
-    font-weight: bold;
 }
 
         .achievement-text {
@@ -352,8 +360,9 @@
         }
 
         .achievement-badge.earned .achievement-icon {
-    color: white; /* White for earned badges */
+    color: white;
 }
+
 
         /* Analytics Section */
         .analytics-section {
@@ -1970,12 +1979,17 @@
         }
 
         function updateDarkModeToggle(theme) {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            if (darkModeToggle) {
-                darkModeToggle.innerHTML = theme === 'dark' ? '☀️' : '🌙';
-                darkModeToggle.title = theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-            }
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    if (darkModeToggle) {
+        if (theme === 'dark') {
+            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            darkModeToggle.title = 'Switch to Light Mode';
+        } else {
+            darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            darkModeToggle.title = 'Switch to Dark Mode';
         }
+    }
+}
 
         function updateThemeColor(theme) {
             const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -2087,14 +2101,14 @@
 
         // Achievement definitions
         const achievements = [
-    { id: 'first_day', icon: '●', text: 'First Day', condition: (streak) => streak >= 1 },
-    { id: 'week_warrior', icon: '⚡', text: 'Week Warrior', condition: (streak) => streak >= 7 },
-    { id: 'month_master', icon: '▲', text: 'Month Master', condition: (streak) => streak >= 30 },
-    { id: 'quarter_champion', icon: '♦', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
-    { id: 'three_days', icon: '◆', text: '3 Days Strong', condition: (streak) => streak >= 3 },
-    { id: 'two_weeks', icon: '★', text: 'Two Weeks', condition: (streak) => streak >= 14 },
-    { id: 'six_months', icon: '♚', text: 'Half Year King', condition: (streak) => streak >= 180 },
-    { id: 'year_legend', icon: '♛', text: 'Year Legend', condition: (streak) => streak >= 365 }
+    { id: 'first_day', icon: '<i class="fas fa-seedling"></i>', text: 'First Day', condition: (streak) => streak >= 1 },
+    { id: 'three_days', icon: '<i class="fas fa-fire"></i>', text: '3 Days Strong', condition: (streak) => streak >= 3 },
+    { id: 'week_warrior', icon: '<i class="fas fa-bolt"></i>', text: 'Week Warrior', condition: (streak) => streak >= 7 },
+    { id: 'two_weeks', icon: '<i class="fas fa-rocket"></i>', text: 'Two Weeks', condition: (streak) => streak >= 14 },
+    { id: 'month_master', icon: '<i class="fas fa-medal"></i>', text: 'Month Master', condition: (streak) => streak >= 30 },
+    { id: 'quarter_champion', icon: '<i class="fas fa-gem"></i>', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
+    { id: 'six_months', icon: '<i class="fas fa-crown"></i>', text: 'Half Year King', condition: (streak) => streak >= 180 },
+    { id: 'year_legend', icon: '<i class="fas fa-trophy"></i>', text: 'Year Legend', condition: (streak) => streak >= 365 }
 ];
 
         // Motivational texts
@@ -2393,15 +2407,15 @@
         }
 
         function updateNotificationButton(enabled) {
-            const btn = document.getElementById('notificationBtn');
-            if (enabled) {
-                btn.classList.add('enabled');
-                btn.textContent = '🔔 Enabled';
-            } else {
-                btn.classList.remove('enabled');
-                btn.textContent = '🔔 Enable Alerts';
-            }
-        }
+    const btn = document.getElementById('notificationBtn');
+    if (enabled) {
+        btn.classList.add('enabled');
+        btn.innerHTML = '<i class="fas fa-bell"></i> Enabled';
+    } else {
+        btn.classList.remove('enabled');
+        btn.innerHTML = '<i class="far fa-bell-slash"></i> Enable Alerts';
+    }
+}
 
         function toggleNotifications() {
             if (notificationPermission) {
