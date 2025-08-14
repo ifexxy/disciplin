@@ -2680,277 +2680,8 @@
                 });
             }
         }
-    </script>
 
-    <script>
-        // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
-        const APP_VERSION = '3.2.27';
-        
-        // History pagination variables
-        let currentHistoryPage = 1;
-        let entriesPerPage = 10;
-        let selectedEntries = new Set();
-        let allEntries = [];
-        
-        // New variables for enhanced features
-        let currentJournalMood = '';
-        let currentMood = '';
-        let deleteEntryId = null;
-        let selectedEntriesToDelete = [];
-        let deferredPrompt = null;
-        let notificationPermission = false;
-        let inactivityTimer = null;
-
-        // Level system configuration
-        const levelSystem = {
-            levels: [
-                { level: 1, name: 'Beginner', icon: 'fas fa-seedling', minXP: 0, color: '#cd7f32' },
-                { level: 2, name: 'Novice', icon: 'fas fa-leaf', minXP: 100, color: '#cd7f32' },
-                { level: 3, name: 'Apprentice', icon: 'fas fa-tree', minXP: 300, color: '#cd7f32' },
-                { level: 4, name: 'Warrior', icon: 'fas fa-sword', minXP: 600, color: '#c0c0c0' },
-                { level: 5, name: 'Guardian', icon: 'fas fa-shield-alt', minXP: 1000, color: '#c0c0c0' },
-                { level: 6, name: 'Champion', icon: 'fas fa-medal', minXP: 1500, color: '#c0c0c0' },
-                { level: 7, name: 'Master', icon: 'fas fa-crown', minXP: 2200, color: '#ffd700' },
-                { level: 8, name: 'Legend', icon: 'fas fa-star', minXP: 3000, color: '#ffd700' },
-                { level: 9, name: 'Hero', icon: 'fas fa-trophy', minXP: 4000, color: '#ffd700' },
-                { level: 10, name: 'Sage', icon: 'fas fa-infinity', minXP: 5500, color: '#ffd700' }
-            ]
-        };
-
-        // Achievement definitions with Font Awesome icons
-        const achievements = [
-            { id: 'first_day', icon: '<i class="fas fa-seedling"></i>', text: 'First Day', condition: (streak) => streak >= 1 },
-            { id: 'three_days', icon: '<i class="fas fa-fire"></i>', text: '3 Days Strong', condition: (streak) => streak >= 3 },
-            { id: 'week_warrior', icon: '<i class="fas fa-bolt"></i>', text: 'Week Warrior', condition: (streak) => streak >= 7 },
-            { id: 'two_weeks', icon: '<i class="fas fa-rocket"></i>', text: 'Two Weeks', condition: (streak) => streak >= 14 },
-            { id: 'month_master', icon: '<i class="fas fa-medal"></i>', text: 'Month Master', condition: (streak) => streak >= 30 },
-            { id: 'quarter_champion', icon: '<i class="fas fa-gem"></i>', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
-            { id: 'six_months', icon: '<i class="fas fa-crown"></i>', text: 'Half Year King', condition: (streak) => streak >= 180 },
-            { id: 'year_legend', icon: '<i class="fas fa-trophy"></i>', text: 'Year Legend', condition: (streak) => streak >= 365 }
-        ];
-
-        // Motivational texts
-        const motivationalTexts = [
-            "Everyday is a new day, to achieve something new",
-            "Every urge resisted is a win",
-            "Progress is Progress no matter how small"
-        ];
-
-        // Notification messages
-        const notificationMessages = [
-            "Time to check in with your progress! 💪",
-            "Remember your goals - how are you doing today? 🎯",
-            "Your streak is waiting for you to log today's progress! 🔥",
-            "Stay consistent - check in with Disciplin now! 📈",
-            "Don't break the chain - log your daily progress! ⛓️"
-        ];
-
-// Goals Management
-function getGoals() {
-    const goals = localStorage.getItem('disciplin_goals');
-    return goals ? JSON.parse(goals) : [];
-}
-
-function saveGoals(goals) {
-    localStorage.setItem('disciplin_goals', JSON.stringify(goals));
-}
-
-function showAddGoalModal() {
-    document.getElementById('addGoalModal').classList.add('show');
-    trackActivity();
-}
-
-function closeAddGoalModal() {
-    document.getElementById('addGoalModal').classList.remove('show');
-    // Reset form
-    document.getElementById('goalTarget').value = '';
-    document.getElementById('goalTitle').value = '';
-    document.getElementById('goalDescription').value = '';
-    document.getElementById('streakGoal').checked = true;
-}
-
-function createGoal() {
-    const target = parseInt(document.getElementById('goalTarget').value);
-    const title = document.getElementById('goalTitle').value;
-    const description = document.getElementById('goalDescription').value;
-    const type = document.querySelector('input[name="goalType"]:checked').value;
-    
-    if (!target || target < 1) {
-        showNotification('Please enter a valid target number');
-        return;
-    }
-    
-    const goal = {
-        id: Date.now(),
-        type: type,
-        target: target,
-        title: title || `${target} Day${target > 1 ? 's' : ''} ${type === 'streak' ? 'Streak' : 'Goal'}`,
-        description: description,
-        progress: 0,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
-    
-    const goals = getGoals();
-    goals.push(goal);
-    saveGoals(goals);
-    
-    closeAddGoalModal();
-    updateGoalsDisplay();
-    trackActivity();
-    showNotification('Goal created successfully!', 'success');
-}
-
-function updateGoalsDisplay() {
-    const goals = getGoals();
-    const container = document.getElementById('goalsContainer');
-    
-    if (goals.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state" style="text-align: center; padding: 20px; color: var(--text-secondary);">
-                <h3>No goals set yet</h3>
-                <p>Create your first goal to start tracking your progress!</p>
-            </div>
-        `;
-        return;
-    }
-    
-    // Update goal progress based on current stats
-    const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    let currentStreak = 0;
-    
-    // Calculate current streak
-    for (let i = entries.length - 1; i >= 0; i--) {
-        if (!entries[i].masturbated) {
-            currentStreak++;
-        } else {
-            break;
-        }
-    }
-    
-    goals.forEach(goal => {
-        if (goal.type === 'streak') {
-            goal.progress = currentStreak;
-        }
-        
-        // Check if goal is completed
-        if (!goal.completed && goal.progress >= goal.target) {
-            goal.completed = true;
-            showGoalAchievementModal(goal);
-        }
-    });
-    
-    saveGoals(goals);
-    
-    container.innerHTML = goals.map(goal => {
-        const progressPercentage = Math.min((goal.progress / goal.target) * 100, 100);
-        
-        return `
-            <div class="goal-item ${goal.completed ? 'completed' : ''}">
-                <div class="goal-header">
-                    <div class="goal-title">${goal.title}</div>
-                    <div style="display: flex; align-items: center;">
-                        <span class="goal-status ${goal.completed ? 'completed' : 'active'}">
-                            ${goal.completed ? 'Completed' : 'Active'}
-                        </span>
-                        <button class="delete-goal-btn" onclick="deleteGoal(${goal.id})">×</button>
-                    </div>
-                </div>
-                <div class="goal-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${progressPercentage}%"></div>
-                    </div>
-                    <div class="progress-text">
-                        <span>${goal.progress}/${goal.target} ${goal.type === 'streak' ? 'days' : 'completed'}</span>
-                        <span>${Math.round(progressPercentage)}%</span>
-                    </div>
-                </div>
-                ${goal.description ? `<div class="goal-description">${goal.description}</div>` : ''}
-            </div>
-        `;
-    }).join('');
-}
-
-function deleteGoal(goalId) {
-    if (confirm('Are you sure you want to delete this goal?')) {
-        const goals = getGoals().filter(goal => goal.id !== goalId);
-        saveGoals(goals);
-        updateGoalsDisplay();
-        trackActivity();
-        showNotification('Goal deleted successfully!', 'success');
-    }
-}
-
-function showGoalAchievementModal(goal) {
-    const modal = document.getElementById('goalAchievementModal');
-    const text = document.getElementById('achievementText');
-    
-    text.textContent = `Congratulations! You've achieved your goal: "${goal.title}"! Keep up the amazing work! `;
-    
-    modal.classList.add('show');
-    
-    // Show celebration notification
-    setTimeout(() => {
-        showNotification(` Goal Achieved: ${goal.title}!`, 'success');
-    }, 500);
-}
-
-function closeGoalAchievementModal() {
-    document.getElementById('goalAchievementModal').classList.remove('show');
-}
-
-        // Level System Functions
-        function calculateUserLevel(entries) {
-            let xp = 0;
-            let currentStreak = 0;
-            let longestStreak = 0;
-            let tempStreak = 0;
-            
-            // Calculate streaks and XP
-            for (let i = 0; i < entries.length; i++) {
-                if (!entries[i].masturbated) {
-                    tempStreak++;
-                    longestStreak = Math.max(longestStreak, tempStreak);
-                    xp += 10; // 10 XP per clean day
-                } else {
-                    tempStreak = 0;
-                }
-            }
-            
-            // Calculate current streak
-            for (let i = entries.length - 1; i >= 0; i--) {
-                if (!entries[i].masturbated) {
-                    currentStreak++;
-                } else {
-                    break;
-                }
-            }
-            
-            // Bonus XP for achievements
-            achievements.forEach(achievement => {
-                if (achievement.condition(longestStreak)) {
-                    xp += 50; // 50 bonus XP per achievement
-                }
-            });
-            
-            // Bonus XP for journal entries
-            const journalEntries = getJournalEntries();
-            xp += journalEntries.length * 5; // 5 XP per journal entry
-            
-            // Find current level
-            let currentLevel = levelSystem.levels[0];
-            for (let level of levelSystem.levels) {
-                if (xp >= level.minXP) {
-                    currentLevel = level;
-                } else {
-                    break;
-                }
-            }
-            
-            return { xp, currentLevel, currentStreak, longestStreak };
-        }
-        
-        // Firebase Configuration  
+         // Firebase Configuration  
 const firebaseConfig = {
   apiKey: "AIzaSyDdZV7b_23WAuu6kiKfpLxdL-v9zpgWjBM",
   authDomain: "disciplin-chat.firebaseapp.com",
@@ -3222,6 +2953,277 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+    </script>
+
+    <script>
+        // App version for cache busting - IMPORTANT: UPDATE THIS WHEN MAKING CHANGES
+        const APP_VERSION = '3.2.27';
+        
+        // History pagination variables
+        let currentHistoryPage = 1;
+        let entriesPerPage = 10;
+        let selectedEntries = new Set();
+        let allEntries = [];
+        
+        // New variables for enhanced features
+        let currentJournalMood = '';
+        let currentMood = '';
+        let deleteEntryId = null;
+        let selectedEntriesToDelete = [];
+        let deferredPrompt = null;
+        let notificationPermission = false;
+        let inactivityTimer = null;
+
+        // Level system configuration
+        const levelSystem = {
+            levels: [
+                { level: 1, name: 'Beginner', icon: 'fas fa-seedling', minXP: 0, color: '#cd7f32' },
+                { level: 2, name: 'Novice', icon: 'fas fa-leaf', minXP: 100, color: '#cd7f32' },
+                { level: 3, name: 'Apprentice', icon: 'fas fa-tree', minXP: 300, color: '#cd7f32' },
+                { level: 4, name: 'Warrior', icon: 'fas fa-sword', minXP: 600, color: '#c0c0c0' },
+                { level: 5, name: 'Guardian', icon: 'fas fa-shield-alt', minXP: 1000, color: '#c0c0c0' },
+                { level: 6, name: 'Champion', icon: 'fas fa-medal', minXP: 1500, color: '#c0c0c0' },
+                { level: 7, name: 'Master', icon: 'fas fa-crown', minXP: 2200, color: '#ffd700' },
+                { level: 8, name: 'Legend', icon: 'fas fa-star', minXP: 3000, color: '#ffd700' },
+                { level: 9, name: 'Hero', icon: 'fas fa-trophy', minXP: 4000, color: '#ffd700' },
+                { level: 10, name: 'Sage', icon: 'fas fa-infinity', minXP: 5500, color: '#ffd700' }
+            ]
+        };
+
+        // Achievement definitions with Font Awesome icons
+        const achievements = [
+            { id: 'first_day', icon: '<i class="fas fa-seedling"></i>', text: 'First Day', condition: (streak) => streak >= 1 },
+            { id: 'three_days', icon: '<i class="fas fa-fire"></i>', text: '3 Days Strong', condition: (streak) => streak >= 3 },
+            { id: 'week_warrior', icon: '<i class="fas fa-bolt"></i>', text: 'Week Warrior', condition: (streak) => streak >= 7 },
+            { id: 'two_weeks', icon: '<i class="fas fa-rocket"></i>', text: 'Two Weeks', condition: (streak) => streak >= 14 },
+            { id: 'month_master', icon: '<i class="fas fa-medal"></i>', text: 'Month Master', condition: (streak) => streak >= 30 },
+            { id: 'quarter_champion', icon: '<i class="fas fa-gem"></i>', text: 'Quarter Champion', condition: (streak) => streak >= 90 },
+            { id: 'six_months', icon: '<i class="fas fa-crown"></i>', text: 'Half Year King', condition: (streak) => streak >= 180 },
+            { id: 'year_legend', icon: '<i class="fas fa-trophy"></i>', text: 'Year Legend', condition: (streak) => streak >= 365 }
+        ];
+
+        // Motivational texts
+        const motivationalTexts = [
+            "Everyday is a new day, to achieve something new",
+            "Every urge resisted is a win",
+            "Progress is Progress no matter how small"
+        ];
+
+        // Notification messages
+        const notificationMessages = [
+            "Time to check in with your progress! 💪",
+            "Remember your goals - how are you doing today? 🎯",
+            "Your streak is waiting for you to log today's progress! 🔥",
+            "Stay consistent - check in with Disciplin now! 📈",
+            "Don't break the chain - log your daily progress! ⛓️"
+        ];
+
+// Goals Management
+function getGoals() {
+    const goals = localStorage.getItem('disciplin_goals');
+    return goals ? JSON.parse(goals) : [];
+}
+
+function saveGoals(goals) {
+    localStorage.setItem('disciplin_goals', JSON.stringify(goals));
+}
+
+function showAddGoalModal() {
+    document.getElementById('addGoalModal').classList.add('show');
+    trackActivity();
+}
+
+function closeAddGoalModal() {
+    document.getElementById('addGoalModal').classList.remove('show');
+    // Reset form
+    document.getElementById('goalTarget').value = '';
+    document.getElementById('goalTitle').value = '';
+    document.getElementById('goalDescription').value = '';
+    document.getElementById('streakGoal').checked = true;
+}
+
+function createGoal() {
+    const target = parseInt(document.getElementById('goalTarget').value);
+    const title = document.getElementById('goalTitle').value;
+    const description = document.getElementById('goalDescription').value;
+    const type = document.querySelector('input[name="goalType"]:checked').value;
+    
+    if (!target || target < 1) {
+        showNotification('Please enter a valid target number');
+        return;
+    }
+    
+    const goal = {
+        id: Date.now(),
+        type: type,
+        target: target,
+        title: title || `${target} Day${target > 1 ? 's' : ''} ${type === 'streak' ? 'Streak' : 'Goal'}`,
+        description: description,
+        progress: 0,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    
+    const goals = getGoals();
+    goals.push(goal);
+    saveGoals(goals);
+    
+    closeAddGoalModal();
+    updateGoalsDisplay();
+    trackActivity();
+    showNotification('Goal created successfully!', 'success');
+}
+
+function updateGoalsDisplay() {
+    const goals = getGoals();
+    const container = document.getElementById('goalsContainer');
+    
+    if (goals.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+                <h3>No goals set yet</h3>
+                <p>Create your first goal to start tracking your progress!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Update goal progress based on current stats
+    const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    let currentStreak = 0;
+    
+    // Calculate current streak
+    for (let i = entries.length - 1; i >= 0; i--) {
+        if (!entries[i].masturbated) {
+            currentStreak++;
+        } else {
+            break;
+        }
+    }
+    
+    goals.forEach(goal => {
+        if (goal.type === 'streak') {
+            goal.progress = currentStreak;
+        }
+        
+        // Check if goal is completed
+        if (!goal.completed && goal.progress >= goal.target) {
+            goal.completed = true;
+            showGoalAchievementModal(goal);
+        }
+    });
+    
+    saveGoals(goals);
+    
+    container.innerHTML = goals.map(goal => {
+        const progressPercentage = Math.min((goal.progress / goal.target) * 100, 100);
+        
+        return `
+            <div class="goal-item ${goal.completed ? 'completed' : ''}">
+                <div class="goal-header">
+                    <div class="goal-title">${goal.title}</div>
+                    <div style="display: flex; align-items: center;">
+                        <span class="goal-status ${goal.completed ? 'completed' : 'active'}">
+                            ${goal.completed ? 'Completed' : 'Active'}
+                        </span>
+                        <button class="delete-goal-btn" onclick="deleteGoal(${goal.id})">×</button>
+                    </div>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>${goal.progress}/${goal.target} ${goal.type === 'streak' ? 'days' : 'completed'}</span>
+                        <span>${Math.round(progressPercentage)}%</span>
+                    </div>
+                </div>
+                ${goal.description ? `<div class="goal-description">${goal.description}</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function deleteGoal(goalId) {
+    if (confirm('Are you sure you want to delete this goal?')) {
+        const goals = getGoals().filter(goal => goal.id !== goalId);
+        saveGoals(goals);
+        updateGoalsDisplay();
+        trackActivity();
+        showNotification('Goal deleted successfully!', 'success');
+    }
+}
+
+function showGoalAchievementModal(goal) {
+    const modal = document.getElementById('goalAchievementModal');
+    const text = document.getElementById('achievementText');
+    
+    text.textContent = `Congratulations! You've achieved your goal: "${goal.title}"! Keep up the amazing work! `;
+    
+    modal.classList.add('show');
+    
+    // Show celebration notification
+    setTimeout(() => {
+        showNotification(` Goal Achieved: ${goal.title}!`, 'success');
+    }, 500);
+}
+
+function closeGoalAchievementModal() {
+    document.getElementById('goalAchievementModal').classList.remove('show');
+}
+
+        // Level System Functions
+        function calculateUserLevel(entries) {
+            let xp = 0;
+            let currentStreak = 0;
+            let longestStreak = 0;
+            let tempStreak = 0;
+            
+            // Calculate streaks and XP
+            for (let i = 0; i < entries.length; i++) {
+                if (!entries[i].masturbated) {
+                    tempStreak++;
+                    longestStreak = Math.max(longestStreak, tempStreak);
+                    xp += 10; // 10 XP per clean day
+                } else {
+                    tempStreak = 0;
+                }
+            }
+            
+            // Calculate current streak
+            for (let i = entries.length - 1; i >= 0; i--) {
+                if (!entries[i].masturbated) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Bonus XP for achievements
+            achievements.forEach(achievement => {
+                if (achievement.condition(longestStreak)) {
+                    xp += 50; // 50 bonus XP per achievement
+                }
+            });
+            
+            // Bonus XP for journal entries
+            const journalEntries = getJournalEntries();
+            xp += journalEntries.length * 5; // 5 XP per journal entry
+            
+            // Find current level
+            let currentLevel = levelSystem.levels[0];
+            for (let level of levelSystem.levels) {
+                if (xp >= level.minXP) {
+                    currentLevel = level;
+                } else {
+                    break;
+                }
+            }
+            
+            return { xp, currentLevel, currentStreak, longestStreak };
+        }
+        
+       
 
         function updateLevelSystem() {
             const entries = getEntries().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
