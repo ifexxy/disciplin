@@ -10,10 +10,10 @@
 
   gtag('config', 'G-P2BFCJMQ3Y');
 </script>
-<!-- Firebase v9 SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disciplin</title>
@@ -551,149 +551,206 @@
             transition: color 0.3s ease;
         }
         
-        /* Chat Styles */
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 140px);
-    background: var(--bg-secondary);
-}
-
-.chat-header {
+       /* Chat Styles */
+.auth-section {
     background: var(--card-bg);
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 15px;
+    padding: 30px 20px;
+    text-align: center;
     transition: all 0.3s ease;
 }
 
-.chat-header h3 {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 18px;
+.auth-title {
+    font-size: 24px;
     font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
-.chat-status {
+.auth-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    transition: color 0.3s ease;
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.auth-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text-secondary);
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.chat-status-indicator {
-    font-size: 8px;
-    color: #ef4444;
+.google-btn {
+    background: #db4437;
+    color: white;
 }
 
-.chat-status-indicator.connected {
-    color: #10b981;
+.google-btn:hover {
+    background: #c23321;
 }
 
-.online-count {
-    background: var(--border-color);
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 10px;
+.anonymous-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.anonymous-btn:hover {
+    background: #5a6268;
+}
+
+.email-btn {
+    background: #4F46E5;
+    color: white;
+}
+
+.email-btn:hover {
+    background: #3730a3;
+}
+
+.chat-interface {
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.chat-header {
+    background: var(--header-bg);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logout-btn {
+    background: var(--accent-bg);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: var(--accent-hover);
 }
 
 .chat-messages {
     flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    scroll-behavior: smooth;
-}
-
-.chat-welcome {
-    text-align: center;
     padding: 20px;
-    color: var(--text-secondary);
-    border: 1px dashed var(--border-color);
-    border-radius: 10px;
-    margin: 20px 0;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    transition: all 0.3s ease;
 }
 
-.chat-welcome p {
-    margin: 8px 0;
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    animation: fadeIn 0.3s ease;
 }
 
-.chat-message {
-    max-width: 80%;
-    padding: 8px 12px;
-    border-radius: 12px;
+.message.own {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
     position: relative;
-    animation: fadeInUp 0.3s ease;
-    word-wrap: break-word;
 }
 
-.chat-message.own {
+.message:not(.own) .message-content {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-bottom-left-radius: 4px;
+}
+
+.message.own .message-content {
     background: #4F46E5;
     color: white;
-    align-self: flex-end;
     border-bottom-right-radius: 4px;
 }
 
-.chat-message.other {
-    background: var(--card-bg);
-    color: var(--text-primary);
-    align-self: flex-start;
-    border-bottom-left-radius: 4px;
-    border: 1px solid var(--border-color);
+.message-author {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    opacity: 0.8;
 }
 
-.chat-message-content {
+.message-text {
     font-size: 14px;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
-.chat-message-time {
-    font-size: 10px;
+.message-time {
+    font-size: 11px;
     opacity: 0.7;
     margin-top: 4px;
 }
 
 .chat-input-container {
-    background: var(--card-bg);
-    padding: 10px 15px;
+    display: flex;
+    padding: 15px 20px;
+    background: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
+    gap: 10px;
     transition: all 0.3s ease;
 }
 
-.chat-input-wrapper {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.chat-input-wrapper input {
+#messageInput {
     flex: 1;
-    padding: 10px 15px;
+    padding: 12px 16px;
     border: 2px solid var(--border-color);
-    border-radius: 20px;
+    border-radius: 25px;
     background: var(--input-bg);
     color: var(--text-primary);
     font-size: 14px;
     transition: all 0.3s ease;
 }
 
-.chat-input-wrapper input:focus {
+#messageInput:focus {
     outline: none;
     border-color: #4F46E5;
 }
 
-.chat-send-btn {
+#sendButton {
     background: #4F46E5;
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -702,42 +759,26 @@
     transition: all 0.3s ease;
 }
 
-.chat-send-btn:hover:not(:disabled) {
+#sendButton:hover {
     background: #3730a3;
     transform: scale(1.05);
 }
 
-.chat-send-btn:disabled {
+#sendButton:disabled {
     background: #9ca3af;
     cursor: not-allowed;
     transform: none;
 }
 
-.chat-input-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
-.chat-rules {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.chat-typing-indicator {
+.typing-indicator {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    max-width: 80%;
-    font-size: 12px;
+    padding: 10px 16px;
     color: var(--text-secondary);
+    font-size: 12px;
     font-style: italic;
+    transition: color 0.3s ease;
 }
 
 .typing-dots {
@@ -750,51 +791,53 @@
     height: 4px;
     background: var(--text-secondary);
     border-radius: 50%;
-    animation: typingDot 1.4s infinite ease-in-out;
+    animation: typingDots 1.4s infinite ease-in-out;
 }
 
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
-@keyframes typingDot {
+@keyframes typingDots {
     0%, 80%, 100% {
-        transform: scale(0.8);
-        opacity: 0.5;
+        transform: scale(0);
     }
     40% {
         transform: scale(1);
-        opacity: 1;
     }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Modal input styles for chat */
+.modal-content input[type="email"],
+.modal-content input[type="password"],
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 16px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
-/* Dark mode chat styles */
-[data-theme="dark"] .chat-message.other {
-    background: var(--card-bg);
-    border-color: var(--border-color);
+.modal-content input:focus {
+    outline: none;
+    border-color: #4F46E5;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 400px) {
-    .chat-header {
-        padding: 12px 15px;
-        flex-direction: column;
-        gap: 8px;
-        align-items: stretch;
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .chat-interface {
+        height: 60vh;
     }
     
-    .chat-status {
-        justify-content: center;
+    .message-content {
+        max-width: 85%;
+    }
+    
+    .auth-buttons {
+        max-width: 100%;
     }
 }
         
@@ -1861,45 +1904,45 @@
             <button class="tab" data-tab="backup"><i class="fas fa-download tab-icon"></i><br>Backup</button>
         </div>
 <div id="chat" class="tab-content">
-    <div class="chat-container">
+    <!-- Authentication Section -->
+    <div id="authSection" class="auth-section">
+        <div class="auth-title">Join the Community Chat</div>
+        <div class="auth-subtitle">Connect with other Disciplin users for support and motivation</div>
+        
+        <div class="auth-buttons">
+            <button class="auth-btn google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+            <button class="auth-btn anonymous-btn" onclick="showAnonymousModal()">
+                <i class="fas fa-user-secret"></i> Join Anonymously
+            </button>
+            <button class="auth-btn email-btn" onclick="showEmailModal()">
+                <i class="fas fa-envelope"></i> Sign up with Email
+            </button>
+        </div>
+    </div>
+     <!-- Chat Interface -->
+    <div id="chatInterface" class="chat-interface" style="display: none;">
         <div class="chat-header">
-            <h3>Disciplin Community Chat</h3>
-            <div class="chat-status">
-                <span id="chatStatus" class="chat-status-indicator">●</span>
-                <span id="chatStatusText">Connecting...</span>
-                <span id="onlineCount" class="online-count">0 online</span>
+            <div class="chat-user-info">
+                <span id="chatUsername">Loading...</span>
+                <button class="logout-btn" onclick="signOut()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </div>
         
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-welcome">
-                <p>Welcome to the Disciplin community chat!</p>
-                <p>Share encouragement, tips, and support with fellow users.</p>
-                <p><small>All messages are anonymous and temporary.</small></p>
-            </div>
+            <!-- Messages will be loaded here -->
         </div>
         
         <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <input type="text" 
-                       id="chatInput" 
-                       placeholder="Type a supportive message..." 
-                       maxlength="300"
-                       disabled>
-                <button id="chatSendBtn" class="chat-send-btn" disabled>
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="chat-input-footer">
-                <span id="charCount">0/300</span>
-                <span class="chat-rules">
-                    <i class="fas fa-info-circle"></i>
-                    Be respectful and supportive
-                </span>
-            </div>
+            <input type="text" id="messageInput" placeholder="Type your message..." maxlength="500">
+            <button id="sendButton" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
         </div>
     </div>
-</div>
         <div id="home" class="tab-content active">
             <!-- Level System -->
             <div class="level-system id="levelSystem">
@@ -1919,7 +1962,7 @@
             </div>
             
             <div style="text-align: center; margin: 20px 0;">
-    <button onclick="switchTabWithChat('chat')" style="
+    <button onclick="switchTab('chat')" style="
         width: 100%;
         padding: 12px;
         background: var(--level-bg);
@@ -2358,7 +2401,52 @@
             <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
         </div>
     </div>
+<!-- Anonymous Username Modal -->
+        <div id="anonymousModal" class="modal">
+        <div class="modal-content">
+            <h2>Choose a Username</h2>
+            <p>Enter a username to join the chat anonymously:</p>
+            <input type="text" id="anonymousUsername" placeholder="Your username..." maxlength="20">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeAnonymousModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="signInAnonymously()">Join Chat</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Email Registration Modal -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Account</h2>
+            <input type="email" id="emailInput" placeholder="Email address...">
+            <input type="password" id="passwordInput" placeholder="Password..." minlength="6">
+            <input type="text" id="emailUsername" placeholder="Display name..." maxlength="20">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeEmailModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="signUpWithEmail()">Create Account</button>
+            </div>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="#" onclick="switchToSignIn()">Already have an account? Sign in</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Email Sign In Modal -->
+    <div id="signInModal" class="modal">
+        <div class="modal-content">
+            <h2>Sign In</h2>
+            <input type="email" id="signInEmail" placeholder="Email address...">
+            <input type="password" id="signInPassword" placeholder="Password...">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeSignInModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="signInWithEmail()">Sign In</button>
+            </div>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="#" onclick="switchToSignUp()">Don't have an account? Sign up</a>
+            </p>
+        </div>
+    </div>
+</div>
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h2>Delete Entry</h2>
@@ -2821,307 +2909,439 @@ class FirebaseChat {
         this.lastActivity = Date.now();
     }
 
-    async initialize() {
-        try {
-            // Firebase config
-            const firebaseConfig = {
-                apiKey: "AIzaSyDdZV7b_23WAuu6kiKfpLxdL-v9zpgWjBM",
-                authDomain: "disciplin-chat.firebaseapp.com",
-                projectId: "disciplin-chat",
-                storageBucket: "disciplin-chat.firebasestorage.app",
-                messagingSenderId: "595537471459",
-                appId: "1:595537471459:web:4c6c35e907c947a8d222d6"
-            };
-
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            this.db = firebase.firestore();
-            this.auth = firebase.auth();
-
-            // Configure Firestore settings
-            this.db.settings({
-                cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-            });
-
-            // Enable offline persistence
-            try {
-                await this.db.enablePersistence();
-                console.log('💾 Offline persistence enabled');
-            } catch (err) {
-                console.warn('⚠️ Persistence failed:', err.code);
+    // Firebase Chat System
+class DisciplinChat {
+    constructor() {
+        this.firebaseConfig = {
+            apiKey: "AIzaSyDdZV7b_23WAuu6kiKfpLxdL-v9zpgWjBM",
+            authDomain: "disciplin-chat.firebaseapp.com",
+            projectId: "disciplin-chat",
+            storageBucket: "disciplin-chat.firebasestorage.app",
+            messagingSenderId: "595537471459",
+            appId: "1:595537471459:web:4c6c35e907c947a8d222d6"
+        };
+        
+        this.messagesRef = null;
+        this.unsubscribeMessages = null;
+        this.currentUser = null;
+        this.lastMessageTime = null;
+        
+        this.init();
+    }
+    
+    init() {
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(this.firebaseConfig);
+        }
+        
+        this.db = firebase.firestore();
+        this.auth = firebase.auth();
+        this.messagesRef = this.db.collection('chat');
+        
+        // Auth state observer
+        this.auth.onAuthStateChanged((user) => {
+            if (user) {
+                this.currentUser = user;
+                this.showChatInterface();
+                this.loadMessages();
+                this.updateUserLastSeen();
+            } else {
+                this.currentUser = null;
+                this.showAuthSection();
             }
-
-            // Sign in anonymously
-            await this.signInAnonymously();
+        });
+        
+        this.setupMessageInput();
+    }
+    
+    async signInWithGoogle() {
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const result = await this.auth.signInWithPopup(provider);
             
-            // Setup chat
-            this.setupChat();
-            this.setupEventListeners();
+            // Save user profile
+            await this.saveUserProfile(result.user.uid, {
+                username: result.user.displayName,
+                email: result.user.email,
+                authMethod: 'google',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
             
-            console.log('💬 Firebase Chat initialized');
+            showNotification('Signed in successfully!', 'success');
         } catch (error) {
-            console.error('❌ Chat initialization failed:', error);
-            this.updateStatus('Failed to connect', false);
+            console.error('Google sign-in error:', error);
+            showNotification('Sign-in failed: ' + error.message);
         }
     }
-
+    
     async signInAnonymously() {
+        const username = document.getElementById('anonymousUsername').value.trim();
+        
+        if (!username) {
+            showNotification('Please enter a username');
+            return;
+        }
+        
+        if (username.length < 3) {
+            showNotification('Username must be at least 3 characters');
+            return;
+        }
+        
         try {
             const result = await this.auth.signInAnonymously();
-            this.user = result.user;
             
-            // Create user presence
-            this.setupPresence();
+            // Save user profile with anonymous username
+            await this.saveUserProfile(result.user.uid, {
+                username: username,
+                authMethod: 'anonymous',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
             
-            console.log('✅ Anonymous authentication successful');
+            // Remember username locally
+            localStorage.setItem('disciplin_anonymous_username', username);
+            
+            this.closeAnonymousModal();
+            showNotification('Joined chat successfully!', 'success');
         } catch (error) {
-            console.error('❌ Anonymous auth failed:', error);
-            throw error;
+            console.error('Anonymous sign-in error:', error);
+            showNotification('Sign-in failed: ' + error.message);
         }
     }
-
-    setupPresence() {
-        if (!this.user) return;
-
-        // Reference to user's online status
-        this.onlineRef = this.db.collection('presence').doc(this.user.uid);
-
-        // Set user as online
-        this.onlineRef.set({
-            online: true,
-            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-            joinedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Remove user when they disconnect
-        this.onlineRef.onSnapshot(() => {
-            this.onlineRef.set({
-                online: false,
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-
-        // Track online users
-        this.unsubscribeOnline = this.db.collection('presence')
-            .where('online', '==', true)
-            .onSnapshot(snapshot => {
-                const onlineCount = snapshot.size;
-                document.getElementById('onlineCount').textContent = `${onlineCount} online`;
-            });
-    }
-
-    setupChat() {
-        // Reference to messages collection
-        this.messagesRef = this.db.collection('messages');
-
-        // Listen for new messages
-        this.unsubscribeMessages = this.messagesRef
-            .orderBy('timestamp', 'asc')
-            .limit(50)
-            .onSnapshot(snapshot => {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        this.displayMessage(change.doc.data());
-                    }
-                });
-                
-                // Update connection status
-                this.updateStatus('Connected', true);
-                this.isConnected = true;
-                
-                // Enable chat input
-                const input = document.getElementById('chatInput');
-                const sendBtn = document.getElementById('chatSendBtn');
-                input.disabled = false;
-                sendBtn.disabled = false;
-            }, error => {
-                console.error('❌ Messages listener failed:', error);
-                this.updateStatus('Connection failed', false);
-            });
-    }
-
-    setupEventListeners() {
-        const input = document.getElementById('chatInput');
-        const sendBtn = document.getElementById('chatSendBtn');
-        const charCount = document.getElementById('charCount');
-
-        // Send message on button click
-        sendBtn.addEventListener('click', () => this.sendMessage());
-
-        // Send message on Enter key
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
-        });
-
-        // Character counter
-        input.addEventListener('input', (e) => {
-            const length = e.target.value.length;
-            charCount.textContent = `${length}/300`;
-            
-            // Enable/disable send button
-            sendBtn.disabled = length === 0 || !this.isConnected;
-        });
-
-        // Track activity for presence
-        ['input', 'click', 'focus'].forEach(event => {
-            input.addEventListener(event, () => {
-                this.lastActivity = Date.now();
-            });
-        });
-    }
-
-    async sendMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
+    
+    async signUpWithEmail() {
+        const email = document.getElementById('emailInput').value.trim();
+        const password = document.getElementById('passwordInput').value;
+        const username = document.getElementById('emailUsername').value.trim();
         
-        if (!message || !this.user || !this.isConnected) return;
-
+        if (!email || !password || !username) {
+            showNotification('Please fill in all fields');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showNotification('Password must be at least 6 characters');
+            return;
+        }
+        
+        if (username.length < 3) {
+            showNotification('Username must be at least 3 characters');
+            return;
+        }
+        
         try {
-            // Basic content filter
-            if (this.containsInappropriateContent(message)) {
-                alert('Please keep messages positive and supportive! 💪');
-                return;
-            }
-
-            // Send message to Firestore
-            await this.messagesRef.add({
-                text: message,
-                userId: this.user.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAt: new Date().toISOString()
+            const result = await this.auth.createUserWithEmailAndPassword(email, password);
+            
+            // Save user profile
+            await this.saveUserProfile(result.user.uid, {
+                username: username,
+                email: email,
+                authMethod: 'email',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-
-            // Clear input
-            input.value = '';
-            document.getElementById('charCount').textContent = '0/300';
-            document.getElementById('chatSendBtn').disabled = true;
-
-            console.log('📤 Message sent');
+            
+            this.closeEmailModal();
+            showNotification('Account created successfully!', 'success');
         } catch (error) {
-            console.error('❌ Send message failed:', error);
-            alert('Failed to send message. Please try again.');
+            console.error('Email sign-up error:', error);
+            showNotification('Sign-up failed: ' + error.message);
         }
     }
-
+    
+    async signInWithEmail() {
+        const email = document.getElementById('signInEmail').value.trim();
+        const password = document.getElementById('signInPassword').value;
+        
+        if (!email || !password) {
+            showNotification('Please fill in all fields');
+            return;
+        }
+        
+        try {
+            await this.auth.signInWithEmailAndPassword(email, password);
+            this.closeSignInModal();
+            showNotification('Signed in successfully!', 'success');
+        } catch (error) {
+            console.error('Email sign-in error:', error);
+            showNotification('Sign-in failed: ' + error.message);
+        }
+    }
+    
+    async signOut() {
+        try {
+            await this.auth.signOut();
+            if (this.unsubscribeMessages) {
+                this.unsubscribeMessages();
+                this.unsubscribeMessages = null;
+            }
+            showNotification('Signed out successfully!', 'success');
+        } catch (error) {
+            console.error('Sign-out error:', error);
+            showNotification('Sign-out failed: ' + error.message);
+        }
+    }
+    
+    async saveUserProfile(uid, data) {
+        try {
+            await this.db.collection('users').doc(uid).set(data, { merge: true });
+        } catch (error) {
+            console.error('Error saving user profile:', error);
+        }
+    }
+    
+    async updateUserLastSeen() {
+        if (this.currentUser) {
+            try {
+                await this.db.collection('users').doc(this.currentUser.uid).update({
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error updating last seen:', error);
+            }
+        }
+    }
+    
+    async loadMessages() {
+        if (!this.messagesRef || this.unsubscribeMessages) return;
+        
+        try {
+            this.unsubscribeMessages = this.messagesRef
+                .orderBy('timestamp', 'asc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const messageData = change.doc.data();
+                            this.displayMessage(messageData);
+                        }
+                    });
+                    
+                    // Auto-scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+        } catch (error) {
+            console.error('Error loading messages:', error);
+            showNotification('Error loading messages');
+        }
+    }
+    
     displayMessage(messageData) {
         const messagesContainer = document.getElementById('chatMessages');
-        const isOwnMessage = this.user && messageData.userId === this.user.uid;
+        const messageDiv = document.createElement('div');
+        const isOwnMessage = messageData.userId === this.currentUser.uid;
         
-        // Create message element
-        const messageEl = document.createElement('div');
-        messageEl.className = `chat-message ${isOwnMessage ? 'own' : 'other'}`;
+        messageDiv.className = `message ${isOwnMessage ? 'own' : ''}`;
         
-        // Format timestamp
-        let timeStr = 'Now';
-        if (messageData.timestamp) {
-            const date = messageData.timestamp.toDate();
-            timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
+        const timestamp = messageData.timestamp ? 
+            messageData.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+            'Sending...';
         
-        messageEl.innerHTML = `
-            <div class="chat-message-content">${this.escapeHtml(messageData.text)}</div>
-            <div class="chat-message-time">${timeStr}</div>
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${!isOwnMessage ? `<div class="message-author">${messageData.username}</div>` : ''}
+                <div class="message-text">${this.escapeHtml(messageData.text)}</div>
+                <div class="message-time">${timestamp}</div>
+            </div>
         `;
         
-        // Remove welcome message if it exists
-        const welcomeMsg = messagesContainer.querySelector('.chat-welcome');
-        if (welcomeMsg) {
-            welcomeMsg.remove();
+        messagesContainer.appendChild(messageDiv);
+    }
+    
+    async sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const messageText = messageInput.value.trim();
+        
+        if (!messageText || !this.currentUser) return;
+        
+        // Rate limiting: prevent spam
+        const now = Date.now();
+        if (this.lastMessageTime && now - this.lastMessageTime < 1000) {
+            showNotification('Please wait before sending another message');
+            return;
         }
         
-        // Add message to container
-        messagesContainer.appendChild(messageEl);
-        
-        // Scroll to bottom
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
-        // Limit message history (keep last 50 messages)
-        const messages = messagesContainer.querySelectorAll('.chat-message');
-        if (messages.length > 50) {
-            messages[0].remove();
+        try {
+            // Get user profile for username
+            const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
+            const userData = userDoc.data();
+            const username = userData?.username || 'Anonymous';
+            
+            await this.messagesRef.add({
+                text: messageText,
+                username: username,
+                userId: this.currentUser.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            messageInput.value = '';
+            this.lastMessageTime = now;
+            
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showNotification('Error sending message');
         }
     }
-
-    updateStatus(text, connected) {
-        const statusIndicator = document.getElementById('chatStatus');
-        const statusText = document.getElementById('chatStatusText');
+    
+    setupMessageInput() {
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
         
-        statusText.textContent = text;
-        statusIndicator.className = `chat-status-indicator ${connected ? 'connected' : ''}`;
+        if (messageInput) {
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+            
+            messageInput.addEventListener('input', () => {
+                const hasText = messageInput.value.trim().length > 0;
+                sendButton.disabled = !hasText;
+            });
+        }
     }
-
-    containsInappropriateContent(text) {
-        // Basic content filter - expand as needed
-        const inappropriate = [
-            // Add inappropriate words/phrases to filter
-            'spam', 'xxx', 'porn'
-        ];
+    
+    showAuthSection() {
+        document.getElementById('authSection').style.display = 'block';
+        document.getElementById('chatInterface').style.display = 'none';
+    }
+    
+    async showChatInterface() {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('chatInterface').style.display = 'flex';
         
-        const lowerText = text.toLowerCase();
-        return inappropriate.some(word => lowerText.includes(word));
+        // Update username display
+        if (this.currentUser) {
+            try {
+                const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
+                const userData = userDoc.data();
+                const username = userData?.username || 'Anonymous';
+                document.getElementById('chatUsername').textContent = username;
+            } catch (error) {
+                console.error('Error fetching username:', error);
+                document.getElementById('chatUsername').textContent = 'User';
+            }
+        }
     }
-
+    
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-
-    destroy() {
-        // Clean up listeners
-        if (this.unsubscribeMessages) this.unsubscribeMessages();
-        if (this.unsubscribeOnline) this.unsubscribeOnline();
-        
-        // Set user offline
-        if (this.onlineRef) {
-            this.onlineRef.set({
-                online: false,
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            });
+    
+    // Modal functions
+    showAnonymousModal() {
+        const savedUsername = localStorage.getItem('disciplin_anonymous_username');
+        if (savedUsername) {
+            document.getElementById('anonymousUsername').value = savedUsername;
         }
+        document.getElementById('anonymousModal').classList.add('show');
+    }
+    
+    closeAnonymousModal() {
+        document.getElementById('anonymousModal').classList.remove('show');
+    }
+    
+    showEmailModal() {
+        document.getElementById('emailModal').classList.add('show');
+    }
+    
+    closeEmailModal() {
+        document.getElementById('emailModal').classList.remove('show');
+    }
+    
+    showSignInModal() {
+        document.getElementById('signInModal').classList.add('show');
+    }
+    
+    closeSignInModal() {
+        document.getElementById('signInModal').classList.remove('show');
+    }
+    
+    switchToSignIn() {
+        this.closeEmailModal();
+        this.showSignInModal();
+    }
+    
+    switchToSignUp() {
+        this.closeSignInModal();
+        this.showEmailModal();
     }
 }
 
 // Initialize chat system
-let firebaseChat = null;
+let disciplinChat;
 
-// Add chat initialization to your existing DOMContentLoaded event
-function initializeChat() {
-    firebaseChat = new FirebaseChat();
-    firebaseChat.initialize();
+// Chat-related global functions
+function signInWithGoogle() {
+    if (disciplinChat) disciplinChat.signInWithGoogle();
 }
 
-// Update your existing switchTab function to handle chat
-function switchTabWithChat(tabName) {
-    switchTab(tabName); // Call your existing function
-    
-    // Initialize chat when chat tab is first opened
-    if (tabName === 'chat' && !firebaseChat) {
-        setTimeout(initializeChat, 100);
-    }
+function signInAnonymously() {
+    if (disciplinChat) disciplinChat.signInAnonymously();
 }
 
-// Replace your tab click listeners with this updated version
+function signUpWithEmail() {
+    if (disciplinChat) disciplinChat.signUpWithEmail();
+}
+
+function signInWithEmail() {
+    if (disciplinChat) disciplinChat.signInWithEmail();
+}
+
+function signOut() {
+    if (disciplinChat) disciplinChat.signOut();
+}
+
+function sendMessage() {
+    if (disciplinChat) disciplinChat.sendMessage();
+}
+
+function showAnonymousModal() {
+    if (disciplinChat) disciplinChat.showAnonymousModal();
+}
+
+function closeAnonymousModal() {
+    if (disciplinChat) disciplinChat.closeAnonymousModal();
+}
+
+function showEmailModal() {
+    if (disciplinChat) disciplinChat.showEmailModal();
+}
+
+function closeEmailModal() {
+    if (disciplinChat) disciplinChat.closeEmailModal();
+}
+
+function closeSignInModal() {
+    if (disciplinChat) disciplinChat.closeSignInModal();
+}
+
+function switchToSignIn() {
+    if (disciplinChat) disciplinChat.switchToSignIn();
+}
+
+function switchToSignUp() {
+    if (disciplinChat) disciplinChat.switchToSignUp();
+}
+
+// Initialize chat when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing initialization code ...
-    
-    // Updated tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
-            switchTabWithChat(this.dataset.tab);
-            trackActivity();
-        });
-    });
-});
+    // Wait a bit to ensure Firebase is loaded
+    setTimeout(() => {
+        disciplinChat = new DisciplinChat();
+    }, 1000);
 
-// Clean up on page unload
-window.addEventListener('beforeunload', () => {
-    if (firebaseChat) {
-        firebaseChat.destroy();
+    // Add this to your switchTab function
+if (tabName === 'chat') {
+    // Initialize chat if not already done
+    if (!disciplinChat) {
+        disciplinChat = new DisciplinChat();
     }
+}
 });
     </script>
 
