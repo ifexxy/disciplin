@@ -1,7 +1,7 @@
 // Disciplin Service Worker
-// Version: 3.3.17 - Update this when making changes
+// Version: 3.3.18 - Update this when making changes
 
-const CACHE_NAME = 'disciplin-v3.3.17';
+const CACHE_NAME = 'disciplin-v3.3.18';
 const urlsToCache = [
     './',
     './index.html',
