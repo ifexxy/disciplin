@@ -3277,7 +3277,7 @@ class DisciplinChat {
         // Rate limiting: prevent spam
         const now = Date.now();
         if (this.lastMessageTime && now - this.lastMessageTime < 15000) {
-            showNotification('Please wait before sending another message');
+            showNotification('Please wait for 15 secs before sending another message');
             return;
         }
         
