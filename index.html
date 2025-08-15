@@ -670,7 +670,7 @@
 .chat-interface {
     display: flex;
     flex-direction: column;
-    height: 100dvh;
+    height: 80vh;
     background: var(--bg-secondary);
     border-radius: 15px;
     overflow: hidden;
@@ -4638,9 +4638,9 @@ function updateStatsWithTimer() {
                 
                 if (permission === 'granted' && isEnabled) {
                     notificationPermission = true;
-                    updateNotificationButton(true);
+                    updateFloatingNotificationButton(true);
                 } else {
-                    updateNotificationButton(false);
+                    updateFloatingNotificationButton(false);
                 }
             }
         }
@@ -4681,7 +4681,7 @@ function updateStatsWithTimer() {
                     if (permission === 'granted') {
                         notificationPermission = true;
                         localStorage.setItem('disciplin_notifications', 'true');
-                        updateNotificationButton(true);
+                        updateFloatingNotificationButton(true);
                         setupInactivityTimer();
                         closeNotificationModal();
                         showNotification('Notifications enabled!', 'success');
