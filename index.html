@@ -2903,26 +2903,23 @@ Share encouragement, tips, and support with fellow users.</div>
 <div id="mandatoryUpdateModal" class="modal">
     <div class="modal-content" style="max-width: 400px;">
         <div style="text-align: center; margin-bottom: 20px;">
-            <i class="fas fa-download" style="font-size: 48px; color: #4F46E5; margin-bottom: 15px;"></i>
+            <i class="fas fa-download" style="font-size: 40px; color: #4F46E5; margin-bottom: 15px;"></i>
         </div>
         <h2 style="text-align: center; color: #4F46E5;">Update Required</h2>
         <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 15px 0;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
                 <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 20px;"></i>
-                <strong style="color: #92400e;">Important: Backup Your Data</strong>
+                <strong style="color: #92400e;">Important: Automatic Backup is Enabled</strong>
             </div>
             <p style="color: #92400e; font-size: 14px; margin: 0;">
-                Please backup your entries from the Backup tab before updating to avoid any data loss.
+                No need to backup, your data is saved locally unless you cleared cache, we recommend you make use of google sync.
             </p>
         </div>
         <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">
             A new version of Disciplin is available with improvements and bug fixes. The update will be applied automatically.
         </p>
         <div style="display: flex; gap: 10px;">
-            <button class="modal-btn secondary" onclick="goToBackupTab()" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="fas fa-download"></i>
-                Backup First
-            </button>
+            
             <button class="modal-btn primary" onclick="applyMandatoryUpdate()" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fas fa-sync-alt"></i>
                 Update Now
