@@ -4392,17 +4392,18 @@ class ForumManager {
         const categoryFilter = document.getElementById('categoryFilter').value;
         let query;
 
-        if (searchTerm) {
-            // Search by title (prefix match)
-            query = this.db.collection('forum').doc('threads').collection('threads')
-                .orderBy('title')
-                .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff');
-        } else {
-            // Default: order by last activity
-            query = this.db.collection('forum').doc('threads').collection('threads')
-                .orderBy('lastActivity', 'desc');
-        }
+       if (searchTerm) {
+    // Search by title (prefix match)
+    query = this.db.collection('forum').collection('threads')
+        .orderBy('title')
+        .startAt(searchTerm)
+        .endAt(searchTerm + '\uf8ff');
+} else {
+    // Default: order by last activity
+    query = this.db.collection('forum').collection('threads')
+        .orderBy('lastActivity', 'desc');
+}
+
 
         if (categoryFilter) {
             query = query.where('category', '==', categoryFilter);
