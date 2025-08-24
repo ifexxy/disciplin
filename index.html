@@ -2972,6 +2972,8 @@ body[data-active-tab="resources"] .sos-button {
     </div>
 
     <!-- Thread List -->
+    <input type="text" id="threadSearch" placeholder="Search threads..." class="form-control" style="margin-bottom: 15px; width: 100%;">
+
     <div id="threadList"></div>
 
     <!-- Pagination -->
@@ -4385,41 +4387,53 @@ class ForumManager {
         }
     }
     
-    async loadThreads() {
-        try {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            let query = this.db.collection('forum').doc('threads').collection('threads')
+    async loadThreads(searchTerm = "") {
+    try {
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        let query;
+
+        if (searchTerm) {
+            // Search by title (prefix match)
+            query = this.db.collection('forum').doc('threads').collection('threads')
+                .orderBy('title')
+                .startAt(searchTerm)
+                .endAt(searchTerm + '\uf8ff');
+        } else {
+            // Default: order by last activity
+            query = this.db.collection('forum').doc('threads').collection('threads')
                 .orderBy('lastActivity', 'desc');
-            
-            if (categoryFilter) {
-                query = query.where('category', '==', categoryFilter);
-            }
-            
-            const snapshot = await query.limit(this.threadsPerPage).get();
-            const threads = [];
-            
-            for (const doc of snapshot.docs) {
-                const thread = { id: doc.id, ...doc.data() };
-                
-                // Check if user has read this thread
-                if (this.currentUser) {
-                    const readStatus = await this.getUserReadStatus(thread.id);
-                    thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
-                } else {
-                    thread.unread = false;
-                }
-                
-                threads.push(thread);
-            }
-            
-            this.renderThreads(threads);
-            this.updateForumPagination(threads.length);
-            
-        } catch (error) {
-            console.error('Error loading threads:', error);
-            this.showForumError('Failed to load threads');
         }
+
+        if (categoryFilter) {
+            query = query.where('category', '==', categoryFilter);
+        }
+
+        const snapshot = await query.limit(this.threadsPerPage).get();
+        const threads = [];
+
+        for (const doc of snapshot.docs) {
+            const thread = { id: doc.id, ...doc.data() };
+
+            // Check if user has read this thread
+            if (this.currentUser) {
+                const readStatus = await this.getUserReadStatus(thread.id);
+                thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+            } else {
+                thread.unread = false;
+            }
+
+            threads.push(thread);
+        }
+
+        this.renderThreads(threads);
+        this.updateForumPagination(threads.length);
+
+    } catch (error) {
+        console.error('Error loading threads:', error);
+        this.showForumError('Failed to load threads');
     }
+}
+
     
     renderThreads(threads) {
         const threadList = document.getElementById('threadList');
@@ -6456,6 +6470,14 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+       // Thread search
+document.getElementById('threadSearch').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.trim();
+    this.currentPage = 1; // reset pagination
+    this.loadThreads(searchTerm);
+});
+ 
 
        function switchTab(tabName) {
     // Scroll to top of the page
