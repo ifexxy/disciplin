@@ -4393,16 +4393,16 @@ class ForumManager {
         let query;
 
        if (searchTerm) {
-    // Search by title (prefix match)
-    query = this.db.collection('forum').collection('threads')
-        .orderBy('title')
-        .startAt(searchTerm)
-        .endAt(searchTerm + '\uf8ff');
-} else {
-    // Default: order by last activity
-    query = this.db.collection('forum').collection('threads')
-        .orderBy('lastActivity', 'desc');
-}
+            // Search by title (prefix match)
+            query = this.db.collection('forum').doc('threads').collection('threads')
+                .orderBy('title')
+                .startAt(searchTerm)
+                .endAt(searchTerm + '\uf8ff');
+        } else {
+            // Default: order by last activity
+            query = this.db.collection('forum').doc('threads').collection('threads')
+                .orderBy('lastActivity', 'desc');
+        }
 
 
         if (categoryFilter) {
@@ -4463,7 +4463,10 @@ class ForumManager {
                         </div>
                         <div>Last activity: ${lastActivity}</div>
                     </div>
-                    <div class="thread-content">${this.escapeHtml(thread.content)}</div>
+                    <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
+    ${this.escapeHtml(thread.content)}
+</div>
+
                     <div class="thread-stats">
                         <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
                         <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
@@ -4562,9 +4565,10 @@ class ForumManager {
                     <span class="thread-category">${thread.category}</span>
                     <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
                 </div>
-                <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere;">
+                <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
     ${this.escapeHtml(thread.content)}
 </div>
+
 
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
@@ -4590,9 +4594,10 @@ class ForumManager {
                                 </div>
                             </div>
                             <div class="reply-content" 
-     style="line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere;">
+     style="line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
     ${this.escapeHtml(reply.content)}
 </div>
+
 
                         </div>
                     `;
