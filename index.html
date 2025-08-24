@@ -2972,7 +2972,21 @@ body[data-active-tab="resources"] .sos-button {
     </div>
 
     <!-- Thread List -->
-    <input type="text" id="threadSearch" placeholder="Search threads..." class="form-control" style="margin-bottom: 15px; width: 100%;">
+    
+    <i<div class="forum-rules" style="margin-bottom: 20px; padding: 15px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); text-align: left;">
+  <h3 style="margin-bottom: 10px; color: #4F46E5;">Forum Rules</h3>
+  <ul style="padding-left: 20px; line-height: 1.6; margin: 0;">
+    <li>Be respectful to others, no harassment, hate speech, or personal attacks.</li>
+    <li>Stay on topic, create threads in the appropriate category.</li>
+    <li>No spam or self-promotion without permission.</li>
+    <li>Use clear titles and provide enough details when starting a thread.</li>
+    <li>Do not share personal information you wouldn’t want public.</li>
+  </ul>
+  <p style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
+    By posting, you agree to follow these rules. Violations may lead to removal of content or account restrictions.
+  </p>
+</div>
+nput type="text" id="threadSearch" placeholder="Search threads..." class="form-control" style="margin-bottom: 15px; width: 100%;">
 
     <div id="threadList"></div>
 
@@ -4463,7 +4477,7 @@ class ForumManager {
                         </div>
                         <div>Last activity: ${lastActivity}</div>
                     </div>
-                    <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
+                    <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere;">
     ${this.escapeHtml(thread.content)}
 </div>
 
