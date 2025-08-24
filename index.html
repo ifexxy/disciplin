@@ -2985,6 +2985,21 @@ body[data-active-tab="resources"] .sos-button {
     </div>
 
     <!-- Create Thread Modal -->
+    <div id="editThreadModal" class="modal">
+  <div class="modal-content">
+    <h2>Edit Thread</h2>
+    <form id="editThreadForm">
+      <input type="text" id="editThreadTitle" class="form-control" placeholder="Thread Title" required />
+      <textarea id="editThreadContent" class="form-control" placeholder="Thread Content" rows="4" required></textarea>
+      <select id="editThreadCategory" class="form-control" required></select>
+      <div style="margin-top: 15px;">
+        <button type="submit" class="btn">Save Changes</button>
+        <button type="button" onclick="forumManager.closeEditThreadModal()" class="btn btn-secondary">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
     <div id="createThreadModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
             <h2>Create New Thread</h2>
@@ -4450,8 +4465,8 @@ class ForumManager {
                     </div>
                     <div class="thread-content">${this.escapeHtml(thread.content)}</div>
                     <div class="thread-stats">
-                        <span>❤️ ${thread.likeCount || 0}</span>
-                        <span>💬 ${thread.replyCount || 0}</span>
+                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
+                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
                     </div>
                 </div>
             `;
@@ -4498,6 +4513,60 @@ class ForumManager {
             showNotification('Failed to create thread');
         }
     }
+
+        showEditThreadModal(threadId, title, content, category) {
+    this.currentThreadId = threadId;
+    document.getElementById('editThreadTitle').value = title;
+    document.getElementById('editThreadContent').value = content;
+
+    // Preselect category
+    const categorySelect = document.getElementById('editThreadCategory');
+    for (let option of categorySelect.options) {
+        option.selected = option.value === category;
+    }
+
+    document.getElementById('editThreadModal').classList.add('show');
+}
+
+closeEditThreadModal() {
+    document.getElementById('editThreadModal').classList.remove('show');
+    document.getElementById('editThreadForm').reset();
+}
+
+async editThread() {
+    if (!this.currentUser || !this.currentThreadId) {
+        showNotification('Not authorized');
+        return;
+    }
+
+    const title = document.getElementById('editThreadTitle').value.trim();
+    const content = document.getElementById('editThreadContent').value.trim();
+    const category = document.getElementById('editThreadCategory').value;
+
+    if (!title || !content) {
+        showNotification('Please fill in all fields');
+        return;
+    }
+
+    try {
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(this.currentThreadId)
+            .update({
+                title,
+                content,
+                category,
+                lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+        this.closeEditThreadModal();
+        this.openThread(this.currentThreadId); // reload thread
+        showNotification('Thread updated successfully!', 'success');
+    } catch (error) {
+        console.error('Error editing thread:', error);
+        showNotification('Failed to update thread');
+    }
+}
+
     
     async openThread(threadId) {
         try {
@@ -4541,7 +4610,7 @@ class ForumManager {
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2>
-                    ${canEdit ? `<button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
+                    ${canEdit ? `<button onclick="forumManager.showEditThreadModal('${thread.id}', '${this.escapeHtml(thread.title)}', '${this.escapeHtml(thread.content)}', '${thread.category}')" class="btn" style="margin-right: 8px;">Edit</button> <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
                 </div>
                 <div style="margin-bottom: 10px;">
                     <span class="thread-category">${thread.category}</span>
@@ -6435,6 +6504,11 @@ document.addEventListener('click', function(e) {
     }
 });
 
+document.getElementById('editThreadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    this.editThread();
+});
+        
 // Handle escape key for modals
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
