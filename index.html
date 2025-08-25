@@ -4272,7 +4272,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Forum functionality
+// Forum functionality with mentions + notifications (FULL)
 class ForumManager {
     constructor() {
         this.firebaseConfig = {
@@ -4283,181 +4283,355 @@ class ForumManager {
             messagingSenderId: "595537471459",
             appId: "1:595537471459:web:4c6c35e907c947a8d222d6"
         };
-        
+
         this.currentUser = null;
         this.currentPage = 1;
         this.threadsPerPage = 20;
         this.currentThreadId = null;
-        
+        this._notifUnsub = null;
+
         this.init();
     }
-    
+
     async init() {
         try {
-            // Initialize Firebase
-            firebase.initializeApp(this.firebaseConfig);
+            if (!firebase.apps || !firebase.apps.length) {
+                firebase.initializeApp(this.firebaseConfig);
+            }
             this.db = firebase.firestore();
             this.auth = firebase.auth();
-            
-            // Set up auth state listener
+
             this.auth.onAuthStateChanged((user) => {
                 this.currentUser = user;
                 this.updateAuthUI();
+                this.startNotificationsListener(); // start/refresh notifications watcher
             });
-            
-            // Set up event listeners
+
             this.setupEventListeners();
-            
-            console.log('Forum initialized successfully');
+            console.log("Forum initialized successfully");
         } catch (error) {
-            console.error('Forum initialization failed:', error);
-            this.showForumError('Failed to initialize forum');
+            console.error("Forum initialization failed:", error);
+            this.showForumError("Failed to initialize forum");
         }
     }
-    
+
     setupEventListeners() {
-        // Auth button
-        document.getElementById('authBtn').addEventListener('click', () => {
-            if (this.currentUser) {
-                this.signOut();
-            } else {
-                this.signIn();
-            }
-        });
-        
-        // Create thread button
-        document.getElementById('createThreadBtn').addEventListener('click', () => {
-            document.getElementById('createThreadModal').classList.add('show');
-        });
-        
-        // Create thread form
-        document.getElementById('createThreadForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.createThread();
-        });
-        
-        // Category filter
-        document.getElementById('categoryFilter').addEventListener('change', () => {
-            this.currentPage = 1;
-            this.loadThreads();
-        });
-        
-        // Pagination
-        document.getElementById('forumPrevBtn').addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.currentPage--;
+        const authBtn = document.getElementById("authBtn");
+        if (authBtn) {
+            authBtn.addEventListener("click", () => {
+                if (this.currentUser) this.signOut();
+                else this.signIn();
+            });
+        }
+
+        const createBtn = document.getElementById("createThreadBtn");
+        if (createBtn) {
+            createBtn.addEventListener("click", () => {
+                const modal = document.getElementById("createThreadModal");
+                if (modal) modal.classList.add("show");
+            });
+        }
+
+        const createForm = document.getElementById("createThreadForm");
+        if (createForm) {
+            createForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                this.createThread();
+            });
+        }
+
+        const categoryFilter = document.getElementById("categoryFilter");
+        if (categoryFilter) {
+            categoryFilter.addEventListener("change", () => {
+                this.currentPage = 1;
                 this.loadThreads();
-            }
-        });
-        
-        document.getElementById('forumNextBtn').addEventListener('click', () => {
-            this.currentPage++;
-            this.loadThreads();
-        });
+            });
+        }
+
+        const prevBtn = document.getElementById("forumPrevBtn");
+        if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadThreads();
+                }
+            });
+        }
+
+        const nextBtn = document.getElementById("forumNextBtn");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                this.currentPage++;
+                this.loadThreads();
+            });
+        }
+
+        // Optional: Notifications UI open/mark-read handlers (if present)
+        const notifBell = document.getElementById("notificationsBell");
+        if (notifBell) {
+            notifBell.addEventListener("click", () => this.openNotifications());
+        }
+        const markAllReadBtn = document.getElementById("markAllNotificationsRead");
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener("click", () => this.markAllNotificationsRead());
+        }
     }
-    
+
     async signIn() {
         try {
             const provider = new firebase.auth.GoogleAuthProvider();
             await this.auth.signInWithPopup(provider);
-            showNotification('Signed in successfully!', 'success');
+            showNotification("Signed in successfully!", "success");
         } catch (error) {
-            console.error('Sign in error:', error);
-            
-            // Fallback to anonymous auth
-            if (confirm('Google sign-in failed. Sign in anonymously instead?')) {
+            console.error("Sign in error:", error);
+            if (confirm("Google sign-in failed. Sign in anonymously instead?")) {
                 try {
                     await this.auth.signInAnonymously();
-                    showNotification('Signed in anonymously!', 'success');
+                    showNotification("Signed in anonymously!", "success");
                 } catch (anonError) {
-                    console.error('Anonymous sign in error:', anonError);
-                    showNotification('Sign in failed');
+                    console.error("Anonymous sign in error:", anonError);
+                    showNotification("Sign in failed");
                 }
             }
         }
     }
-    
+
     async signOut() {
         try {
             await this.auth.signOut();
-            showNotification('Signed out successfully!', 'success');
+            showNotification("Signed out successfully!", "success");
         } catch (error) {
-            console.error('Sign out error:', error);
-            showNotification('Sign out failed');
+            console.error("Sign out error:", error);
+            showNotification("Sign out failed");
         }
     }
-    
+
     updateAuthUI() {
-        const authBtn = document.getElementById('authBtn');
-        const authStatus = document.getElementById('authStatus');
-        const createThreadBtn = document.getElementById('createThreadBtn');
-        
+        const authBtn = document.getElementById("authBtn");
+        const authStatus = document.getElementById("authStatus");
+        const createThreadBtn = document.getElementById("createThreadBtn");
+
         if (this.currentUser) {
             const isAnonymous = this.currentUser.isAnonymous;
-            const displayName = isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
-            
-            authBtn.textContent = 'Sign Out';
-            authStatus.textContent = `Signed in as: ${displayName}`;
-            createThreadBtn.style.display = 'block';
+            const displayName = isAnonymous ? "Anonymous" : (this.currentUser.displayName || "User");
+            if (authBtn) authBtn.textContent = "Sign Out";
+            if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
+            if (createThreadBtn) createThreadBtn.style.display = "block";
         } else {
-            authBtn.textContent = 'Sign In';
-            authStatus.textContent = 'Sign in to create threads and reply';
-            createThreadBtn.style.display = 'none';
+            if (authBtn) authBtn.textContent = "Sign In";
+            if (authStatus) authStatus.textContent = "Sign in to create threads and reply";
+            if (createThreadBtn) createThreadBtn.style.display = "none";
         }
     }
-    
+
+    // ---------- Mentions & Notifications ----------
+
+    /**
+     * Parse @username from text and create notifications for mentioned users
+     * Firestore structure:
+     *   users/{uid} { username: "alex" }
+     *   notifications/{autoId} { to, from, type:"mention", threadId, replyId?, createdAt, read:false }
+     */
+    async handleMentions(content, fromUserId, threadId, replyId = null) {
+        try {
+            if (!content) return;
+            const mentionRegex = /@(\w+)/g;
+            let match;
+            const seen = new Set();
+
+            while ((match = mentionRegex.exec(content)) !== null) {
+                const username = match[1].toLowerCase();
+                if (seen.has(username)) continue;
+                seen.add(username);
+
+                const snap = await this.db.collection("users").where("username", "==", username).limit(1).get();
+                if (!snap.empty) {
+                    const mentionedUser = snap.docs[0];
+                    const toUid = mentionedUser.id;
+
+                    // Don't notify yourself
+                    if (toUid === fromUserId) continue;
+
+                    await this.db.collection("notifications").add({
+                        to: toUid,
+                        from: fromUserId,
+                        type: "mention",
+                        threadId,
+                        replyId: replyId || null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        read: false
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("handleMentions error:", err);
+        }
+    }
+
+    startNotificationsListener() {
+        // cleanup previous listener
+        if (this._notifUnsub) {
+            this._notifUnsub();
+            this._notifUnsub = null;
+        }
+        const badge = document.getElementById("notificationCount");
+        const list = document.getElementById("notificationsList"); // optional modal list
+
+        if (!this.currentUser) {
+            if (badge) badge.textContent = "";
+            if (list) list.innerHTML = "";
+            return;
+        }
+
+        try {
+            // Listen for unread count
+            this._notifUnsub = this.db.collection("notifications")
+                .where("to", "==", this.currentUser.uid)
+                .where("read", "==", false)
+                .orderBy("createdAt", "desc")
+                .onSnapshot((qs) => {
+                    if (badge) {
+                        const count = qs.size || 0;
+                        badge.textContent = count > 0 ? String(count) : "";
+                    }
+                });
+        } catch (e) {
+            // Likely needs composite index (to, read, createdAt)
+            console.warn("Notifications listener issue (index likely needed):", e);
+        }
+    }
+
+    async openNotifications() {
+        if (!this.currentUser) return;
+        const list = document.getElementById("notificationsList");
+        const modal = document.getElementById("notificationsModal");
+        if (!list) return;
+
+        try {
+            const qs = await this.db.collection("notifications")
+                .where("to", "==", this.currentUser.uid)
+                .orderBy("createdAt", "desc")
+                .limit(50)
+                .get();
+
+            const items = await Promise.all(qs.docs.map(async (doc) => {
+                const n = { id: doc.id, ...doc.data() };
+                let fromName = "Someone";
+                try {
+                    const fromUser = await this.db.collection("users").doc(n.from).get();
+                    if (fromUser.exists) {
+                        fromName = fromUser.data().displayName || fromUser.data().username || "Someone";
+                    }
+                } catch (_) {}
+                const time = this.getTimeAgo(n.createdAt?.toDate() || new Date());
+                return `
+                    <div class="notification-item ${n.read ? "" : "unread"}" data-id="${n.id}">
+                        <div>
+                            <strong>${this.escapeHtml(fromName)}</strong> mentioned you
+                            ${n.replyId ? "in a reply" : "in a thread"}.
+                            <div class="text-xs" style="color: var(--text-muted)">${time}</div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-xs" onclick="forumManager.goToNotification('${n.threadId}', '${n.replyId || ""}', '${n.id}')">Open</button>
+                            ${n.read ? "" : `<button class="btn btn-xs" onclick="forumManager.markNotificationRead('${n.id}')">Mark read</button>`}
+                        </div>
+                    </div>
+                `;
+            }));
+
+            list.innerHTML = items.join("") || `<div class="empty-state"><p>No notifications</p></div>`;
+            if (modal) modal.classList.add("show");
+        } catch (err) {
+            console.error("openNotifications error:", err);
+        }
+    }
+
+    async markNotificationRead(notificationId) {
+        try {
+            await this.db.collection("notifications").doc(notificationId).set({ read: true }, { merge: true });
+        } catch (e) {
+            console.error("markNotificationRead error:", e);
+        }
+    }
+
+    async markAllNotificationsRead() {
+        if (!this.currentUser) return;
+        try {
+            const qs = await this.db.collection("notifications")
+                .where("to", "==", this.currentUser.uid)
+                .where("read", "==", false)
+                .get();
+            const batch = this.db.batch();
+            qs.forEach(doc => batch.set(doc.ref, { read: true }, { merge: true }));
+            await batch.commit();
+        } catch (e) {
+            console.error("markAllNotificationsRead error:", e);
+        }
+    }
+
+    async goToNotification(threadId, replyId, notificationId) {
+        try {
+            await this.markNotificationRead(notificationId);
+        } catch (_) {}
+        await this.openThread(threadId);
+        if (replyId) {
+            // optionally scroll to reply element if you render with an anchor id="reply-{replyId}"
+            const el = document.getElementById(`reply-${replyId}`);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        const modal = document.getElementById("notificationsModal");
+        if (modal) modal.classList.remove("show");
+    }
+
+    // ---------- Threads ----------
+
     async loadThreads(searchTerm = "") {
-    try {
-        const categoryFilter = document.getElementById('categoryFilter').value;
-        let query;
+        try {
+            const categoryFilter = (document.getElementById("categoryFilter")?.value) || "";
+            let query;
 
-       if (searchTerm) {
-            // Search by title (prefix match)
-            query = this.db.collection('forum').doc('threads').collection('threads')
-                .orderBy('title')
-                .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff');
-        } else {
-            // Default: order by last activity
-            query = this.db.collection('forum').doc('threads').collection('threads')
-                .orderBy('lastActivity', 'desc');
-        }
-
-
-        if (categoryFilter) {
-            query = query.where('category', '==', categoryFilter);
-        }
-
-        const snapshot = await query.limit(this.threadsPerPage).get();
-        const threads = [];
-
-        for (const doc of snapshot.docs) {
-            const thread = { id: doc.id, ...doc.data() };
-
-            // Check if user has read this thread
-            if (this.currentUser) {
-                const readStatus = await this.getUserReadStatus(thread.id);
-                thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+            if (searchTerm) {
+                query = this.db
+                    .collection("forum").doc("threads").collection("threads")
+                    .orderBy("title")
+                    .startAt(searchTerm)
+                    .endAt(searchTerm + "\uf8ff");
             } else {
-                thread.unread = false;
+                query = this.db
+                    .collection("forum").doc("threads").collection("threads")
+                    .orderBy("lastActivity", "desc");
             }
 
-            threads.push(thread);
+            if (categoryFilter) {
+                query = query.where("category", "==", categoryFilter);
+            }
+
+            const snapshot = await query.limit(this.threadsPerPage).get();
+            const threads = [];
+
+            for (const doc of snapshot.docs) {
+                const thread = { id: doc.id, ...doc.data() };
+                if (this.currentUser) {
+                    const readStatus = await this.getUserReadStatus(thread.id);
+                    thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+                } else {
+                    thread.unread = false;
+                }
+                threads.push(thread);
+            }
+
+            this.renderThreads(threads);
+            this.updateForumPagination(threads.length);
+        } catch (error) {
+            console.error("Error loading threads:", error);
+            this.showForumError("Failed to load threads");
         }
-
-        this.renderThreads(threads);
-        this.updateForumPagination(threads.length);
-
-    } catch (error) {
-        console.error('Error loading threads:', error);
-        this.showForumError('Failed to load threads');
     }
-}
 
-    
     renderThreads(threads) {
-        const threadList = document.getElementById('threadList');
-        
+        const threadList = document.getElementById("threadList");
+        if (!threadList) return;
+
         if (threads.length === 0) {
             threadList.innerHTML = `
                 <div class="empty-state">
@@ -4467,25 +4641,24 @@ class ForumManager {
             `;
             return;
         }
-        
+
         threadList.innerHTML = threads.map(thread => {
             const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
             const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
-            
+
             return `
                 <div class="forum-thread ${thread.unread ? 'unread' : ''}" onclick="forumManager.openThread('${thread.id}')">
                     <div class="thread-title ${thread.unread ? 'unread' : ''}">${this.escapeHtml(thread.title)}</div>
                     <div class="thread-meta">
                         <div>
-                            <span class="thread-category">${thread.category}</span>
-                            <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
+                            <span class="thread-category">${this.escapeHtml(thread.category || '')}</span>
+                            <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName || 'User')} • ${timeAgo}</span>
                         </div>
                         <div>Last activity: ${lastActivity}</div>
                     </div>
-                    <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere;">
-    ${this.escapeHtml(thread.content)}
-</div>
-
+                    <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
+                        ${this.formatContentWithMentions(thread.content || "")}
+                    </div>
                     <div class="thread-stats">
                         <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
                         <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
@@ -4494,86 +4667,91 @@ class ForumManager {
             `;
         }).join('');
     }
-    
+
     async createThread() {
         if (!this.currentUser) {
-            showNotification('Please sign in to create threads');
+            showNotification("Please sign in to create threads");
             return;
         }
-        
-        const title = document.getElementById('threadTitle').value.trim();
-        const content = document.getElementById('threadContent').value.trim();
-        const category = document.getElementById('threadCategory').value;
-        
+
+        const titleEl = document.getElementById("threadTitle");
+        const contentEl = document.getElementById("threadContent");
+        const categoryEl = document.getElementById("threadCategory");
+
+        const title = (titleEl?.value || "").trim();
+        const content = (contentEl?.value || "").trim();
+        const category = (categoryEl?.value) || "";
+
         if (!title || !content) {
-            showNotification('Please fill in all required fields');
+            showNotification("Please fill in all required fields");
             return;
         }
-        
+
         try {
             const thread = {
                 title,
                 content,
                 category,
                 authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+                authorName: this.currentUser.isAnonymous ? "Anonymous" : (this.currentUser.displayName || "User"),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
                 likeCount: 0,
                 replyCount: 0,
                 likes: {}
             };
-            
-            await this.db.collection('forum').doc('threads').collection('threads').add(thread);
-            
+
+            const docRef = await this.db.collection("forum").doc("threads").collection("threads").add(thread);
+
+            // Mentions from thread body
+            await this.handleMentions(content, this.currentUser.uid, docRef.id);
+
             this.closeCreateThreadModal();
             this.loadThreads();
-            showNotification('Thread created successfully!', 'success');
-            
+            showNotification("Thread created successfully!", "success");
         } catch (error) {
-            console.error('Error creating thread:', error);
-            showNotification('Failed to create thread');
+            console.error("Error creating thread:", error);
+            showNotification("Failed to create thread");
         }
     }
-    
+
     async openThread(threadId) {
         try {
             this.currentThreadId = threadId;
-            const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
-            
+
+            const threadDoc = await this.db.collection("forum").doc("threads").collection("threads").doc(threadId).get();
             if (!threadDoc.exists) {
-                showNotification('Thread not found');
+                showNotification("Thread not found");
                 return;
             }
-            
             const thread = { id: threadDoc.id, ...threadDoc.data() };
-            
-            // Mark as read for authenticated users
+
             if (this.currentUser) {
                 await this.markThreadAsRead(threadId);
             }
-            
-            // Load replies
-            const repliesSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
-                .doc(threadId).collection('replies').orderBy('createdAt', 'asc').get();
-            
+
+            const repliesSnapshot = await this.db.collection("forum").doc("threads").collection("threads")
+                .doc(threadId).collection("replies").orderBy("createdAt", "asc").get();
+
             const replies = repliesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
+
             this.renderThreadDetail(thread, replies);
-            document.getElementById('threadDetailModal').classList.add('show');
-            
+            const modal = document.getElementById("threadDetailModal");
+            if (modal) modal.classList.add("show");
         } catch (error) {
-            console.error('Error loading thread:', error);
-            showNotification('Failed to load thread');
+            console.error("Error loading thread:", error);
+            showNotification("Failed to load thread");
         }
     }
-    
+
     renderThreadDetail(thread, replies) {
+        const threadDetailContent = document.getElementById("threadDetailContent");
+        if (!threadDetailContent) return;
+
         const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
         const canEdit = this.currentUser && this.currentUser.uid === thread.authorId;
         const isLiked = this.currentUser && thread.likes && thread.likes[this.currentUser.uid];
-        
-        const threadDetailContent = document.getElementById('threadDetailContent');
+
         threadDetailContent.innerHTML = `
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -4581,14 +4759,12 @@ class ForumManager {
                     ${canEdit ? `<button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
                 </div>
                 <div style="margin-bottom: 10px;">
-                    <span class="thread-category">${thread.category}</span>
-                    <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
+                    <span class="thread-category">${this.escapeHtml(thread.category || '')}</span>
+                    <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName || 'User')} • ${timeAgo}</span>
                 </div>
                 <div style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
-    ${this.escapeHtml(thread.content)}
-</div>
-
-
+                    ${this.formatContentWithMentions(thread.content || "")}
+                </div>
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
                         ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
@@ -4596,7 +4772,7 @@ class ForumManager {
                     <span style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-solid fa-comment"></i> ${replies.length}</span>
                 </div>
             </div>
-            
+
             <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
                 <h3 style="margin-bottom: 15px;">Replies (${replies.length})</h3>
                 ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">No replies yet. Be the first to reply!</p>' : ''}
@@ -4604,25 +4780,22 @@ class ForumManager {
                     const replyTime = this.getTimeAgo(reply.createdAt?.toDate() || new Date());
                     const canEditReply = this.currentUser && this.currentUser.uid === reply.authorId;
                     return `
-                        <div class="reply-item">
+                        <div class="reply-item" id="reply-${reply.id}">
                             <div class="reply-header">
-                                <span class="reply-author">${this.escapeHtml(reply.authorName)}</span>
+                                <span class="reply-author">${this.escapeHtml(reply.authorName || 'User')}</span>
                                 <div>
                                     <span style="color: var(--text-muted);">${replyTime}</span>
                                     ${canEditReply ? `<button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
                                 </div>
                             </div>
-                            <div class="reply-content" 
-     style="line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
-    ${this.escapeHtml(reply.content)}
-</div>
-
-
+                            <div class="reply-content" style="line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left;">
+                                ${this.formatContentWithMentions(reply.content || "")}
+                            </div>
                         </div>
                     `;
                 }).join('')}
             </div>
-            
+
             ${this.currentUser ? `
                 <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
                     <h4 style="margin-bottom: 10px;">Add Reply</h4>
@@ -4637,221 +4810,241 @@ class ForumManager {
             `}
         `;
     }
-    
+
     async addReply(threadId) {
         if (!this.currentUser) {
-            showNotification('Please sign in to reply');
+            showNotification("Please sign in to reply");
             return;
         }
-        
-        const content = document.getElementById('replyContent').value.trim();
+
+        const content = (document.getElementById("replyContent")?.value || "").trim();
         if (!content) {
-            showNotification('Please enter a reply');
+            showNotification("Please enter a reply");
             return;
         }
-        
+
         try {
             const reply = {
                 content,
                 authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+                authorName: this.currentUser.isAnonymous ? "Anonymous" : (this.currentUser.displayName || "User"),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            
-            // Add reply
-            await this.db.collection('forum').doc('threads').collection('threads')
-                .doc(threadId).collection('replies').add(reply);
-            
-            // Update thread reply count and last activity
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
+
+            const replyRef = await this.db.collection("forum").doc("threads").collection("threads")
+                .doc(threadId).collection("replies").add(reply);
+
+            // Mentions notify
+            await this.handleMentions(content, this.currentUser.uid, threadId, replyRef.id);
+
+            // Update thread counters
+            await this.db.collection("forum").doc("threads").collection("threads").doc(threadId).update({
                 replyCount: firebase.firestore.FieldValue.increment(1),
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp()
             });
-            
-            // Reload thread
+
             this.openThread(threadId);
-            showNotification('Reply added successfully!', 'success');
-            
+            showNotification("Reply added successfully!", "success");
         } catch (error) {
-            console.error('Error adding reply:', error);
-            showNotification('Failed to add reply');
+            console.error("Error adding reply:", error);
+            showNotification("Failed to add reply");
         }
     }
-    
+
     async toggleLike(threadId) {
         if (!this.currentUser) {
-            showNotification('Please sign in to like threads');
+            showNotification("Please sign in to like threads");
             return;
         }
-        
+
+        const threadRef = this.db.collection("forum").doc("threads").collection("threads").doc(threadId);
+
         try {
-            const threadRef = this.db.collection('forum').doc('threads').collection('threads').doc(threadId);
-            const threadDoc = await threadRef.get();
-            
-            if (!threadDoc.exists) return;
-            
-            const thread = threadDoc.data();
-            const likes = thread.likes || {};
-            const isLiked = likes[this.currentUser.uid];
-            
-            if (isLiked) {
-                delete likes[this.currentUser.uid];
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(-1)
-                });
+            await this.db.runTransaction(async (tx) => {
+                const snap = await tx.get(threadRef);
+                if (!snap.exists) return;
+
+                const data = snap.data() || {};
+                const likes = { ...(data.likes || {}) };
+                const already = !!likes[this.currentUser.uid];
+
+                if (already) {
+                    delete likes[this.currentUser.uid];
+                    tx.update(threadRef, {
+                        likes,
+                        likeCount: firebase.firestore.FieldValue.increment(-1)
+                    });
+                } else {
+                    likes[this.currentUser.uid] = true;
+                    tx.update(threadRef, {
+                        likes,
+                        likeCount: firebase.firestore.FieldValue.increment(1)
+                    });
+                }
+            });
+
+            // Reload thread UI
+            if (this.currentThreadId === threadId) {
+                await this.openThread(threadId);
             } else {
-                likes[this.currentUser.uid] = true;
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(1)
-                });
+                await this.loadThreads();
             }
-            
-            // Reload thread
-            this.openThread(threadId);
-            
         } catch (error) {
-            console.error('Error toggling like:', error);
-            showNotification('Failed to update like');
+            console.error("Error toggling like:", error);
+            showNotification("Failed to update like");
         }
     }
-    
+
     async deleteThread(threadId) {
         if (!this.currentUser) return;
-        
-        if (!confirm('Are you sure you want to delete this thread? This action cannot be undone.')) {
-            return;
-        }
-        
+        if (!confirm("Are you sure you want to delete this thread? This action cannot be undone.")) return;
+
         try {
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).delete();
-            this.closeThreadDetailModal();
-            this.loadThreads();
-            showNotification('Thread deleted successfully!', 'success');
+            await this.db.collection("forum").doc("threads").collection("threads").doc(threadId).delete();
+            const modal = document.getElementById("threadDetailModal");
+            if (modal) modal.classList.remove("show");
+            this.currentThreadId = null;
+            await this.loadThreads();
+            showNotification("Thread deleted successfully!", "success");
         } catch (error) {
-            console.error('Error deleting thread:', error);
-            showNotification('Failed to delete thread');
+            console.error("Error deleting thread:", error);
+            showNotification("Failed to delete thread");
         }
     }
-    
+
     async deleteReply(threadId, replyId) {
         if (!this.currentUser) return;
-        
-        if (!confirm('Are you sure you want to delete this reply?')) {
-            return;
-        }
-        
+        if (!confirm("Are you sure you want to delete this reply?")) return;
+
         try {
-            await this.db.collection('forum').doc('threads').collection('threads')
-                .doc(threadId).collection('replies').doc(replyId).delete();
-            
-            // Update reply count
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
+            const replyRef = this.db.collection("forum").doc("threads").collection("threads")
+                .doc(threadId).collection("replies").doc(replyId);
+
+            await replyRef.delete();
+
+            // Decrement reply count
+            await this.db.collection("forum").doc("threads").collection("threads").doc(threadId).update({
                 replyCount: firebase.firestore.FieldValue.increment(-1)
             });
-            
-            this.openThread(threadId);
-            showNotification('Reply deleted successfully!', 'success');
+
+            await this.openThread(threadId);
+            showNotification("Reply deleted successfully!", "success");
         } catch (error) {
-            console.error('Error deleting reply:', error);
-            showNotification('Failed to delete reply');
+            console.error("Error deleting reply:", error);
+            showNotification("Failed to delete reply");
         }
     }
-    
+
+    // ---------- Read status ----------
+
     async getUserReadStatus(threadId) {
         if (!this.currentUser) return null;
-        
         try {
-            const doc = await this.db.collection('forum').doc('userReadStatus')
-                .doc(this.currentUser.uid).collection('threads').doc(threadId).get();
+            const doc = await this.db.collection("forum").doc("userReadStatus")
+                .doc(this.currentUser.uid).collection("threads").doc(threadId).get();
             return doc.exists ? doc.data() : null;
         } catch (error) {
-            console.error('Error getting read status:', error);
+            console.error("Error getting read status:", error);
             return null;
         }
     }
-    
+
     async markThreadAsRead(threadId) {
         if (!this.currentUser) return;
-        
         try {
-            await this.db.collection('forum').doc('userReadStatus')
-                .doc(this.currentUser.uid).collection('threads').doc(threadId).set({
+            await this.db.collection("forum").doc("userReadStatus")
+                .doc(this.currentUser.uid).collection("threads").doc(threadId).set({
                     lastRead: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
         } catch (error) {
-            console.error('Error marking thread as read:', error);
+            console.error("Error marking thread as read:", error);
         }
     }
-    
+
+    // ---------- Pagination / UI helpers ----------
+
     updateForumPagination(threadsCount) {
         const paginationInfo = document.getElementById('forumPaginationInfo');
         const prevBtn = document.getElementById('forumPrevBtn');
         const nextBtn = document.getElementById('forumNextBtn');
-const currentPageSpan = document.getElementById('forumCurrentPage');
-       
-       paginationInfo.textContent = `Page ${this.currentPage}`;
-       prevBtn.disabled = this.currentPage <= 1;
-       nextBtn.disabled = threadsCount < this.threadsPerPage;
-       currentPageSpan.textContent = this.currentPage;
-   }
-   
-   closeCreateThreadModal() {
-       document.getElementById('createThreadModal').classList.remove('show');
-       document.getElementById('createThreadForm').reset();
-   }
-   
-   closeThreadDetailModal() {
-       document.getElementById('threadDetailModal').classList.remove('show');
-       this.currentThreadId = null;
-   }
-   
-   showForumError(message) {
-       const threadList = document.getElementById('threadList');
-       threadList.innerHTML = `
-           <div class="empty-state">
-               <h3>Error</h3>
-               <p>${message}</p>
-               <button class="btn" onclick="forumManager.loadThreads()">Retry</button>
-           </div>
-       `;
-   }
-   
-   getTimeAgo(date) {
-       const now = new Date();
-       const diffInSeconds = Math.floor((now - date) / 1000);
-       
-       if (diffInSeconds < 60) return 'Just now';
-       if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-       if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-       if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-       
-       return date.toLocaleDateString();
-   }
-   
-   escapeHtml(text) {
-       const div = document.createElement('div');
-       div.textContent = text;
-       return div.innerHTML;
-   }
+        const currentPageSpan = document.getElementById('forumCurrentPage');
+
+        if (paginationInfo) paginationInfo.textContent = `Page ${this.currentPage}`;
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = threadsCount < this.threadsPerPage;
+        if (currentPageSpan) currentPageSpan.textContent = this.currentPage;
+    }
+
+    closeCreateThreadModal() {
+        const modal = document.getElementById('createThreadModal');
+        if (modal) modal.classList.remove('show');
+        const form = document.getElementById('createThreadForm');
+        if (form) form.reset();
+    }
+
+    closeThreadDetailModal() {
+        const modal = document.getElementById('threadDetailModal');
+        if (modal) modal.classList.remove('show');
+        this.currentThreadId = null;
+    }
+
+    showForumError(message) {
+        const threadList = document.getElementById('threadList');
+        if (!threadList) return;
+        threadList.innerHTML = `
+            <div class="empty-state">
+                <h3>Error</h3>
+                <p>${this.escapeHtml(message)}</p>
+                <button class="btn" onclick="forumManager.loadThreads()">Retry</button>
+            </div>
+        `;
+    }
+
+    getTimeAgo(date) {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+        return date.toLocaleDateString();
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || "";
+        return div.innerHTML;
+    }
+
+    // Render @mentions with a simple highlight after escaping
+    formatContentWithMentions(text) {
+        const safe = this.escapeHtml(text || "");
+        // replace word-boundary style mentions
+        return safe.replace(/(^|[\s.,!?()])@(\w+)/g, (m, pre, uname) => {
+            return `${pre}<span class="mention" data-username="${uname}" style="color:#2563EB; font-weight:600;">@${uname}</span>`;
+        });
+    }
 }
 
-// Global forum functions
+// Global helpers for modals (kept for compatibility)
 function closeCreateThreadModal() {
-   if (window.forumManager) {
-       window.forumManager.closeCreateThreadModal();
-   }
+    if (window.forumManager) {
+        window.forumManager.closeCreateThreadModal();
+    }
 }
-
 function closeThreadDetailModal() {
-   if (window.forumManager) {
-       window.forumManager.closeThreadDetailModal();
-   }
+    if (window.forumManager) {
+        window.forumManager.closeThreadDetailModal();
+    }
 }
 
-// Initialize forum manager
-let forumManager = null;
+// Initialize forum manager once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.forumManager) {
+        window.forumManager = new ForumManager();
+    }
+});
+
 
     </script>
 
