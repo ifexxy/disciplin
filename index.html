@@ -3014,11 +3014,11 @@ body[data-active-tab="resources"] .sos-button {
             <button id="forumNextBtn" class="pagination-btn" disabled>Next</button>
         </div>
     </div>
-    <div id="forum" class="tab-content">
+   
 <div id="threadDetailTab" class="thread-detail-tab" style="display: none;">
     <button id="backToThreadsBtn" class="btn-secondary">← Back to Threads</button>
     <div id="threadDetailContent"></div>
-</div></div>
+</div>
     <!-- Create Thread Modal -->
     <div id="createThreadModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
@@ -6646,6 +6646,14 @@ document.addEventListener('visibilitychange', function() {
     } else if (tabName === 'journal') {
         loadJournalEntries();
     }
+        
+else if (tabName === 'threadDetailTab') {
+    // show thread content in tab
+    if (forumManager) {
+        forummanager.threadDetailContent();
+    }
+}
+        
      else if (tabName === 'forum') {
         // Load forum threads when switching to forum tab
         if (forumManager) {
