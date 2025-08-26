@@ -4578,6 +4578,9 @@ class ForumManager {
     }
 }
     renderHomeThreads(threads) {
+    console.log('🎨 renderHomeThreads called');
+    console.log('Threads received:', threads);
+    console.log('Container element:', document.getElementById('homeRecentThreads'));
     const homeThreadsContainer = document.getElementById('homeRecentThreads');
     if (!homeThreadsContainer) return;
     
@@ -6766,11 +6769,25 @@ document.addEventListener('visibilitychange', function() {
         updateFloatingNotificationButton();
         updateSOSButtonVisibility(tabName)
 
-if (forumManager) {
-            forumManager.loadRecentThreadsForHome().then(threads => {
-                forumManager.renderHomeThreads(threads);
-            });
-        }
+ // Enhanced debugging
+    console.log('=== HOME TAB DEBUG ===');
+    console.log('forumManager exists:', !!forumManager);
+    console.log('forumManager.db exists:', !!forumManager?.db);
+    console.log('Container exists:', !!document.getElementById('homeRecentThreads'));
+    
+    if (forumManager) {
+        console.log('Starting loadRecentThreadsForHome...');
+        forumManager.loadRecentThreadsForHome().then(threads => {
+            console.log('✅ Promise resolved with threads:', threads);
+            console.log('Thread count:', threads.length);
+            forumManager.renderHomeThreads(threads);
+        }).catch(error => {
+            console.error('❌ Promise rejected:', error);
+        });
+    } else {
+        console.error('❌ forumManager is not initialized');
+    }
+}
 
 
     } else if (tabName === 'history') {
