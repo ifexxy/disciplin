@@ -6764,11 +6764,14 @@ document.addEventListener('visibilitychange', function() {
         updateFloatingNotificationButton();
         updateSOSButtonVisibility(tabName)
 
-if (forumManager) {
-            forumManager.loadRecentThreadsForHome().then(threads => {
-                forumManager.renderHomeThreads(threads);
-            });
-        }
+ // Simple test
+    const container = document.getElementById('homeRecentThreads');
+    if (container) {
+        container.innerHTML = '<p>Testing - this should show up!</p>';
+    } else {
+        console.log('Container homeRecentThreads not found!');
+    }
+}
 
     } else if (tabName === 'history') {
         loadHistory();
