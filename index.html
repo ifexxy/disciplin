@@ -4578,9 +4578,6 @@ class ForumManager {
     }
 }
     renderHomeThreads(threads) {
-    console.log('🎨 renderHomeThreads called');
-    console.log('Threads received:', threads);
-    console.log('Container element:', document.getElementById('homeRecentThreads'));
     const homeThreadsContainer = document.getElementById('homeRecentThreads');
     if (!homeThreadsContainer) return;
     
@@ -6769,11 +6766,6 @@ document.addEventListener('visibilitychange', function() {
         updateFloatingNotificationButton();
         updateSOSButtonVisibility(tabName)
 
- // Enhanced debugging
-    console.log('=== HOME TAB DEBUG ===');
-    console.log('forumManager exists:', !!forumManager);
-    console.log('forumManager.db exists:', !!forumManager?.db);
-    console.log('Container exists:', !!document.getElementById('homeRecentThreads'));
     
     if (forumManager) {
         console.log('Starting loadRecentThreadsForHome...');
@@ -6787,7 +6779,7 @@ document.addEventListener('visibilitychange', function() {
     } else {
         console.error('❌ forumManager is not initialized');
     }
-}
+
 
 
     } else if (tabName === 'history') {
