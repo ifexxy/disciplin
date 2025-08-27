@@ -6635,16 +6635,36 @@ function switchTabWithLoading(tabName) {
                 updateStreakNotification();
                 updateAchievements();
                  console.log('🔄 HOME TAB: Loading forum threads...');
-        if (forumManager && forumManager.isInitialized) {
+    
+    if (forumManager) {
+        if (forumManager.isInitialized) {
+            // Already initialized, load threads
             forumManager.loadRecentThreadsForHome().then(threads => {
                 console.log('✅ HOME TAB: Got threads:', threads);
                 forumManager.renderHomeThreads(threads);
-            }).catch(error => {
-                console.error('❌ HOME TAB: Error:', error);
             });
         } else {
-            console.log('❌ HOME TAB: forumManager not ready');
+            // Not initialized yet, wait for it
+            console.log('⏳ HOME TAB: Waiting for forumManager to initialize...');
+            
+            const checkInitialized = () => {
+                if (forumManager.isInitialized) {
+                    console.log('✅ HOME TAB: ForumManager now ready!');
+                    forumManager.loadRecentThreadsForHome().then(threads => {
+                        console.log('✅ HOME TAB: Got threads:', threads);
+                        forumManager.renderHomeThreads(threads);
+                    });
+                } else {
+                    // Check again in 500ms
+                    setTimeout(checkInitialized, 500);
+                }
+            };
+            
+            checkInitialized();
         }
+    } else {
+        console.log('❌ HOME TAB: forumManager does not exist');
+    }
             } else if (tabName === 'history') {
                 loadHistory();
             } else if (tabName === 'insights') {
