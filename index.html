@@ -6766,13 +6766,19 @@ document.addEventListener('visibilitychange', function() {
         updateLevelSystem();
         updateGoalsDisplay();
         updateFloatingNotificationButton();
-        updateSOSButtonVisibility(tabName)
+        updateSOSButtonVisibility(tabName);
 
     
-    if (forumManager && forumManager.isInitialized) {
+  console.log('🔄 HOME TAB: Loading forum threads...');
+        if (forumManager && forumManager.isInitialized) {
             forumManager.loadRecentThreadsForHome().then(threads => {
+                console.log('✅ HOME TAB: Got threads:', threads);
                 forumManager.renderHomeThreads(threads);
+            }).catch(error => {
+                console.error('❌ HOME TAB: Error:', error);
             });
+        } else {
+            console.log('❌ HOME TAB: forumManager not ready');
         }
     
 
