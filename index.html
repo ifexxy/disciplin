@@ -6634,6 +6634,17 @@ function switchTabWithLoading(tabName) {
                 updateStats();
                 updateStreakNotification();
                 updateAchievements();
+                 console.log('🔄 HOME TAB: Loading forum threads...');
+        if (forumManager && forumManager.isInitialized) {
+            forumManager.loadRecentThreadsForHome().then(threads => {
+                console.log('✅ HOME TAB: Got threads:', threads);
+                forumManager.renderHomeThreads(threads);
+            }).catch(error => {
+                console.error('❌ HOME TAB: Error:', error);
+            });
+        } else {
+            console.log('❌ HOME TAB: forumManager not ready');
+        }
             } else if (tabName === 'history') {
                 loadHistory();
             } else if (tabName === 'insights') {
@@ -6680,7 +6691,7 @@ document.getElementById('threadSearch').addEventListener('input', (e) => {
  
 
        function switchTab(tabName) {
-             console.log('🔄 SWITCH TAB CALLED:', tabName);
+             
     // Scroll to top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
