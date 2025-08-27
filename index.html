@@ -4562,7 +4562,16 @@ class ForumManager {
         }).join('');
     }
     
-    async loadRecentThreadsForHome() {
+async loadRecentThreadsForHome() {
+    console.log('🔄 Loading recent threads for home...');
+    
+    // Add this check at the beginning
+    if (!this.db) {
+        console.log('⚠️ Database not initialized yet, retrying...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return this.loadRecentThreadsForHome(); // Retry
+    }
+    
     try {
         const query = this.db.collection('forum').doc('threads').collection('threads')
             .orderBy('lastActivity', 'desc')
@@ -4571,9 +4580,10 @@ class ForumManager {
         const snapshot = await query.get();
         const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
+        console.log('✅ Loaded threads:', threads);
         return threads;
     } catch (error) {
-        console.error('Error loading recent threads for home:', error);
+        console.error('❌ Error loading recent threads for home:', error);
         return [];
     }
 }
