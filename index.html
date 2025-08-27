@@ -2571,7 +2571,7 @@ body[data-active-tab="resources"] .sos-button {
     </button>
 </div>
 <div class="card" style="margin-bottom: 20px;">
-    <div id="homeRecentThreads"></div>
+    <div id="homeRecentThreads">Loading forum threads...</div>
 </div>
          
             <!-- Goals Section -->
@@ -4563,14 +4563,7 @@ class ForumManager {
     }
     
 async loadRecentThreadsForHome() {
-    console.log('🔄 Loading recent threads for home...');
-    
-    // Add this check at the beginning
-    if (!this.db) {
-        console.log('⚠️ Database not initialized yet, retrying...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return this.loadRecentThreadsForHome(); // Retry
-    }
+    console.log('🔄 HOME: Loading threads...');
     
     try {
         const query = this.db.collection('forum').doc('threads').collection('threads')
@@ -4580,13 +4573,14 @@ async loadRecentThreadsForHome() {
         const snapshot = await query.get();
         const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        console.log('✅ Loaded threads:', threads);
+        console.log('🔄 HOME: Found', threads.length, 'threads');
         return threads;
     } catch (error) {
-        console.error('❌ Error loading recent threads for home:', error);
+        console.error('❌ HOME: Error:', error);
         return [];
     }
 }
+    
     renderHomeThreads(threads) {
     const homeThreadsContainer = document.getElementById('homeRecentThreads');
     if (!homeThreadsContainer) return;
@@ -6774,18 +6768,12 @@ document.addEventListener('visibilitychange', function() {
         updateSOSButtonVisibility(tabName)
 
     
-    if (forumManager) {
-        console.log('Starting loadRecentThreadsForHome...');
-        forumManager.loadRecentThreadsForHome().then(threads => {
-            console.log('✅ Promise resolved with threads:', threads);
-            console.log('Thread count:', threads.length);
-            forumManager.renderHomeThreads(threads);
-        }).catch(error => {
-            console.error('❌ Promise rejected:', error);
-        });
-    } else {
-        console.error('❌ forumManager is not initialized');
-    }
+    if (forumManager && forumManager.isInitialized) {
+            forumManager.loadRecentThreadsForHome().then(threads => {
+                forumManager.renderHomeThreads(threads);
+            });
+        }
+    
 
 
 
