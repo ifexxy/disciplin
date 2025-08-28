@@ -5023,6 +5023,72 @@ function closeThreadDetailModal() {
     }
 }
 
+        async function loadThreadsForHome() {
+    try {
+        if (!forumManager.db) {
+            console.log('⏳ DB not ready, retrying...');
+            setTimeout(loadThreadsForHome, 1000);
+            return;
+        }
+        
+        // Use same query as loadThreads but limit to 5 threads
+        const query = forumManager.db.collection('forum').doc('threads').collection('threads')
+            .orderBy('lastActivity', 'desc')
+            .limit(5);
+
+        const snapshot = await query.get();
+        const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        console.log('✅ HOME TAB: Got', threads.length, 'threads');
+        renderThreadsOnHome(threads);
+        
+    } catch (error) {
+        console.error('❌ HOME TAB: Error:', error);
+        document.getElementById('homeRecentThreads').innerHTML = 
+            '<p style="color: var(--text-secondary);">Failed to load forum threads</p>';
+    }
+}
+
+        function renderThreadsOnHome(threads) {
+    const homeThreadsContainer = document.getElementById('homeRecentThreads');
+    if (!homeThreadsContainer) return;
+    
+    if (threads.length === 0) {
+        homeThreadsContainer.innerHTML = '<p style="color: var(--text-secondary);">No recent forum activity</p>';
+        return;
+    }
+    
+    homeThreadsContainer.innerHTML = `
+        <h3 style="color: #4F46E5; margin-bottom: 15px;">Recent Forum Activity</h3>
+        ${threads.map(thread => {
+            const timeAgo = forumManager.getTimeAgo(thread.createdAt?.toDate() || new Date());
+            return `
+                <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer;" 
+                     onclick="switchTab('forum'); setTimeout(() => forumManager.openThreadTab('${thread.id}'), 100);">
+                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 5px;">
+                        ${forumManager.escapeHtml(thread.title)}
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                        ${thread.category} • by ${forumManager.escapeHtml(thread.authorName)} • ${timeAgo}
+                    </div>
+                    <div style="font-size: 13px; color: var(--text-muted);">
+                        ${forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
+                    </div>
+                    <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
+                        <span>👍 ${thread.likeCount || 0}</span>
+                        <span>💬 ${thread.replyCount || 0}</span>
+                    </div>
+                </div>
+            `;
+        }).join('')}
+        <div style="text-align: center; margin-top: 15px;">
+            <button onclick="switchTab('forum')" style="background: none; border: 1px solid #4F46E5; color: #4F46E5; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+                View All Threads →
+            </button>
+        </div>
+    `;
+}
+
 // Initialize forum manager
 let forumManager = null;
  // Initialize forum manager immediately
@@ -6634,36 +6700,11 @@ function switchTabWithLoading(tabName) {
                 updateStats();
                 updateStreakNotification();
                 updateAchievements();
-                 console.log('🔄 HOME TAB: Loading forum threads...');
+                console.log('🔄 HOME TAB: Loading threads using existing function...');
     
     if (forumManager) {
-        if (forumManager.isInitialized) {
-            // Already initialized, load threads
-            forumManager.loadRecentThreadsForHome().then(threads => {
-                console.log('✅ HOME TAB: Got threads:', threads);
-                forumManager.renderHomeThreads(threads);
-            });
-        } else {
-            // Not initialized yet, wait for it
-            console.log('⏳ HOME TAB: Waiting for forumManager to initialize...');
-            
-            const checkInitialized = () => {
-                if (forumManager.isInitialized) {
-                    console.log('✅ HOME TAB: ForumManager now ready!');
-                    forumManager.loadRecentThreadsForHome().then(threads => {
-                        console.log('✅ HOME TAB: Got threads:', threads);
-                        forumManager.renderHomeThreads(threads);
-                    });
-                } else {
-                    // Check again in 500ms
-                    setTimeout(checkInitialized, 500);
-                }
-            };
-            
-            checkInitialized();
-        }
-    } else {
-        console.log('❌ HOME TAB: forumManager does not exist');
+        // Use the existing loadThreads but modify it for home
+        loadThreadsForHome();
     }
             } else if (tabName === 'history') {
                 loadHistory();
@@ -6800,17 +6841,12 @@ document.addEventListener('visibilitychange', function() {
         updateSOSButtonVisibility(tabName);
 
     
-  console.log('🔄 HOME TAB: Loading forum threads...');
-        if (forumManager && forumManager.isInitialized) {
-            forumManager.loadRecentThreadsForHome().then(threads => {
-                console.log('✅ HOME TAB: Got threads:', threads);
-                forumManager.renderHomeThreads(threads);
-            }).catch(error => {
-                console.error('❌ HOME TAB: Error:', error);
-            });
-        } else {
-            console.log('❌ HOME TAB: forumManager not ready');
-        }
+console.log('🔄 HOME TAB: Loading threads using existing function...');
+    
+    if (forumManager) {
+        // Use the existing loadThreads but modify it for home
+        loadThreadsForHome();
+    }
     
 
 
