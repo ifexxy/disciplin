@@ -5034,7 +5034,7 @@ function closeThreadDetailModal() {
         // Use same query as loadThreads but limit to 5 threads
         const query = forumManager.db.collection('forum').doc('threads').collection('threads')
             .orderBy('lastActivity', 'desc')
-            .limit(5);
+            .limit(6);
 
         const snapshot = await query.get();
         const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -5075,8 +5075,8 @@ function closeThreadDetailModal() {
                         ${forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
                     </div>
                     <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                        <span>👍 ${thread.likeCount || 0}</span>
-                        <span>💬 ${thread.replyCount || 0}</span>
+                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
+                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
                     </div>
                 </div>
             `;
@@ -6832,6 +6832,12 @@ document.addEventListener('visibilitychange', function() {
 
     // Refresh data when switching to relevant tabs
     if (tabName === 'home') {
+        console.log('🔄 HOME TAB: Loading threads using existing function...');
+    
+    if (forumManager) {
+        // Use the existing loadThreads but modify it for home
+        loadThreadsForHome();
+    }
         updateStatsWithTimer();
         updateStreakNotification();
         updateAchievements();
@@ -6841,12 +6847,7 @@ document.addEventListener('visibilitychange', function() {
         updateSOSButtonVisibility(tabName);
 
     
-console.log('🔄 HOME TAB: Loading threads using existing function...');
-    
-    if (forumManager) {
-        // Use the existing loadThreads but modify it for home
-        loadThreadsForHome();
-    }
+
     
 
 
