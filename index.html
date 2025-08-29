@@ -4535,7 +4535,7 @@ class ForumManager {
             const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
             
             return `
-                <div class="forum-thread ${thread.unread ? 'unread' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
+                <div class="forum-thread ${thread.unread ? 'unread' : ''}" onclick="window.forumManager.openThreadTab('${thread.id}')">
                     <div class="thread-title ${thread.unread ? 'unread' : ''}">${this.escapeHtml(thread.title)}</div>
                     <div class="thread-meta">
                         <div>
@@ -5150,7 +5150,7 @@ async openThread(threadId) {
     }
 }
 
-// Global forum functions - updated for tab navigation
+// Global forum functions
 function closeCreateThreadModal() {
     if (window.forumManager) {
         window.forumManager.closeCreateThreadModal();
@@ -5163,18 +5163,15 @@ function closeThreadDetailModal() {
     }
 }
 
-
-
-        async function loadThreadsForHome() {
+async function loadThreadsForHome() {
     try {
-        if (!forumManager.db) {
+        if (!window.forumManager || !window.forumManager.db) {
             console.log('⏳ DB not ready, retrying...');
             setTimeout(loadThreadsForHome, 1000);
             return;
         }
         
-        // Use same query as loadThreads but limit to 5 threads
-        const query = forumManager.db.collection('forum').doc('threads').collection('threads')
+        const query = window.forumManager.db.collection('forum').doc('threads').collection('threads')
             .orderBy('lastActivity', 'desc')
             .limit(6);
 
@@ -5191,7 +5188,7 @@ function closeThreadDetailModal() {
     }
 }
 
-        function renderThreadsOnHome(threads) {
+function renderThreadsOnHome(threads) {
     const homeThreadsContainer = document.getElementById('homeRecentThreads');
     if (!homeThreadsContainer) return;
     
@@ -5203,18 +5200,18 @@ function closeThreadDetailModal() {
     homeThreadsContainer.innerHTML = `
         <h3 style="color: #4F46E5; margin-bottom: 15px;">Recent Forum Activity</h3>
         ${threads.map(thread => {
-            const timeAgo = forumManager.getTimeAgo(thread.createdAt?.toDate() || new Date());
+            const timeAgo = window.forumManager.getTimeAgo(thread.createdAt?.toDate() || new Date());
             return `
                 <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer;" 
-                     onclick="switchTab('forum'); setTimeout(() => forumManager.openThreadTab('${thread.id}'), 100);">
+                     onclick="switchTab('forum'); setTimeout(() => window.forumManager.openThreadTab('${thread.id}'), 100);">
                     <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 5px;">
-                        ${forumManager.escapeHtml(thread.title)}
+                        ${window.forumManager.escapeHtml(thread.title)}
                     </div>
                     <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
-                        ${thread.category} • by ${forumManager.escapeHtml(thread.authorName)} • ${timeAgo}
+                        ${thread.category} • by ${window.forumManager.escapeHtml(thread.authorName)} • ${timeAgo}
                     </div>
                     <div style="font-size: 13px; color: var(--text-muted);">
-                        ${forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
+                        ${window.forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
                     </div>
                     <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
                         <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
@@ -5231,12 +5228,17 @@ function closeThreadDetailModal() {
     `;
 }
 
+// Singleton pattern - only create one instance
+function getForumManager() {
+    if (!window.forumManager) {
+        console.log('Creating ForumManager instance');
+        window.forumManager = new ForumManager();
+    }
+    return window.forumManager;
+}
 
-
-// Initialize forum manager
-let forumManager = null;
- // Initialize forum manager immediately
-forumManager = new ForumManager();
+// Initialize only once
+getForumManager();
 
     </script>
 
