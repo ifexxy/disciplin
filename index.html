@@ -5075,31 +5075,31 @@ async openThread(threadId) {
         }
     }
     
-    async getUserReadStatus(threadId) {
-        if (!this.currentUser) return null;
-        
-        try {
-            const doc = await this.db.collection('forum').doc('userReadStatus')
-                .doc(this.currentUser.uid).collection('threads').doc(threadId).get();
-            return doc.exists ? doc.data() : null;
-        } catch (error) {
-            console.error('Error getting read status:', error);
-            return null;
-        }
-    }
+   async getUserReadStatus(threadId) {
+    if (!this.currentUser) return null;
     
-    async markThreadAsRead(threadId) {
-        if (!this.currentUser) return;
-        
-        try {
-            await this.db.collection('forum').doc('userReadStatus')
-                .doc(this.currentUser.uid).collection('threads').doc(threadId).set({
-                    lastRead: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-        } catch (error) {
-            console.error('Error marking thread as read:', error);
-        }
+    try {
+        const doc = await this.db.collection('forum').doc('userReadStatus')
+            .collection(this.currentUser.uid).doc(threadId).get();
+        return doc.exists ? doc.data() : null;
+    } catch (error) {
+        console.error('Error getting read status:', error);
+        return null;
     }
+}
+    
+   async markThreadAsRead(threadId) {
+    if (!this.currentUser) return;
+    
+    try {
+        await this.db.collection('forum').doc('userReadStatus')
+            .collection(this.currentUser.uid).doc(threadId).set({
+                lastRead: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+    } catch (error) {
+        console.error('Error marking thread as read:', error);
+    }
+}
     
     updateForumPagination(threadsCount) {
         const paginationInfo = document.getElementById('forumPaginationInfo');
