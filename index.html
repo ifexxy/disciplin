@@ -4709,9 +4709,12 @@ async editReply(threadId, replyId) {
         
         const reply = replyDoc.data();
         
-        // Create inline edit interface
-        const replyElement = event.target.closest('.reply-item');
-        const contentDiv = replyElement.querySelector('.reply-content');
+        // Find the reply content div by ID
+        const contentDiv = document.getElementById(`replyContent${replyId}`);
+        if (!contentDiv) {
+            console.error('Reply content div not found');
+            return;
+        }
         
         const originalContent = contentDiv.innerHTML;
         contentDiv.innerHTML = `
@@ -4719,7 +4722,7 @@ async editReply(threadId, replyId) {
                 <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="1000">${this.escapeHtml(reply.content)}</textarea>
                 <div style="margin-top: 10px;">
                     <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn" style="margin-right: 10px;">Update</button>
-                    <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`')}\`)" class="btn-secondary">Cancel</button>
+                    <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="btn-secondary">Cancel</button>
                 </div>
             </div>
         `;
@@ -4929,7 +4932,7 @@ async openThread(threadId) {
                                     ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
                                 </div>
                             </div>
-<div class="reply-content" 
+<div class="reply-content" id="replyContent${reply.id}" 
      style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
                         </div>
                     `;
