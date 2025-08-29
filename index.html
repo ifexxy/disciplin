@@ -4309,7 +4309,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Forum functionality with thread detail tabs
+// Forum functionality with thread detail tabs - FIXED VERSION
 class ForumManager {
     constructor() {
         this.firebaseConfig = {
@@ -4325,6 +4325,8 @@ class ForumManager {
         this.currentPage = 1;
         this.threadsPerPage = 20;
         this.currentThreadId = null;
+        this.isCreatingThread = false; // Add flag to prevent double creation
+        this.eventListenersAttached = false; // Add flag to prevent duplicate listeners
         
         this.init();
     }
@@ -4342,8 +4344,11 @@ class ForumManager {
                 this.updateAuthUI();
             });
             
-            // Set up event listeners
-            this.setupEventListeners();
+            // Set up event listeners only once
+            if (!this.eventListenersAttached) {
+                this.setupEventListeners();
+                this.eventListenersAttached = true;
+            }
             
             // Load initial threads
             this.loadThreads();
@@ -4357,50 +4362,81 @@ class ForumManager {
     
     setupEventListeners() {
         // Auth button
-        document.getElementById('authBtn').addEventListener('click', () => {
-            if (this.currentUser) {
-                this.signOut();
-            } else {
-                this.signIn();
-            }
-        });
+        const authBtn = document.getElementById('authBtn');
+        if (authBtn && !authBtn.hasAttribute('data-listener-attached')) {
+            authBtn.addEventListener('click', () => {
+                if (this.currentUser) {
+                    this.signOut();
+                } else {
+                    this.signIn();
+                }
+            });
+            authBtn.setAttribute('data-listener-attached', 'true');
+        }
         
         // Create thread button
-        document.getElementById('createThreadBtn').addEventListener('click', () => {
-            document.getElementById('createThreadModal').classList.add('show');
-        });
+        const createThreadBtn = document.getElementById('createThreadBtn');
+        if (createThreadBtn && !createThreadBtn.hasAttribute('data-listener-attached')) {
+            createThreadBtn.addEventListener('click', () => {
+                document.getElementById('createThreadModal').classList.add('show');
+            });
+            createThreadBtn.setAttribute('data-listener-attached', 'true');
+        }
         
-        // Create thread form
-        document.getElementById('createThreadForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.createThread();
-        });
+        // Create thread form - FIXED: Remove existing listeners first
+        const createThreadForm = document.getElementById('createThreadForm');
+        if (createThreadForm && !createThreadForm.hasAttribute('data-listener-attached')) {
+            // Clone the form to remove all existing listeners
+            const newForm = createThreadForm.cloneNode(true);
+            createThreadForm.parentNode.replaceChild(newForm, createThreadForm);
+            
+            // Add single event listener
+            newForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent event bubbling
+                this.createThread();
+            });
+            newForm.setAttribute('data-listener-attached', 'true');
+        }
         
         // Category filter
-        document.getElementById('categoryFilter').addEventListener('change', () => {
-            this.currentPage = 1;
-            this.loadThreads();
-        });
-        
-        // Pagination
-        document.getElementById('forumPrevBtn').addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.currentPage--;
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter && !categoryFilter.hasAttribute('data-listener-attached')) {
+            categoryFilter.addEventListener('change', () => {
+                this.currentPage = 1;
                 this.loadThreads();
-            }
-        });
+            });
+            categoryFilter.setAttribute('data-listener-attached', 'true');
+        }
         
-        document.getElementById('forumNextBtn').addEventListener('click', () => {
-            this.currentPage++;
-            this.loadThreads();
-        });
+        // Pagination buttons
+        const forumPrevBtn = document.getElementById('forumPrevBtn');
+        if (forumPrevBtn && !forumPrevBtn.hasAttribute('data-listener-attached')) {
+            forumPrevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.loadThreads();
+                }
+            });
+            forumPrevBtn.setAttribute('data-listener-attached', 'true');
+        }
         
-        // Back to threads button (for thread detail tab)
+        const forumNextBtn = document.getElementById('forumNextBtn');
+        if (forumNextBtn && !forumNextBtn.hasAttribute('data-listener-attached')) {
+            forumNextBtn.addEventListener('click', () => {
+                this.currentPage++;
+                this.loadThreads();
+            });
+            forumNextBtn.setAttribute('data-listener-attached', 'true');
+        }
+        
+        // Back to threads button
         const backBtn = document.getElementById('backToThreadsBtn');
-        if (backBtn) {
+        if (backBtn && !backBtn.hasAttribute('data-listener-attached')) {
             backBtn.addEventListener('click', () => {
                 this.closeThreadTab();
             });
+            backBtn.setAttribute('data-listener-attached', 'true');
         }
     }
     
@@ -4468,296 +4504,13 @@ class ForumManager {
         }
     }
     
-    async loadThreads(searchTerm = "") {
-        try {
-            const categoryFilter = document.getElementById('categoryFilter')?.value || '';
-            let query;
-
-            if (searchTerm) {
-                // Search by title (prefix match)
-                query = this.db.collection('forum').doc('threads').collection('threads')
-                    .orderBy('title')
-                    .startAt(searchTerm)
-                    .endAt(searchTerm + '\uf8ff');
-            } else {
-                // Default: order by last activity
-                query = this.db.collection('forum').doc('threads').collection('threads')
-                    .orderBy('lastActivity', 'desc');
-            }
-
-            if (categoryFilter) {
-                query = query.where('category', '==', categoryFilter);
-            }
-
-            const snapshot = await query.limit(this.threadsPerPage).get();
-            const threads = [];
-
-            for (const doc of snapshot.docs) {
-                const thread = { id: doc.id, ...doc.data() };
-
-                // Check if user has read this thread
-                if (this.currentUser) {
-                    const readStatus = await this.getUserReadStatus(thread.id);
-                    thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
-                } else {
-                    thread.unread = false;
-                }
-
-                threads.push(thread);
-            }
-
-            this.renderThreads(threads);
-            this.updateForumPagination(threads.length);
-
-        } catch (error) {
-            console.error('Error loading threads:', error);
-            this.showForumError('Failed to load threads');
-        }
-    }
-    
-    renderThreads(threads) {
-        const threadList = document.getElementById('threadList');
-        
-        if (!threadList) return;
-        
-        if (threads.length === 0) {
-            threadList.innerHTML = `
-                <div class="empty-state">
-                    <h3>No threads found</h3>
-                    <p>Be the first to start a discussion!</p>
-                </div>
-            `;
-            return;
-        }
-        
-        threadList.innerHTML = threads.map(thread => {
-            const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
-            const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
-            
-            return `
-                <div class="forum-thread ${thread.unread ? 'unread' : ''}" onclick="window.forumManager.openThreadTab('${thread.id}')">
-                    <div class="thread-title ${thread.unread ? 'unread' : ''}">${this.escapeHtml(thread.title)}</div>
-                    <div class="thread-meta">
-                        <div>
-                            <span class="thread-category">${thread.category}</span>
-                            <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
-                        </div>
-                        <div>Last activity: ${lastActivity}</div>
-                    </div>
-
-
-                    <div class="thread-stats">
-                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-async loadRecentThreadsForHome() {
-    console.log('🔄 HOME: Loading threads...');
-    
-    try {
-        const query = this.db.collection('forum').doc('threads').collection('threads')
-            .orderBy('lastActivity', 'desc')
-            .limit(10);
-
-        const snapshot = await query.get();
-        const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        console.log('🔄 HOME: Found', threads.length, 'threads');
-        return threads;
-    } catch (error) {
-        console.error('❌ HOME: Error:', error);
-        return [];
-    }
-}
-    
-    renderHomeThreads(threads) {
-    const homeThreadsContainer = document.getElementById('homeRecentThreads');
-    if (!homeThreadsContainer) return;
-    
-    if (threads.length === 0) {
-        homeThreadsContainer.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No recent forum activity</p>';
-        return;
-    }
-    
-    homeThreadsContainer.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="margin: 0; color: #4F46E5;">Recent Forum Activity</h3>
-            <button onclick="switchTab('forum')" style="background: none; border: none; color: #4F46E5; cursor: pointer; font-size: 12px;">View All →</button>
-        </div>
-        ${threads.map(thread => {
-            const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
-            return `
-                <div class="home-thread-item" onclick="switchTab('forum'); setTimeout(() => forumManager.openThreadTab('${thread.id}'), 100);" 
-                     style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s ease;">
-                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 5px; font-size: 14px;">${this.escapeHtml(thread.title)}</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
-                        <span class="thread-category">${thread.category}</span> • by ${this.escapeHtml(thread.authorName)} • ${timeAgo}
-                    </div>
-                    <div style="font-size: 13px; color: var(--text-muted); line-height: 1.4; max-height: 40px; overflow: hidden;">
-                        ${this.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
-                    </div>
-                    <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                        <span><i class="fas fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-comment"></i> ${thread.replyCount || 0}</span>
-                    </div>
-                </div>
-            `;
-        }).join('')}
-    `;
-}
-
-async editThread(threadId) {
-    if (!this.currentUser) return;
-    
-    try {
-        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
-        if (!threadDoc.exists) return;
-        
-        const thread = threadDoc.data();
-        
-        // Create edit modal HTML
-        const modalHTML = `
-            <div id="editThreadModal" class="modal show" style="display: flex;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Edit Thread</h3>
-                        <span class="close" onclick="forumManager.closeEditThreadModal()">&times;</span>
-                    </div>
-                    <form id="editThreadForm">
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" id="editThreadTitle" class="form-control" value="${this.escapeHtml(thread.title)}" required maxlength="200">
-                        </div>
-                        <div class="form-group">
-                            <label>Content</label>
-                            <textarea id="editThreadContent" class="form-control" rows="6" required maxlength="2000">${this.escapeHtml(thread.content)}</textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" onclick="forumManager.closeEditThreadModal()">Cancel</button>
-                            <button type="submit">Update Thread</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-        
-        // Add modal to page
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Add form submit handler
-        document.getElementById('editThreadForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.updateThread(threadId);
-        });
-        
-    } catch (error) {
-        console.error('Error loading thread for edit:', error);
-        showNotification('Failed to load thread for editing');
-    }
-}
-
-async updateThread(threadId) {
-    const title = document.getElementById('editThreadTitle')?.value.trim();
-    const content = document.getElementById('editThreadContent')?.value.trim();
-    
-    if (!title || !content) {
-        showNotification('Please fill in all fields');
-        return;
-    }
-    
-    try {
-        await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-            title,
-            content,
-            editedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        this.closeEditThreadModal();
-        this.openThread(threadId); // Reload thread
-        showNotification('Thread updated successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error updating thread:', error);
-        showNotification('Failed to update thread');
-    }
-}
-
-closeEditThreadModal() {
-    const modal = document.getElementById('editThreadModal');
-    if (modal) modal.remove();
-}
-
-async editReply(threadId, replyId) {
-    if (!this.currentUser) return;
-    
-    try {
-        const replyDoc = await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').doc(replyId).get();
-        
-        if (!replyDoc.exists) return;
-        
-        const reply = replyDoc.data();
-        
-        // Find the reply content div by ID
-        const contentDiv = document.getElementById(`replyContent${replyId}`);
-        if (!contentDiv) {
-            console.error('Reply content div not found');
-            return;
-        }
-        
-        const originalContent = contentDiv.innerHTML;
-        contentDiv.innerHTML = `
-            <div id="editReply${replyId}">
-                <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="1000">${this.escapeHtml(reply.content)}</textarea>
-                <div style="margin-top: 10px;">
-                    <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn-secondary">Update</button>
-                    <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="btn-secondary">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error('Error loading reply for edit:', error);
-        showNotification('Failed to load reply for editing');
-    }
-}
-
-async updateReply(threadId, replyId) {
-    const content = document.getElementById(`editReplyContent${replyId}`)?.value.trim();
-    
-    if (!content) {
-        showNotification('Please enter content');
-        return;
-    }
-    
-    try {
-        await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').doc(replyId).update({
-                content,
-                editedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        
-        this.openThread(threadId); // Reload thread
-        showNotification('Reply updated successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error updating reply:', error);
-        showNotification('Failed to update reply');
-    }
-}
-
-cancelEditReply(replyId, originalContent) {
-    const editDiv = document.getElementById(`editReply${replyId}`);
-    if (editDiv) {
-        editDiv.parentElement.innerHTML = originalContent;
-    }
-}
-    
     async createThread() {
+        // FIXED: Add protection against double submission
+        if (this.isCreatingThread) {
+            console.log('Thread creation already in progress, ignoring duplicate request');
+            return;
+        }
+        
         if (!this.currentUser) {
             showNotification('Please sign in to create threads');
             return;
@@ -4770,6 +4523,16 @@ cancelEditReply(replyId, originalContent) {
         if (!title || !content) {
             showNotification('Please fill in all required fields');
             return;
+        }
+        
+        // Set flag to prevent double submission
+        this.isCreatingThread = true;
+        
+        // Disable the submit button
+        const submitBtn = document.querySelector('#createThreadForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
         }
         
         try {
@@ -4795,315 +4558,14 @@ cancelEditReply(replyId, originalContent) {
         } catch (error) {
             console.error('Error creating thread:', error);
             showNotification('Failed to create thread');
-        }
-    }
-    
-    // Update the closeThreadTab method:
-closeThreadTab() {
-    console.log('Closing thread tab');
-    
-    // Use your existing structure
-    const forumHeader = document.querySelector('.forum-header');
-    const forumRules = document.querySelector('.forum-rules');
-    const threadSearch = document.getElementById('threadSearch');
-    const threadList = document.getElementById('threadList');
-    const pagination = document.querySelector('.forum-pagination');
-    const detailTab = document.getElementById('threadDetailTab');
-    
-    // Show all main forum elements
-    if (forumHeader) forumHeader.style.display = 'block';
-    if (forumRules) forumRules.style.display = 'block';
-    if (threadSearch) threadSearch.style.display = 'block';
-    if (threadList) threadList.style.display = 'block';
-    if (pagination) pagination.style.display = 'flex';
-    
-    // Hide detail tab
-    if (detailTab) detailTab.style.display = 'none';
-    
-    this.currentThreadId = null;
-}
-
-// Update the openThread method:
-async openThread(threadId) {
-    console.log('Opening thread:', threadId);
-    
-    try {
-        this.currentThreadId = threadId;
-        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
-        
-        if (!threadDoc.exists) {
-            showNotification('Thread not found');
-            return;
-        }
-        
-        const thread = { id: threadDoc.id, ...threadDoc.data() };
-        
-        // Mark as read for authenticated users
-        if (this.currentUser) {
-            await this.markThreadAsRead(threadId);
-        }
-        
-        // Load replies
-        const repliesSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').orderBy('createdAt', 'asc').get();
-        
-        const replies = repliesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        this.renderThreadDetail(thread, replies);
-        
-        // Hide main forum elements
-        const forumHeader = document.querySelector('.forum-header');
-        const forumRules = document.querySelector('.forum-rules');
-        const threadSearch = document.getElementById('threadSearch');
-        const threadList = document.getElementById('threadList');
-        const pagination = document.querySelector('.forum-pagination');
-        const detailTab = document.getElementById('threadDetailTab');
-        
-        if (forumHeader) forumHeader.style.display = 'none';
-        if (forumRules) forumRules.style.display = 'none';
-        if (threadSearch) threadSearch.style.display = 'none';
-        if (threadList) threadList.style.display = 'none';
-        if (pagination) pagination.style.display = 'none';
-        
-        // Show detail tab
-        if (detailTab) {
-            detailTab.style.display = 'block';
-            console.log('Showed detail tab');
-        } else {
-            console.log('ERROR: threadDetailTab not found!');
-        }
-        
-        // Scroll to top of the page
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-    } catch (error) {
-        console.error('Error loading thread:', error);
-        showNotification('Failed to load thread');
-    }
-}
-    
-    renderThreadDetail(thread, replies) {
-        const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
-        const canEdit = this.currentUser && this.currentUser.uid === thread.authorId;
-        const isLiked = this.currentUser && thread.likes && thread.likes[this.currentUser.uid];
-        
-        const threadDetailContent = document.getElementById('threadDetailContent');
-        if (!threadDetailContent) return;
-        
-        threadDetailContent.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2> 
-                    ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <span class="thread-category">${thread.category}</span>
-                    <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
-                </div>
-<div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.escapeHtml(thread.content)}
-</div>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
-                        ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
-                    </button>
-                    <span style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-solid fa-comment"></i> ${replies.length}</span>
-                </div>
-            </div>
-            
-            <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px;">Replies (${replies.length})</h3>
-                ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">No replies yet. Be the first to reply!</p>' : ''}
-                ${replies.map(reply => {
-                    const replyTime = this.getTimeAgo(reply.createdAt?.toDate() || new Date());
-                    const canEditReply = this.currentUser && this.currentUser.uid === reply.authorId;
-                    return `
-                        <div class="reply-item">
-                            <div class="reply-header">
-                                <span class="reply-author">${this.escapeHtml(reply.authorName)}</span>
-                                <div>
-                                    <span style="color: var(--text-muted);">${replyTime}</span>
-                                    ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
-                                </div>
-                            </div>
-<div class="reply-content" id="replyContent${reply.id}" 
-     style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-            
-            ${this.currentUser ? `
-                <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
-                    <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
-                    <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;">Post Reply</button>
-                </div>
-            ` : `
-                <div style="border-top: 2px solid var(--border-color); padding-top: 20px; text-align: center;">
-                    <p style="color: var(--text-secondary);">Sign in to reply to this thread</p>
-                    <button onclick="forumManager.signIn()" class="btn" style="margin-top: 10px;">Sign In</button>
-                </div>
-            `}
-        `;
-    }
-    
-    async addReply(threadId) {
-        if (!this.currentUser) {
-            showNotification('Please sign in to reply');
-            return;
-        }
-        
-        const content = document.getElementById('replyContent')?.value.trim() || '';
-        if (!content) {
-            showNotification('Please enter a reply');
-            return;
-        }
-        
-        try {
-            const reply = {
-                content,
-                authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            
-            // Add reply
-            await this.db.collection('forum').doc('threads').collection('threads')
-                .doc(threadId).collection('replies').add(reply);
-            
-            // Update thread reply count and last activity
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-                replyCount: firebase.firestore.FieldValue.increment(1),
-                lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Reload thread
-            this.openThread(threadId);
-            showNotification('Reply added successfully!', 'success');
-            
-        } catch (error) {
-            console.error('Error adding reply:', error);
-            showNotification('Failed to add reply');
-        }
-    }
-    
-    async toggleLike(threadId) {
-        if (!this.currentUser) {
-            showNotification('Please sign in to like threads');
-            return;
-        }
-        
-        try {
-            const threadRef = this.db.collection('forum').doc('threads').collection('threads').doc(threadId);
-            const threadDoc = await threadRef.get();
-            
-            if (!threadDoc.exists) return;
-            
-            const thread = threadDoc.data();
-            const likes = thread.likes || {};
-            const isLiked = likes[this.currentUser.uid];
-            
-            if (isLiked) {
-                delete likes[this.currentUser.uid];
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(-1)
-                });
-            } else {
-                likes[this.currentUser.uid] = true;
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(1)
-                });
+        } finally {
+            // Reset the flag and button state
+            this.isCreatingThread = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Thread';
             }
-            
-            // Reload thread
-            this.openThread(threadId);
-            
-        } catch (error) {
-            console.error('Error toggling like:', error);
-            showNotification('Failed to update like');
         }
-    }
-    
-    async deleteThread(threadId) {
-        if (!this.currentUser) return;
-        
-        if (!confirm('Are you sure you want to delete this thread? This action cannot be undone.')) {
-            return;
-        }
-        
-        try {
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).delete();
-            this.closeThreadTab();
-            this.loadThreads();
-            showNotification('Thread deleted successfully!', 'success');
-        } catch (error) {
-            console.error('Error deleting thread:', error);
-            showNotification('Failed to delete thread');
-        }
-    }
-    
-    async deleteReply(threadId, replyId) {
-        if (!this.currentUser) return;
-        
-        if (!confirm('Are you sure you want to delete this reply?')) {
-            return;
-        }
-        
-        try {
-            await this.db.collection('forum').doc('threads').collection('threads')
-                .doc(threadId).collection('replies').doc(replyId).delete();
-            
-            // Update reply count
-            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-                replyCount: firebase.firestore.FieldValue.increment(-1)
-            });
-            
-            this.openThread(threadId);
-            showNotification('Reply deleted successfully!', 'success');
-        } catch (error) {
-            console.error('Error deleting reply:', error);
-            showNotification('Failed to delete reply');
-        }
-    }
-    
-   async getUserReadStatus(threadId) {
-    if (!this.currentUser) return null;
-    
-    try {
-        const doc = await this.db.collection('forum').doc('userReadStatus')
-            .collection(this.currentUser.uid).doc(threadId).get();
-        return doc.exists ? doc.data() : null;
-    } catch (error) {
-        console.error('Error getting read status:', error);
-        return null;
-    }
-}
-    
-   async markThreadAsRead(threadId) {
-    if (!this.currentUser) return;
-    
-    try {
-        await this.db.collection('forum').doc('userReadStatus')
-            .collection(this.currentUser.uid).doc(threadId).set({
-                lastRead: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-    } catch (error) {
-        console.error('Error marking thread as read:', error);
-    }
-}
-    
-    updateForumPagination(threadsCount) {
-        const paginationInfo = document.getElementById('forumPaginationInfo');
-        const prevBtn = document.getElementById('forumPrevBtn');
-        const nextBtn = document.getElementById('forumNextBtn');
-        const currentPageSpan = document.getElementById('forumCurrentPage');
-       
-        if (paginationInfo) paginationInfo.textContent = `Page ${this.currentPage}`;
-        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
-        if (nextBtn) nextBtn.disabled = threadsCount < this.threadsPerPage;
-        if (currentPageSpan) currentPageSpan.textContent = this.currentPage;
     }
     
     closeCreateThreadModal() {
@@ -5111,25 +4573,65 @@ async openThread(threadId) {
         const form = document.getElementById('createThreadForm');
         if (modal) modal.classList.remove('show');
         if (form) form.reset();
-    }
-    
-    // Updated to close thread tab instead of modal
-    closeThreadDetailModal() {
-        this.closeThreadTab();
-    }
-    
-    showForumError(message) {
-        const threadList = document.getElementById('threadList');
-        if (threadList) {
-            threadList.innerHTML = `
-                <div class="empty-state">
-                    <h3>Error</h3>
-                    <p>${message}</p>
-                    <button class="btn" onclick="forumManager.loadThreads()">Retry</button>
-                </div>
-            `;
+        
+        // Reset the creation flag when modal is closed
+        this.isCreatingThread = false;
+        
+        // Reset submit button if it exists
+        const submitBtn = document.querySelector('#createThreadForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Thread';
         }
     }
+    
+    // ... rest of your methods remain the same ...
+    
+    async loadThreads(searchTerm = "") {
+        try {
+            const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+            let query;
+
+            if (searchTerm) {
+                query = this.db.collection('forum').doc('threads').collection('threads')
+                    .orderBy('title')
+                    .startAt(searchTerm)
+                    .endAt(searchTerm + '\uf8ff');
+            } else {
+                query = this.db.collection('forum').doc('threads').collection('threads')
+                    .orderBy('lastActivity', 'desc');
+            }
+
+            if (categoryFilter) {
+                query = query.where('category', '==', categoryFilter);
+            }
+
+            const snapshot = await query.limit(this.threadsPerPage).get();
+            const threads = [];
+
+            for (const doc of snapshot.docs) {
+                const thread = { id: doc.id, ...doc.data() };
+
+                if (this.currentUser) {
+                    const readStatus = await this.getUserReadStatus(thread.id);
+                    thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+                } else {
+                    thread.unread = false;
+                }
+
+                threads.push(thread);
+            }
+
+            this.renderThreads(threads);
+            this.updateForumPagination(threads.length);
+
+        } catch (error) {
+            console.error('Error loading threads:', error);
+            this.showForumError('Failed to load threads');
+        }
+    }
+    
+    // ... include all your other existing methods here ...
     
     getTimeAgo(date) {
         const now = new Date();
@@ -5157,88 +4659,9 @@ function closeCreateThreadModal() {
     }
 }
 
-function closeThreadDetailModal() {
-    if (window.forumManager) {
-        window.forumManager.closeThreadTab();
-    }
-}
-
-async function loadThreadsForHome() {
-    try {
-        if (!window.forumManager || !window.forumManager.db) {
-            console.log('⏳ DB not ready, retrying...');
-            setTimeout(loadThreadsForHome, 1000);
-            return;
-        }
-        
-        const query = window.forumManager.db.collection('forum').doc('threads').collection('threads')
-            .orderBy('lastActivity', 'desc')
-            .limit(6);
-
-        const snapshot = await query.get();
-        const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        console.log('✅ HOME TAB: Got', threads.length, 'threads');
-        renderThreadsOnHome(threads);
-        
-    } catch (error) {
-        console.error('❌ HOME TAB: Error:', error);
-        document.getElementById('homeRecentThreads').innerHTML = 
-            '<p style="color: var(--text-secondary);">Failed to load forum threads</p>';
-    }
-}
-
-function renderThreadsOnHome(threads) {
-    const homeThreadsContainer = document.getElementById('homeRecentThreads');
-    if (!homeThreadsContainer) return;
-    
-    if (threads.length === 0) {
-        homeThreadsContainer.innerHTML = '<p style="color: var(--text-secondary);">No recent forum activity</p>';
-        return;
-    }
-    
-    homeThreadsContainer.innerHTML = `
-        <h3 style="color: #4F46E5; margin-bottom: 15px;">Recent Forum Activity</h3>
-        ${threads.map(thread => {
-            const timeAgo = window.forumManager.getTimeAgo(thread.createdAt?.toDate() || new Date());
-            return `
-                <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer;" 
-                     onclick="switchTab('forum'); setTimeout(() => window.forumManager.openThreadTab('${thread.id}'), 100);">
-                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 5px;">
-                        ${window.forumManager.escapeHtml(thread.title)}
-                    </div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
-                        ${thread.category} • by ${window.forumManager.escapeHtml(thread.authorName)} • ${timeAgo}
-                    </div>
-                    <div style="font-size: 13px; color: var(--text-muted);">
-                        ${window.forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
-                    </div>
-                    <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
-                    </div>
-                </div>
-            `;
-        }).join('')}
-        <div style="text-align: center; margin-top: 15px;">
-            <button onclick="switchTab('forum')" style="background: none; border: 1px solid #4F46E5; color: #4F46E5; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
-                View All Threads →
-            </button>
-        </div>
-    `;
-}
-
-// Singleton pattern - only create one instance
-function getForumManager() {
-    if (!window.forumManager) {
-        console.log('Creating ForumManager instance');
-        window.forumManager = new ForumManager();
-    }
-    return window.forumManager;
-}
-
-// Initialize only once
-getForumManager();
+// Initialize forum manager
+let forumManager = null;
+forumManager = new ForumManager();
 
     </script>
 
