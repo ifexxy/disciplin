@@ -4616,150 +4616,6 @@ async loadRecentThreadsForHome() {
         }).join('')}
     `;
 }
-
-async editThread(threadId) {
-    if (!this.currentUser) return;
-    
-    try {
-        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
-        if (!threadDoc.exists) return;
-        
-        const thread = threadDoc.data();
-        
-        // Create edit modal HTML
-        const modalHTML = `
-            <div id="editThreadModal" class="modal show" style="display: flex;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Edit Thread</h3>
-                        <span class="close" onclick="forumManager.closeEditThreadModal()">&times;</span>
-                    </div>
-                    <form id="editThreadForm">
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" id="editThreadTitle" class="form-control" value="${this.escapeHtml(thread.title)}" required maxlength="200">
-                        </div>
-                        <div class="form-group">
-                            <label>Content</label>
-                            <textarea id="editThreadContent" class="form-control" rows="6" required maxlength="2000">${this.escapeHtml(thread.content)}</textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" onclick="forumManager.closeEditThreadModal()">Cancel</button>
-                            <button type="submit">Update Thread</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        `;
-        
-        // Add modal to page
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Add form submit handler
-        document.getElementById('editThreadForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.updateThread(threadId);
-        });
-        
-    } catch (error) {
-        console.error('Error loading thread for edit:', error);
-        showNotification('Failed to load thread for editing');
-    }
-}
-
-async updateThread(threadId) {
-    const title = document.getElementById('editThreadTitle')?.value.trim();
-    const content = document.getElementById('editThreadContent')?.value.trim();
-    
-    if (!title || !content) {
-        showNotification('Please fill in all fields');
-        return;
-    }
-    
-    try {
-        await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-            title,
-            content,
-            editedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        this.closeEditThreadModal();
-        this.openThread(threadId); // Reload thread
-        showNotification('Thread updated successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error updating thread:', error);
-        showNotification('Failed to update thread');
-    }
-}
-
-closeEditThreadModal() {
-    const modal = document.getElementById('editThreadModal');
-    if (modal) modal.remove();
-}
-
-async editReply(threadId, replyId) {
-    if (!this.currentUser) return;
-    
-    try {
-        const replyDoc = await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').doc(replyId).get();
-        
-        if (!replyDoc.exists) return;
-        
-        const reply = replyDoc.data();
-        
-        // Create inline edit interface
-        const replyElement = event.target.closest('.reply-item');
-        const contentDiv = replyElement.querySelector('.reply-content');
-        
-        const originalContent = contentDiv.innerHTML;
-        contentDiv.innerHTML = `
-            <div id="editReply${replyId}">
-                <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="1000">${this.escapeHtml(reply.content)}</textarea>
-                <div style="margin-top: 10px;">
-                    <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn" style="margin-right: 10px;">Update</button>
-                    <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`')}\`)" class="btn-secondary">Cancel</button>
-                </div>
-            </div>
-        `;
-        
-    } catch (error) {
-        console.error('Error loading reply for edit:', error);
-        showNotification('Failed to load reply for editing');
-    }
-}
-
-async updateReply(threadId, replyId) {
-    const content = document.getElementById(`editReplyContent${replyId}`)?.value.trim();
-    
-    if (!content) {
-        showNotification('Please enter content');
-        return;
-    }
-    
-    try {
-        await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').doc(replyId).update({
-                content,
-                editedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        
-        this.openThread(threadId); // Reload thread
-        showNotification('Reply updated successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error updating reply:', error);
-        showNotification('Failed to update reply');
-    }
-}
-
-cancelEditReply(replyId, originalContent) {
-    const editDiv = document.getElementById(`editReply${replyId}`);
-    if (editDiv) {
-        editDiv.parentElement.innerHTML = originalContent;
-    }
-}
     
     async createThread() {
         if (!this.currentUser) {
@@ -4897,8 +4753,8 @@ async openThread(threadId) {
         threadDetailContent.innerHTML = `
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2> 
-                    ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
+                    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2>
+                    ${canEdit ? `<button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
                 </div>
                 <div style="margin-bottom: 10px;">
                     <span class="thread-category">${thread.category}</span>
@@ -4926,7 +4782,7 @@ async openThread(threadId) {
                                 <span class="reply-author">${this.escapeHtml(reply.authorName)}</span>
                                 <div>
                                     <span style="color: var(--text-muted);">${replyTime}</span>
-                                    ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
+                                    ${canEditReply ? `<button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
                                 </div>
                             </div>
 <div class="reply-content" 
@@ -5167,8 +5023,6 @@ function closeThreadDetailModal() {
     }
 }
 
-
-
         async function loadThreadsForHome() {
     try {
         if (!forumManager.db) {
@@ -5234,8 +5088,6 @@ function closeThreadDetailModal() {
         </div>
     `;
 }
-
-
 
 // Initialize forum manager
 let forumManager = null;
