@@ -4332,6 +4332,7 @@ class ForumManager {
         this.currentPage = 1;
         this.threadsPerPage = 20;
         this.currentThreadId = null;
+        this.isCreatingThread = false;
         
         this.init();
     }
@@ -4617,46 +4618,66 @@ async loadRecentThreadsForHome() {
     `;
 }
     
-    async createThread() {
-        if (!this.currentUser) {
-            showNotification('Please sign in to create threads');
-            return;
+   async createThread() {
+    if (!this.currentUser || this.isCreatingThread) {
+        return;
+    }
+    
+    this.isCreatingThread = true; // Set flag to prevent double submission
+    
+    // Disable submit button
+    const submitBtn = document.querySelector('#createThreadForm button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+    }
+    
+    const title = document.getElementById('threadTitle')?.value.trim() || '';
+    const content = document.getElementById('threadContent')?.value.trim() || '';
+    const category = document.getElementById('threadCategory')?.value || '';
+    
+    if (!title || !content) {
+        showNotification('Please fill in all required fields');
+        this.isCreatingThread = false; // Reset flag
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Thread';
         }
+        return;
+    }
+    
+    try {
+        const thread = {
+            title,
+            content,
+            category,
+            authorId: this.currentUser.uid,
+            authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+            likeCount: 0,
+            replyCount: 0,
+            likes: {}
+        };
         
-        const title = document.getElementById('threadTitle')?.value.trim() || '';
-        const content = document.getElementById('threadContent')?.value.trim() || '';
-        const category = document.getElementById('threadCategory')?.value || '';
+        await this.db.collection('forum').doc('threads').collection('threads').add(thread);
         
-        if (!title || !content) {
-            showNotification('Please fill in all required fields');
-            return;
-        }
+        this.closeCreateThreadModal();
+        this.loadThreads();
+        showNotification('Thread created successfully!', 'success');
         
-        try {
-            const thread = {
-                title,
-                content,
-                category,
-                authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
-                likeCount: 0,
-                replyCount: 0,
-                likes: {}
-            };
-            
-            await this.db.collection('forum').doc('threads').collection('threads').add(thread);
-            
-            this.closeCreateThreadModal();
-            this.loadThreads();
-            showNotification('Thread created successfully!', 'success');
-            
-        } catch (error) {
-            console.error('Error creating thread:', error);
-            showNotification('Failed to create thread');
+    } catch (error) {
+        console.error('Error creating thread:', error);
+        showNotification('Failed to create thread');
+    } finally {
+        // Always reset flag and re-enable button
+        this.isCreatingThread = false;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Thread';
         }
     }
+}
     
     // Update the closeThreadTab method:
 closeThreadTab() {
