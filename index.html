@@ -4721,7 +4721,7 @@ async editReply(threadId, replyId) {
             <div id="editReply${replyId}">
                 <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="1000">${this.escapeHtml(reply.content)}</textarea>
                 <div style="margin-top: 10px;">
-                    <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn" style="margin-right: 10px;">Update</button>
+                    <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn-secondary">Update</button>
                     <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="btn-secondary">Cancel</button>
                 </div>
             </div>
