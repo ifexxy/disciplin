@@ -5089,10 +5089,19 @@ function closeThreadDetailModal() {
     `;
 }
 
-// Initialize forum manager
+// Initialize forum manager only once
 let forumManager = null;
- // Initialize forum manager immediately
-forumManager = new ForumManager();
+
+// Function to initialize forum if not already done
+function initializeForumManager() {
+    if (!forumManager) {
+        forumManager = new ForumManager();
+    }
+    return forumManager;
+}
+
+// Initialize immediately
+initializeForumManager();
 
     </script>
 
