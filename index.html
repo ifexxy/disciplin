@@ -4948,162 +4948,44 @@ async openThread(threadId) {
     }
     
     async addReply(threadId) {
-    if (!this.currentUser) {
-        showNotification('Please sign in to reply');
-        return;
-    }
-    
-    const content = document.getElementById('replyContent')?.value.trim() || '';
-    if (!content) {
-        showNotification('Please enter a reply');
-        return;
-    }
-    
-    try {
-        // First, get the thread to find the author
-        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
-        if (!threadDoc.exists) {
-            showNotification('Thread not found');
+        if (!this.currentUser) {
+            showNotification('Please sign in to reply');
             return;
         }
         
-        const thread = threadDoc.data();
-        
-        const reply = {
-            content,
-            authorId: this.currentUser.uid,
-            authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        // Add reply
-        const replyRef = await this.db.collection('forum').doc('threads').collection('threads')
-            .doc(threadId).collection('replies').add(reply);
-        
-        // Update thread reply count and last activity
-        await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-            replyCount: firebase.firestore.FieldValue.increment(1),
-            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // Send notification to thread author (if it's not the same user replying)
-        if (thread.authorId && thread.authorId !== this.currentUser.uid) {
-            await this.sendReplyNotification(thread.authorId, threadId, thread.title, content);
+        const content = document.getElementById('replyContent')?.value.trim() || '';
+        if (!content) {
+            showNotification('Please enter a reply');
+            return;
         }
         
-        // Process mentions in the reply content
-        await this.processMentions(content, threadId, true, replyRef.id);
-        
-        // Reload thread
-        this.openThread(threadId);
-        showNotification('Reply added successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error adding reply:', error);
-        showNotification('Failed to add reply');
+        try {
+            const reply = {
+                content,
+                authorId: this.currentUser.uid,
+                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Add reply
+            await this.db.collection('forum').doc('threads').collection('threads')
+                .doc(threadId).collection('replies').add(reply);
+            
+            // Update thread reply count and last activity
+            await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
+                replyCount: firebase.firestore.FieldValue.increment(1),
+                lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Reload thread
+            this.openThread(threadId);
+            showNotification('Reply added successfully!', 'success');
+            
+        } catch (error) {
+            console.error('Error adding reply:', error);
+            showNotification('Failed to add reply');
+        }
     }
-}
-
-async sendReplyNotification(threadAuthorId, threadId, threadTitle, replyContent) {
-    try {
-        await this.db.collection('notifications').add({
-            to: threadAuthorId,
-            from: this.currentUser.uid,
-            fromName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-            type: 'reply',
-            threadId,
-            threadTitle,
-            content: replyContent.substring(0, 100) + (replyContent.length > 100 ? '...' : ''),
-            read: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        console.log('Reply notification sent to thread author');
-    } catch (error) {
-        console.error('Error sending reply notification:', error);
-    }
-}
-
-        // Method to load user notifications
-async loadUserNotifications() {
-    if (!this.currentUser) return [];
-    
-    try {
-        const snapshot = await this.db.collection('notifications')
-            .where('to', '==', this.currentUser.uid)
-            .orderBy('createdAt', 'desc')
-            .limit(20)
-            .get();
-        
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    } catch (error) {
-        console.error('Error loading notifications:', error);
-        return [];
-    }
-}
-
-// Method to mark notification as read
-async markNotificationRead(notificationId) {
-    if (!this.currentUser) return;
-    
-    try {
-        await this.db.collection('notifications').doc(notificationId).update({
-            read: true
-        });
-    } catch (error) {
-        console.error('Error marking notification as read:', error);
-    }
-}
-
-// Method to get unread notification count
-async getUnreadNotificationCount() {
-    if (!this.currentUser) return 0;
-    
-    try {
-        const snapshot = await this.db.collection('notifications')
-            .where('to', '==', this.currentUser.uid)
-            .where('read', '==', false)
-            .get();
-        
-        return snapshot.size;
-    } catch (error) {
-        console.error('Error getting unread count:', error);
-        return 0;
-    }
-}
-
-renderNotifications(notifications) {
-    return notifications.map(notification => {
-        const timeAgo = this.getTimeAgo(notification.createdAt?.toDate() || new Date());
-        const notificationText = notification.type === 'reply' 
-            ? `replied to your thread "${notification.threadTitle}"`
-            : `mentioned you in a thread`;
-        
-        return `
-            <div class="notification-item ${notification.read ? '' : 'unread'}" 
-                 onclick="forumManager.handleNotificationClick('${notification.id}', '${notification.threadId}')">
-                <div class="notification-content">
-                    <strong>${this.escapeHtml(notification.fromName)}</strong> ${notificationText}
-                </div>
-                <div class="notification-preview">
-                    "${this.escapeHtml(notification.content)}"
-                </div>
-                <div class="notification-time">${timeAgo}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-async handleNotificationClick(notificationId, threadId) {
-    // Mark as read
-    await this.markNotificationRead(notificationId);
-    
-    // Open the thread
-    this.openThread(threadId);
-    
-    // Close notifications dropdown if open
-    // (implement based on your UI)
-}
     
     async toggleLike(threadId) {
         if (!this.currentUser) {
