@@ -6223,6 +6223,7 @@ container.innerHTML = journalEntries.map(entry => `
             initAnalytics(); // Initialize analytics
             checkForUpdates();
             initializeApp();
+            loadThreadsForHome();
             setupEventListeners();
             updateStats();
             updateStatsWithTimer();
