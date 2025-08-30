@@ -3328,8 +3328,8 @@ Share encouragement, tips, and support with fellow users.</div>
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
             <h2>Welcome to Disciplin</h2>
-            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, you can track your patterns, keep records and earn streaks, please click "How to use this app" to learn more.</p>
-            <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, Please proceed to read the full guide by clicking continue. </p>
+            <button class="modal-btn primary" onclick="switchTab('guide')">Continue</button> or <button class="modal-btn primary" onclick="closeWelcomeModal()">Close Pop Up</button>
         </div>
     </div>
 <!-- Anonymous Username Modal -->
@@ -6296,8 +6296,9 @@ container.innerHTML = journalEntries.map(entry => `
             initializeDarkMode(); // Initialize dark mode first
             
             initAnalytics(); // Initialize analytics
+            showWelcomeModal();
             checkForUpdates();
-            initializeApp();
+            initializeApp();                      
             loadThreadsForHome();
             setupEventListeners();
             updateStats();
@@ -6307,8 +6308,9 @@ container.innerHTML = journalEntries.map(entry => `
             updateWeeklyInsights();
             updateLevelSystem();
             updatePersonalizedInsights();
+            
             loadJournalEntries();
-            showWelcomeModal();
+            
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
