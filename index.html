@@ -3328,8 +3328,8 @@ Share encouragement, tips, and support with fellow users.</div>
     <div id="welcomeModal" class="modal">
         <div class="modal-content">
             <h2>Welcome to Disciplin</h2>
-            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, Please proceed to read the full guide by clicking continue. </p>
-            <button class="modal-btn primary" onclick="switchTab('guide')">Continue</button> or <button class="modal-btn primary" onclick="closeWelcomeModal()">Close Pop Up</button>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, you can track your patterns, keep records and earn streaks, please click "How to use this app" to learn more.</p>
+            <button class="modal-btn primary" onclick="closeWelcomeModal()">Continue</button>
         </div>
     </div>
 <!-- Anonymous Username Modal -->
@@ -5345,7 +5345,9 @@ const tabTitles = {
         let selectedEntries = new Set();
         let allEntries = [];
         
-        // New variables for enhanced features
+        // App State New variables for enhanced features
+        let navigationHistory =  ['home'];
+let currentTabIndex = 0;
         let currentJournalMood = '';
         let currentMood = '';
         let deleteEntryId = null;
@@ -6296,9 +6298,8 @@ container.innerHTML = journalEntries.map(entry => `
             initializeDarkMode(); // Initialize dark mode first
             
             initAnalytics(); // Initialize analytics
-            showWelcomeModal();
             checkForUpdates();
-            initializeApp();                      
+            initializeApp();
             loadThreadsForHome();
             setupEventListeners();
             updateStats();
@@ -6308,9 +6309,8 @@ container.innerHTML = journalEntries.map(entry => `
             updateWeeklyInsights();
             updateLevelSystem();
             updatePersonalizedInsights();
-            
             loadJournalEntries();
-            
+            showWelcomeModal();
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
@@ -6721,6 +6721,8 @@ function updateStatsWithTimer() {
         document.addEventListener('touchstart', trackActivity);
 
         function initializeApp() {
+            
+            
             // Check if user has already logged today
             const today = new Date().toDateString();
             const todayEntry = getEntryForDate(today);
@@ -6728,6 +6730,7 @@ function updateStatsWithTimer() {
             if (todayEntry) {
                 updateStreakNotification();
             }
+            
             
             //initialize goals display
      
@@ -6742,6 +6745,8 @@ function updateStatsWithTimer() {
             // Track app opening
             trackActivity();
         }
+        
+        
 
         function setupEventListeners() {
             // Tab switching
@@ -6892,10 +6897,20 @@ function hideLoading() {
 }
 
 // Modified switchTab function
-function switchTabWithLoading(tabName) {
+function switchTabWithLoading(tabName, addToHistory = true) {
     // Show loading screen first
     showLoading();
-    
+    // Only add to history if this is a new navigation (not a back/forward action)
+    if (addToHistory) {
+        // Remove any forward history if we're navigating to a new tab
+        navigationHistory = navigationHistory.slice(0, currentTabIndex + 1);
+        
+        // Add the new tab to history (unless it's the same as current)
+        if (navigationHistory[currentTabIndex] !== tabName) {
+            navigationHistory.push(tabName);
+            currentTabIndex = navigationHistory.length - 1;
+        }
+    }
     
     // Hide all tab content immediately
     document.querySelectorAll('.tab-content').forEach(content => {
@@ -6978,9 +6993,35 @@ document.getElementById('threadSearch').addEventListener('input', (e) => {
     this.currentPage = 1; // reset pagination
     this.loadThreads(searchTerm);
 });
+
+function goBack() {
+    if (currentTabIndex > 0) {
+        currentTabIndex--;
+        const previousTab = navigationHistory[currentTabIndex];
+        switchTab(previousTab, false); // false = don't add to history
+        return true; // Successful navigation
+    }
+    return false; // No previous page
+}
+
+function canGoBack() {
+    return currentTabIndex > 0;
+}
  
 
-       function switchTab(tabName) {
+       function switchTab(tabName, addToHistory = true) {
+
+    if (addToHistory) {
+
+        navigationHistory = navigationHistory.slice(0, currentTabIndex + 1);
+        
+
+        if (navigationHistory[currentTabIndex] !== tabName) {
+            navigationHistory.push(tabName);
+            currentTabIndex = navigationHistory.length - 1;
+        }
+    }
+    
              
     // Scroll to top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6999,6 +7040,10 @@ document.getElementById('threadSearch').addEventListener('input', (e) => {
 }
 
 function initializeApp() {
+    // Initialize navigation
+    navigationHistory = ['home'];
+    currentTabIndex = 0;
+    updateBackButtonVisibility();
     if (isNewSession()) {
         localStorage.removeItem('disciplin_active_tab');
         switchTab('home');
@@ -7686,13 +7731,17 @@ function updateFloatingNotificationButton() {
         let popstateHandler;
 
         // Define the popstate handler function
-        popstateHandler = function(e) {
-            // Push current state back to prevent immediate navigation
-            history.pushState(null, null, window.location.pathname);
-            
-            // Show custom modal
-            showExitConfirmationModal();
-        };
+popstateHandler = function(e) {
+    e.preventDefault();
+    
+    // Try to go back within the app first
+    if (canGoBack()) {
+        goBack();
+    } else {
+        // No previous page in app, show exit confirmation
+        showExitConfirmationModal();
+    }
+};
 
         // Add the event listener
         window.addEventListener('popstate', popstateHandler);
