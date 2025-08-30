@@ -6296,7 +6296,6 @@ container.innerHTML = journalEntries.map(entry => `
             initializeDarkMode(); // Initialize dark mode first
             
             initAnalytics(); // Initialize analytics
-            showWelcomeModal();
             checkForUpdates();
             initializeApp();                      
             loadThreadsForHome();
@@ -6310,7 +6309,7 @@ container.innerHTML = journalEntries.map(entry => `
             updatePersonalizedInsights();
             
             loadJournalEntries();
-            
+            showWelcomeModal();
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
@@ -6981,7 +6980,7 @@ document.getElementById('threadSearch').addEventListener('input', (e) => {
  
 
        function switchTab(tabName) {
-             
+           
     // Scroll to top of the page
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
@@ -7061,6 +7060,7 @@ document.addEventListener('visibilitychange', function() {
 
     // Refresh data when switching to relevant tabs
     if (tabName === 'home') {
+        showWelcomeModal();
         console.log('🔄 HOME TAB: Loading threads using existing function...');
     
     if (forumManager) {
