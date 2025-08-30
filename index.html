@@ -6924,7 +6924,7 @@ function switchTabWithLoading(tabName) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
             // Refresh data when switching to relevant tabs
-            if (tabName === 'home') {
+            showWelcomeModal();
                 updateStats();
                 updateStreakNotification();
                 updateAchievements();
@@ -7060,7 +7060,7 @@ document.addEventListener('visibilitychange', function() {
 
     // Refresh data when switching to relevant tabs
     if (tabName === 'home') {
-        showWelcomeModal();
+        
         console.log('🔄 HOME TAB: Loading threads using existing function...');
     
     if (forumManager) {
