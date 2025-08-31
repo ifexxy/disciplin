@@ -5450,7 +5450,7 @@ renderForumStats(totalThreads, totalUsers) {
         if (!this.currentUser) return null;
         
         try {
-            const doc = await this.db.collection('forum').doc('userReadStatus')
+            const doc = await this.db.collection('userReadStatus')
                 .collection(this.currentUser.uid).doc(threadId).get();
             return doc.exists ? doc.data() : null;
         } catch (error) {
