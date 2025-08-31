@@ -3035,7 +3035,7 @@ body[data-active-tab="resources"] .sos-button {
 <div id="forum" class="tab-content">
     <!-- Forum Header -->
     <div class="forum-header" style="background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; transition: all 0.3s ease;">
-    <div id="userProfile" style="margin-bottom: 20px;"></div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h2 style="color: #4F46E5; font-size: 22px; margin: 0;">Community Forum</h2>
             <div style="display: flex; gap: 10px; align-items: center;">
@@ -3054,7 +3054,7 @@ body[data-active-tab="resources"] .sos-button {
         <!-- Create Thread Button -->
         <button id="createThreadBtn" class="btn" style="width: 100%; display: none;">Create New Thread</button>
     </div>
-
+    <div id="userProfile" style="margin-bottom: 20px;"></div>
     <!-- Thread List -->
     
 <div class="forum-rules" style="margin-bottom: 20px; padding: 15px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); text-align: left;">
@@ -3075,8 +3075,7 @@ body[data-active-tab="resources"] .sos-button {
 <input type="text" id="threadSearch" placeholder="Search threads..." class="form-control" style="margin-bottom: 15px; width: 100%;">
 
 
-    <div id="threadList"></div>
-<div id="forumStats" style="margin-top: 30px; text-align: center;"></div>
+
     <!-- Pagination -->
     <div class="forum-pagination" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
         <div id="forumPaginationInfo" style="font-size: 14px; color: var(--text-secondary);"></div>
@@ -3084,6 +3083,8 @@ body[data-active-tab="resources"] .sos-button {
             <button id="forumPrevBtn" class="pagination-btn" disabled>Previous</button>
             <span id="forumCurrentPage" style="font-weight: 600; color: #4F46E5;">1</span>
             <button id="forumNextBtn" class="pagination-btn" disabled>Next</button>
+
+<div id="forumStats" style="margin-top: 30px; text-align: center;"></div>
         </div>
     </div>
    
@@ -5120,7 +5121,7 @@ async handleNotificationClick(notificationId, threadId) {
                                     <span style="color: var(--text-muted);">${replyTime}</span>
                                     ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
                                 </div>
-
+</div>
    <div class="reply-content" id="replyContent${reply.id}" 
                                  style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.processContentWithMentions(this.escapeHtml(reply.content))}</div>
                         </div>
