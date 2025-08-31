@@ -4391,11 +4391,7 @@ this.notificationListener = null;
             this.auth = firebase.auth();
             this.loadForumStats();
             
-            // Set up auth state listener
-            this.auth.onAuthStateChanged((user) => {
-                this.currentUser = user;
-                this.updateAuthUI();
-            });
+
             
             // In the init() method, update the auth state listener
 this.auth.onAuthStateChanged((user) => {
@@ -5450,7 +5446,7 @@ renderForumStats(totalThreads, totalUsers) {
         if (!this.currentUser) return null;
         
         try {
-            const doc = await this.db.collection('userReadStatus')
+            const doc = await this.db.collection('forum').doc('userReadStatus')
                 .collection(this.currentUser.uid).doc(threadId).get();
             return doc.exists ? doc.data() : null;
         } catch (error) {
