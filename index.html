@@ -2404,6 +2404,54 @@ body[data-active-tab="resources"] .sos-button {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.notification-item {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.user-profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 20px;
+    margin: 10px 0;
+    font-size: 14px;
+}
+
+.profile-activity {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.forum-stats-card {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+
         
     </style>
 </head>
@@ -2455,6 +2503,7 @@ body[data-active-tab="resources"] .sos-button {
         </div>
 
         <div id="home" class="tab-content active">
+            <div id="notificationContainer" style="margin-bottom: 20px;"></div>
                 <!-- SOS Floating Button -->
 <button class="sos-button" id="sosButton" onclick="activateSOS()" title="Need help? Click for resources">
     SOS
@@ -2986,6 +3035,7 @@ body[data-active-tab="resources"] .sos-button {
 <div id="forum" class="tab-content">
     <!-- Forum Header -->
     <div class="forum-header" style="background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; transition: all 0.3s ease;">
+    <div id="userProfile" style="margin-bottom: 20px;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h2 style="color: #4F46E5; font-size: 22px; margin: 0;">Community Forum</h2>
             <div style="display: flex; gap: 10px; align-items: center;">
@@ -3026,7 +3076,7 @@ body[data-active-tab="resources"] .sos-button {
 
 
     <div id="threadList"></div>
-
+<div id="forumStats" style="margin-top: 30px; text-align: center;"></div>
     <!-- Pagination -->
     <div class="forum-pagination" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
         <div id="forumPaginationInfo" style="font-size: 14px; color: var(--text-secondary);"></div>
@@ -4328,7 +4378,8 @@ class ForumManager {
         this.isCreatingThread = false; // Add flag to prevent double creation
         this.eventListenersAttached = false; // Add flag to prevent duplicate listeners
         this.isAddingReply = false; // Add flag to prevent double replies
-        
+        this.notifications = [];
+this.notificationListener = null;
         this.init();
     }
     
@@ -4338,12 +4389,29 @@ class ForumManager {
             firebase.initializeApp(this.firebaseConfig);
             this.db = firebase.firestore();
             this.auth = firebase.auth();
+            this.loadForumStats();
             
             // Set up auth state listener
             this.auth.onAuthStateChanged((user) => {
                 this.currentUser = user;
                 this.updateAuthUI();
             });
+            
+            // In the init() method, update the auth state listener
+this.auth.onAuthStateChanged((user) => {
+    this.currentUser = user;
+    this.updateAuthUI();
+    
+    if (user) {
+        this.setupNotificationListener();
+        this.loadUserProfile();
+    } else {
+        if (this.notificationListener) {
+            this.notificationListener();
+            this.notificationListener = null;
+        }
+    }
+});
             
             // Set up event listeners only once
             if (!this.eventListenersAttached) {
@@ -4507,19 +4575,92 @@ class ForumManager {
         const authStatus = document.getElementById('authStatus');
         const createThreadBtn = document.getElementById('createThreadBtn');
         
+        
         if (this.currentUser) {
             const isAnonymous = this.currentUser.isAnonymous;
             const displayName = isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
-            
             if (authBtn) authBtn.textContent = 'Sign Out';
             if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
             if (createThreadBtn) createThreadBtn.style.display = 'block';
+            this.loadForumStats();
         } else {
             if (authBtn) authBtn.textContent = 'Sign In';
             if (authStatus) authStatus.textContent = 'Sign in to create threads and reply';
             if (createThreadBtn) createThreadBtn.style.display = 'none';
         }
     }
+    
+   setupForumStatsListener() {
+    // Listen for new threads
+    this.db.collection('forum').doc('threads').collection('threads')
+        .onSnapshot(() => {
+            this.loadForumStats();
+        });
+} 
+
+// Add these methods to ForumManager class
+async createNotification(toUserId, type, data) {
+    try {
+        await this.db.collection('notifications').add({
+            to: toUserId,
+            from: this.currentUser.uid,
+            fromName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+            type: type, // 'reply' or 'mention'
+            data: data,
+            read: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error creating notification:', error);
+    }
+}
+
+setupNotificationListener() {
+    if (!this.currentUser || this.notificationListener) return;
+    
+    this.notificationListener = this.db.collection('notifications')
+        .where('to', '==', this.currentUser.uid)
+        .where('read', '==', false)
+        .onSnapshot((snapshot) => {
+            this.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            this.updateNotificationUI();
+        });
+}
+
+updateNotificationUI() {
+    const notificationContainer = document.getElementById('notificationContainer');
+    if (!notificationContainer) return;
+    
+    if (this.notifications.length === 0) {
+        notificationContainer.innerHTML = '<p>No new notifications</p>';
+        return;
+    }
+    
+    notificationContainer.innerHTML = this.notifications.map(notification => `
+        <div class="notification-item" onclick="forumManager.handleNotificationClick('${notification.id}', '${notification.data.threadId}')">
+            <div>${this.getNotificationMessage(notification)}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">${this.getTimeAgo(notification.createdAt?.toDate())}</div>
+        </div>
+    `).join('');
+}
+
+getNotificationMessage(notification) {
+    if (notification.type === 'reply') {
+        return `${notification.fromName} replied to your thread "${notification.data.threadTitle}"`;
+    } else if (notification.type === 'mention') {
+        return `${notification.fromName} mentioned you in "${notification.data.threadTitle}"`;
+    }
+    return 'New notification';
+}
+
+async handleNotificationClick(notificationId, threadId) {
+    // Mark as read
+    await this.db.collection('notifications').doc(notificationId).update({ read: true });
+    
+    // Switch to forum tab and open thread
+    switchTab('forum');
+    setTimeout(() => this.openThreadTab(threadId), 100);
+}
     
     async loadThreads(searchTerm = "") {
         try {
@@ -4860,6 +5001,12 @@ class ForumManager {
             
             await this.db.collection('forum').doc('threads').collection('threads').add(thread);
             
+              // Update user stats
+        await this.updateUserStats('thread');
+        
+        // Update forum stats
+        await this.loadForumStats();
+            
             this.closeCreateThreadModal();
             this.loadThreads();
             showNotification('Thread created successfully!', 'success');
@@ -4977,9 +5124,9 @@ class ForumManager {
                                     <span style="color: var(--text-muted);">${replyTime}</span>
                                     ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
                                 </div>
-                            </div>
-                            <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
+
+<div class="reply-content" id="replyContent${reply.id}" 
+     style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.processContentWithMentions(this.escapeHtml(reply.content))}</div>
                         </div>
                     `;
                 }).join('')}
@@ -4988,7 +5135,7 @@ class ForumManager {
             ${this.currentUser ? `
                 <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
                     <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
+                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..., use @username to mention a user" maxlength="1000"></textarea>
                     <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
                 </div>
             ` : `
@@ -5046,6 +5193,46 @@ class ForumManager {
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp()
             });
             
+            // Get thread data for notifications
+        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
+        const thread = threadDoc.data();
+        
+        // Create notification for thread author (if not replying to own thread)
+        if (thread.authorId !== this.currentUser.uid) {
+            await this.createNotification(thread.authorId, 'reply', {
+                threadId: threadId,
+                threadTitle: thread.title
+            });
+        }
+        
+        // Check for mentions in reply content
+        const mentions = this.extractMentions(content);
+        for (const mention of mentions) {
+            const userSnapshot = await this.db.collection('users')
+                .where('displayName', '==', mention)
+                .limit(1).get();
+            
+            if (!userSnapshot.empty) {
+                const mentionedUserId = userSnapshot.docs[0].id;
+                if (mentionedUserId !== this.currentUser.uid) {
+                    await this.createNotification(mentionedUserId, 'mention', {
+                        threadId: threadId,
+                        threadTitle: thread.title
+                    });
+                }
+            }
+        }
+        
+        // Update thread reply count and last activity
+        await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
+            replyCount: firebase.firestore.FieldValue.increment(1),
+            lastActivity: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Update user stats
+        await this.updateUserStats('reply');
+        
+            
             // Reload thread
             this.openThread(threadId);
             showNotification('Reply added successfully!', 'success');
@@ -5062,6 +5249,121 @@ class ForumManager {
             }
         }
     }
+    
+    extractMentions(text) {
+    const mentionRegex = /@(\w+)/g;
+    const mentions = [];
+    let match;
+    
+    while ((match = mentionRegex.exec(text)) !== null) {
+        mentions.push(match[1]);
+    }
+    
+    return mentions;
+}
+
+async updateUserStats(action) {
+    if (!this.currentUser) return;
+    
+    const userStatsRef = this.db.collection('userStats').doc(this.currentUser.uid);
+    const statsDoc = await userStatsRef.get();
+    
+    if (!statsDoc.exists) {
+        await userStatsRef.set({
+            userId: this.currentUser.uid,
+            userName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+            threadCount: action === 'thread' ? 1 : 0,
+            replyCount: action === 'reply' ? 1 : 0,
+            lastThreadCreated: action === 'thread' ? firebase.firestore.FieldValue.serverTimestamp() : null,
+            lastReplyCreated: action === 'reply' ? firebase.firestore.FieldValue.serverTimestamp() : null
+        });
+    } else {
+        const updateData = {};
+        if (action === 'thread') {
+            updateData.threadCount = firebase.firestore.FieldValue.increment(1);
+            updateData.lastThreadCreated = firebase.firestore.FieldValue.serverTimestamp();
+        } else if (action === 'reply') {
+            updateData.replyCount = firebase.firestore.FieldValue.increment(1);
+            updateData.lastReplyCreated = firebase.firestore.FieldValue.serverTimestamp();
+        }
+        await userStatsRef.update(updateData);
+    }
+}
+
+async loadUserProfile() {
+    if (!this.currentUser) return;
+    
+    try {
+        const userStatsDoc = await this.db.collection('userStats').doc(this.currentUser.uid).get();
+        const userStats = userStatsDoc.exists ? userStatsDoc.data() : {
+            threadCount: 0,
+            replyCount: 0,
+            lastThreadCreated: null,
+            lastReplyCreated: null
+        };
+        
+        this.renderUserProfile(userStats);
+    } catch (error) {
+        console.error('Error loading user profile:', error);
+    }
+}
+
+renderUserProfile(userStats) {
+    const profileContainer = document.getElementById('userProfile');
+    if (!profileContainer) return;
+    
+    const userName = this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
+    const lastThread = userStats.lastThreadCreated ? this.getTimeAgo(userStats.lastThreadCreated.toDate()) : 'Never';
+    const lastReply = userStats.lastReplyCreated ? this.getTimeAgo(userStats.lastReplyCreated.toDate()) : 'Never';
+    
+    profileContainer.innerHTML = `
+        <div class="user-profile-card">
+            <h3>${this.escapeHtml(userName)}</h3>
+            <div class="profile-stats">
+                <div>Threads: ${userStats.threadCount || 0}</div>
+                <div>Replies: ${userStats.replyCount || 0}</div>
+            </div>
+            <div class="profile-activity">
+                <div>Last thread: ${lastThread}</div>
+                <div>Last reply: ${lastReply}</div>
+            </div>
+        </div>
+    `;
+}
+
+async loadForumStats() {
+    try {
+        // Get total threads
+        const threadsSnapshot = await this.db.collection('forum').doc('threads').collection('threads').get();
+        const totalThreads = threadsSnapshot.size;
+        
+        // Get unique thread creators
+        const userStatsSnapshot = await this.db.collection('userStats').get();
+        const totalUsers = userStatsSnapshot.size;
+        
+        this.renderForumStats(totalThreads, totalUsers);
+    } catch (error) {
+        console.error('Error loading forum stats:', error);
+    }
+}
+
+renderForumStats(totalThreads, totalUsers) {
+    const statsContainer = document.getElementById('forumStats');
+    if (!statsContainer) return;
+    
+    statsContainer.innerHTML = `
+        <div class="forum-stats-card">
+            <div class="stat-item">
+                <span class="stat-number">${totalThreads}</span>
+                <span class="stat-label">Total Threads</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">${totalUsers}</span>
+                <span class="stat-label">Active Users</span>
+            </div>
+        </div>
+    `;
+}
     
     async toggleLike(threadId) {
         if (!this.currentUser) {
