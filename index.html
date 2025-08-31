@@ -5122,7 +5122,7 @@ async handleNotificationClick(notificationId, threadId) {
                                 </div>
 </div>
    <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.processContentWithMentions(this.escapeHtml(reply.content))}</div>
+                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
                         </div>
                     `;
                 }).join('')}
@@ -5131,7 +5131,7 @@ async handleNotificationClick(notificationId, threadId) {
             ${this.currentUser ? `
                 <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
                     <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..., use @username to mention a user" maxlength="1000"></textarea>
+                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
                     <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
                 </div>
             ` : `
@@ -5527,10 +5527,7 @@ renderForumStats(totalThreads, totalUsers) {
         return date.toLocaleDateString();
     }
     
-    processContentWithMentions(content) {
-    // Convert @username mentions to styled spans
-    return content.replace(/@(\w+)/g, '<span class="mention" style="color: #4F46E5; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px; font-weight: 500;">@$1</span>');
-}
+    
     
     escapeHtml(text) {
         const div = document.createElement('div');
