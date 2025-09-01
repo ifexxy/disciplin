@@ -2451,7 +2451,28 @@ body[data-active-tab="resources"] .sos-button {
     text-align: center;
 }
 
+.modal.show {
+    display: flex !important;
+}
 
+#usernameInput {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#usernameInput:focus {
+    outline: none;
+    border-color: #4F46E5;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+}
         
     </style>
 </head>
@@ -3438,7 +3459,26 @@ Share encouragement, tips, and support with fellow users.</div>
             </div>
         </div>
     </div>
-
+<div id="usernameModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Choose Your Username</h3>
+        </div>
+        <form id="usernameForm">
+            <div class="form-group">
+                <label>Username (required)</label>
+                <input type="text" id="usernameInput" class="form-control" 
+                       placeholder="Enter a unique username" required 
+                       maxlength="20" pattern="[a-zA-Z0-9_]+" 
+                       title="Only letters, numbers, and underscores allowed">
+                <small style="color: var(--text-muted);">Username will be used for mentions (@username)</small>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Continue to Forum</button>
+            </div>
+        </form>
+    </div>
+</div>
     <div id="deleteSelectedModal" class="modal">
         <div class="modal-content">
             <h2>Delete Selected Entries</h2>
@@ -4375,11 +4415,12 @@ class ForumManager {
         this.currentPage = 1;
         this.threadsPerPage = 20;
         this.currentThreadId = null;
+        this.currentUserProfile = null;
+        this.notifications = [];
+        this.notificationListener = null;
         this.isCreatingThread = false; // Add flag to prevent double creation
         this.eventListenersAttached = false; // Add flag to prevent duplicate listeners
         this.isAddingReply = false; // Add flag to prevent double replies
-        this.notifications = [];
-this.notificationListener = null;
         this.init();
     }
     
@@ -4394,18 +4435,30 @@ this.notificationListener = null;
 
             
             // In the init() method, update the auth state listener
-this.auth.onAuthStateChanged((user) => {
+this.auth.onAuthStateChanged(async (user) => {
     this.currentUser = user;
-    this.updateAuthUI();
     
     if (user) {
-        this.setupNotificationListener();
-        this.loadUserProfile();
+        // Check if user has a username set
+        const userProfile = await this.getUserProfile();
+        
+        if (!userProfile || !userProfile.username) {
+            // Show username modal
+            this.showUsernameModal();
+        } else {
+            // User has username, proceed normally
+            this.currentUserProfile = userProfile;
+            this.updateAuthUI();
+            this.setupNotificationListener();
+            this.loadUserProfile();
+        }
     } else {
+        this.currentUserProfile = null;
         if (this.notificationListener) {
             this.notificationListener();
             this.notificationListener = null;
         }
+        this.updateAuthUI();
     }
 });
             
@@ -4534,6 +4587,126 @@ this.auth.onAuthStateChanged((user) => {
         
         this.currentThreadId = null;
     }
+
+    async checkUsernameAvailability(username) {
+    try {
+        const snapshot = await this.db.collection('users')
+            .where('username', '==', username.toLowerCase())
+            .limit(1)
+            .get();
+        
+        return snapshot.empty;
+    } catch (error) {
+        console.error('Error checking username:', error);
+        return false;
+    }
+}
+
+async createUserProfile(username) {
+    if (!this.currentUser) return false;
+    
+    try {
+        await this.db.collection('users').doc(this.currentUser.uid).set({
+            uid: this.currentUser.uid,
+            username: username.toLowerCase(),
+            displayName: username,
+            email: this.currentUser.email || null,
+            isAnonymous: this.currentUser.isAnonymous,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('Error creating user profile:', error);
+        return false;
+    }
+}
+
+async getUserProfile() {
+    if (!this.currentUser) return null;
+    
+    try {
+        const doc = await this.db.collection('users').doc(this.currentUser.uid).get();
+        return doc.exists ? doc.data() : null;
+    } catch (error) {
+        console.error('Error getting user profile:', error);
+        return null;
+    }
+}
+
+    showUsernameModal() {
+    const modal = document.getElementById('usernameModal');
+    if (modal) {
+        modal.classList.add('show');
+        
+        // Set up form handler if not already done
+        const form = document.getElementById('usernameForm');
+        if (form && !form.hasAttribute('data-listener-attached')) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleUsernameSubmit();
+            });
+            form.setAttribute('data-listener-attached', 'true');
+        }
+    }
+}
+
+async handleUsernameSubmit() {
+    const usernameInput = document.getElementById('usernameInput');
+    const username = usernameInput?.value.trim();
+    
+    if (!username) {
+        showNotification('Please enter a username');
+        return;
+    }
+    
+    // Validate username format
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        showNotification('Username can only contain letters, numbers, and underscores');
+        return;
+    }
+    
+    if (username.length < 3 || username.length > 20) {
+        showNotification('Username must be between 3 and 20 characters');
+        return;
+    }
+    
+    // Check availability
+    const isAvailable = await this.checkUsernameAvailability(username);
+    if (!isAvailable) {
+        showNotification('Username is already taken. Please choose another.');
+        return;
+    }
+    
+    // Create user profile
+    const success = await this.createUserProfile(username);
+    if (success) {
+        this.currentUserProfile = {
+            uid: this.currentUser.uid,
+            username: username.toLowerCase(),
+            displayName: username,
+            email: this.currentUser.email || null,
+            isAnonymous: this.currentUser.isAnonymous
+        };
+        
+        this.closeUsernameModal();
+        this.updateAuthUI();
+        this.setupNotificationListener();
+        this.loadUserProfile();
+        showNotification('Username set successfully!', 'success');
+    } else {
+        showNotification('Failed to set username. Please try again.');
+    }
+}
+
+closeUsernameModal() {
+    const modal = document.getElementById('usernameModal');
+    if (modal) {
+        modal.classList.remove('show');
+        document.getElementById('usernameForm').reset();
+    }
+}
     
     async signIn() {
         try {
@@ -4566,25 +4739,23 @@ this.auth.onAuthStateChanged((user) => {
         }
     }
     
-    updateAuthUI() {
-        const authBtn = document.getElementById('authBtn');
-        const authStatus = document.getElementById('authStatus');
-        const createThreadBtn = document.getElementById('createThreadBtn');
-        
-        
-        if (this.currentUser) {
-            const isAnonymous = this.currentUser.isAnonymous;
-            const displayName = isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
-            if (authBtn) authBtn.textContent = 'Sign Out';
-            if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
-            if (createThreadBtn) createThreadBtn.style.display = 'block';
-            this.loadForumStats();
-        } else {
-            if (authBtn) authBtn.textContent = 'Sign In';
-            if (authStatus) authStatus.textContent = 'Sign in to create threads and reply';
-            if (createThreadBtn) createThreadBtn.style.display = 'none';
-        }
+   updateAuthUI() {
+    const authBtn = document.getElementById('authBtn');
+    const authStatus = document.getElementById('authStatus');
+    const createThreadBtn = document.getElementById('createThreadBtn');
+    
+    if (this.currentUser && this.currentUserProfile) {
+        const displayName = this.currentUserProfile.displayName;
+        if (authBtn) authBtn.textContent = 'Sign Out';
+        if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
+        if (createThreadBtn) createThreadBtn.style.display = 'block';
+        this.loadForumStats();
+    } else {
+        if (authBtn) authBtn.textContent = 'Sign In';
+        if (authStatus) authStatus.textContent = 'Sign in to create threads and reply';
+        if (createThreadBtn) createThreadBtn.style.display = 'none';
     }
+}
     
    setupForumStatsListener() {
     // Listen for new threads
@@ -4594,14 +4765,14 @@ this.auth.onAuthStateChanged((user) => {
         });
 } 
 
-// Add these methods to ForumManager class
+// Update createNotification method
 async createNotification(toUserId, type, data) {
     try {
         await this.db.collection('notifications').add({
             to: toUserId,
             from: this.currentUser.uid,
-            fromName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-            type: type, // 'reply' or 'mention'
+            fromName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
+            type: type,
             data: data,
             read: false,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -4983,17 +5154,17 @@ async handleNotificationClick(notificationId, threadId) {
         
         try {
             const thread = {
-                title,
-                content,
-                category,
-                authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
-                likeCount: 0,
-                replyCount: 0,
-                likes: {}
-            };
+    title,
+    content,
+    category,
+    authorId: this.currentUser.uid,
+    authorName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
+    likeCount: 0,
+    replyCount: 0,
+    likes: {}
+};
             
             await this.db.collection('forum').doc('threads').collection('threads').add(thread);
             
@@ -5173,11 +5344,11 @@ async handleNotificationClick(notificationId, threadId) {
         
         try {
             const reply = {
-                content,
-                authorId: this.currentUser.uid,
-                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
+    content,
+    authorId: this.currentUser.uid,
+    authorName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+};
             
             // Add reply
             await this.db.collection('forum').doc('threads').collection('threads')
@@ -5202,21 +5373,15 @@ async handleNotificationClick(notificationId, threadId) {
         }
         
         // Check for mentions in reply content
-        const mentions = this.extractMentions(content);
-        for (const mention of mentions) {
-            const userSnapshot = await this.db.collection('users')
-                .where('displayName', '==', mention)
-                .limit(1).get();
-            
-            if (!userSnapshot.empty) {
-                const mentionedUserId = userSnapshot.docs[0].id;
-                if (mentionedUserId !== this.currentUser.uid) {
-                    await this.createNotification(mentionedUserId, 'mention', {
-                        threadId: threadId,
-                        threadTitle: thread.title
-                    });
-                }
-            }
+      const mentions = await this.extractMentions(content);
+for (const mention of mentions) {
+    if (mention.userId !== this.currentUser.uid) {
+        await this.createNotification(mention.userId, 'mention', {
+            threadId: threadId,
+            threadTitle: thread.title
+        });
+    }
+}
         }
         
         // Update thread reply count and last activity
@@ -5246,20 +5411,33 @@ async handleNotificationClick(notificationId, threadId) {
         }
     }
     
-    extractMentions(text) {
-    const mentionRegex = /@(\w+)/g;
+    async extractMentions(text) {
+    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
     const mentions = [];
     let match;
     
     while ((match = mentionRegex.exec(text)) !== null) {
-        mentions.push(match[1]);
+        const username = match[1].toLowerCase();
+        
+        // Verify username exists
+        const userSnapshot = await this.db.collection('users')
+            .where('username', '==', username)
+            .limit(1).get();
+        
+        if (!userSnapshot.empty) {
+            mentions.push({
+                username: username,
+                userId: userSnapshot.docs[0].id
+            });
+        }
     }
     
     return mentions;
 }
 
+    
 async updateUserStats(action) {
-    if (!this.currentUser) return;
+    if (!this.currentUser || !this.currentUserProfile) return;
     
     const userStatsRef = this.db.collection('userStats').doc(this.currentUser.uid);
     const statsDoc = await userStatsRef.get();
@@ -5267,7 +5445,8 @@ async updateUserStats(action) {
     if (!statsDoc.exists) {
         await userStatsRef.set({
             userId: this.currentUser.uid,
-            userName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
+            userName: this.currentUserProfile.displayName, // Updated
+            username: this.currentUserProfile.username, // Add username field
             threadCount: action === 'thread' ? 1 : 0,
             replyCount: action === 'reply' ? 1 : 0,
             lastThreadCreated: action === 'thread' ? firebase.firestore.FieldValue.serverTimestamp() : null,
@@ -5285,6 +5464,8 @@ async updateUserStats(action) {
         await userStatsRef.update(updateData);
     }
 }
+
+        
 
 async loadUserProfile() {
     if (!this.currentUser) return;
@@ -5308,13 +5489,15 @@ renderUserProfile(userStats) {
     const profileContainer = document.getElementById('userProfile');
     if (!profileContainer) return;
     
-    const userName = this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
+    const userName = this.currentUserProfile?.displayName || 'Unknown User'; // Updated
+    const username = this.currentUserProfile?.username || 'unknown'; // Add username display
     const lastThread = userStats.lastThreadCreated ? this.getTimeAgo(userStats.lastThreadCreated.toDate()) : 'Never';
     const lastReply = userStats.lastReplyCreated ? this.getTimeAgo(userStats.lastReplyCreated.toDate()) : 'Never';
     
     profileContainer.innerHTML = `
         <div class="user-profile-card">
             <h3>${this.escapeHtml(userName)}</h3>
+            <p style="color: var(--text-muted); font-size: 12px; margin: 5px 0;">@${username}</p>
             <div class="profile-stats">
                 <div>Threads: ${userStats.threadCount || 0}</div>
                 <div>Replies: ${userStats.replyCount || 0}</div>
@@ -5326,7 +5509,7 @@ renderUserProfile(userStats) {
         </div>
     `;
 }
-
+        
 async loadForumStats() {
     try {
         // Get total threads
