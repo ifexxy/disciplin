@@ -4359,7 +4359,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Forum functionality 
+// Forum functionality with thread detail tabs - COMPLETE FIXED VERSION
 class ForumManager {
     constructor() {
         this.firebaseConfig = {
@@ -4536,34 +4536,25 @@ this.auth.onAuthStateChanged((user) => {
     }
     
     async signIn() {
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await this.auth.signInWithPopup(provider);
-        
-        // Check if user already has a username
-        const userDoc = await this.db.collection('users').doc(result.user.uid).get();
-        
-        if (!userDoc.exists || !userDoc.data().username) {
-            // Show username selection modal
-            this.showUsernameModal(result.user);
-        } else {
+        try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            await this.auth.signInWithPopup(provider);
             showNotification('Signed in successfully!', 'success');
-        }
-        
-    } catch (error) {
-        console.error('Sign in error:', error);
-        
-        if (confirm('Google sign-in failed. Sign in anonymously instead?')) {
-            try {
-                const anonResult = await this.auth.signInAnonymously();
-                this.showUsernameModal(anonResult.user);
-            } catch (anonError) {
-                console.error('Anonymous sign in error:', anonError);
-                showNotification('Sign in failed');
+        } catch (error) {
+            console.error('Sign in error:', error);
+            
+            // Fallback to anonymous auth
+            if (confirm('Google sign-in failed. Sign in anonymously instead?')) {
+                try {
+                    await this.auth.signInAnonymously();
+                    showNotification('Signed in anonymously!', 'success');
+                } catch (anonError) {
+                    console.error('Anonymous sign in error:', anonError);
+                    showNotification('Sign in failed');
+                }
             }
         }
     }
-}
     
     async signOut() {
         try {
@@ -4581,12 +4572,9 @@ this.auth.onAuthStateChanged((user) => {
         const createThreadBtn = document.getElementById('createThreadBtn');
         
         
-       if (this.currentUser) {
-        // Use username instead of displayName
-        this.getUserUsername().then(username => {
-            const displayName = username || 'Loading...';
-            if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
-        });
+        if (this.currentUser) {
+            const isAnonymous = this.currentUser.isAnonymous;
+            const displayName = isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User');
             if (authBtn) authBtn.textContent = 'Sign Out';
             if (authStatus) authStatus.textContent = `Signed in as: ${displayName}`;
             if (createThreadBtn) createThreadBtn.style.display = 'block';
@@ -4597,18 +4585,6 @@ this.auth.onAuthStateChanged((user) => {
             if (createThreadBtn) createThreadBtn.style.display = 'none';
         }
     }
-
-async getUserUsername() {
-    if (!this.currentUser) return null;
-    
-    try {
-        const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
-        return userDoc.exists ? userDoc.data().username : null;
-    } catch (error) {
-        console.error('Error getting username:', error);
-        return null;
-    }
-}
     
    setupForumStatsListener() {
     // Listen for new threads
@@ -4633,92 +4609,6 @@ async createNotification(toUserId, type, data) {
     } catch (error) {
         console.error('Error creating notification:', error);
     }
-}
-
-        showUsernameModal(user) {
-    const modalHTML = `
-        <div id="usernameModal" class="modal show" style="display: flex;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Choose Your Username</h3>
-                </div>
-                <form id="usernameForm">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="usernameInput" class="form-control" 
-                               placeholder="Enter unique username" required 
-                               pattern="[a-zA-Z0-9_]{3,20}" 
-                               title="3-20 characters, letters, numbers, underscore only">
-                        <small style="color: var(--text-muted);">3-20 characters, letters/numbers/underscore only</small>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" id="setUsernameBtn">Set Username</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    const form = document.getElementById('usernameForm');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.setUsername(user);
-    });
-}
-
-        async setUsername(user) {
-    const username = document.getElementById('usernameInput')?.value.trim();
-    const btn = document.getElementById('setUsernameBtn');
-    
-    if (!username) {
-        showNotification('Please enter a username');
-        return;
-    }
-    
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
-        showNotification('Username must be 3-20 characters, letters/numbers/underscore only');
-        return;
-    }
-    
-    btn.disabled = true;
-    btn.textContent = 'Checking...';
-    
-    try {
-        // Check if username already exists
-        const existingUser = await this.db.collection('users')
-            .where('username', '==', username).limit(1).get();
-        
-        if (!existingUser.empty) {
-            showNotification('Username already taken, please choose another');
-            btn.disabled = false;
-            btn.textContent = 'Set Username';
-            return;
-        }
-        
-        // Save username
-        await this.db.collection('users').doc(user.uid).set({
-            username: username,
-            displayName: user.isAnonymous ? 'Anonymous' : (user.displayName || 'User'),
-            email: user.email || null,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        this.closeUsernameModal();
-        showNotification('Username set successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error setting username:', error);
-        showNotification('Failed to set username');
-        btn.disabled = false;
-        btn.textContent = 'Set Username';
-    }
-}
-
-closeUsernameModal() {
-    const modal = document.getElementById('usernameModal');
-    if (modal) modal.remove();
 }
 
 setupNotificationListener() {
@@ -5097,7 +4987,7 @@ async handleNotificationClick(notificationId, threadId) {
                 content,
                 category,
                 authorId: this.currentUser.uid,
-                authorName: await this.getUserUsername() || 'User',
+                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
                 likeCount: 0,
@@ -5232,7 +5122,7 @@ async handleNotificationClick(notificationId, threadId) {
                                 </div>
 </div>
    <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.processContentWithMentions(this.escapeHtml(reply.content))}</div>
+                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
                         </div>
                     `;
                 }).join('')}
@@ -5285,7 +5175,7 @@ async handleNotificationClick(notificationId, threadId) {
             const reply = {
                 content,
                 authorId: this.currentUser.uid,
-                authorName: await this.getUserUsername() || 'User',
+                authorName: this.currentUser.isAnonymous ? 'Anonymous' : (this.currentUser.displayName || 'User'),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
@@ -5637,9 +5527,7 @@ renderForumStats(totalThreads, totalUsers) {
         return date.toLocaleDateString();
     }
     
-    processContentWithMentions(content) {
-    return content.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-}
+    
     
     escapeHtml(text) {
         const div = document.createElement('div');
