@@ -4439,11 +4439,11 @@ this.auth.onAuthStateChanged(async (user) => {
     this.currentUser = user;
     
     if (user) {
-        // Check if user has a username set
+        // Always check if user has a username set
         const userProfile = await this.getUserProfile();
         
         if (!userProfile || !userProfile.username) {
-            // Show username modal
+            // Show username modal for both new and existing users
             this.showUsernameModal();
         } else {
             // User has username, proceed normally
@@ -4461,6 +4461,7 @@ this.auth.onAuthStateChanged(async (user) => {
         this.updateAuthUI();
     }
 });
+
             
             // Set up event listeners only once
             if (!this.eventListenersAttached) {
@@ -4638,6 +4639,21 @@ async getUserProfile() {
     showUsernameModal() {
     const modal = document.getElementById('usernameModal');
     if (modal) {
+        // Check if this is an existing user (has made threads/replies before)
+        this.checkIfExistingUser().then(isExisting => {
+            const modalContent = modal.querySelector('.modal-header h3');
+            if (isExisting && modalContent) {
+                modalContent.textContent = 'Set Your Username';
+                const form = modal.querySelector('form');
+                if (form) {
+                    const helpText = document.createElement('p');
+                    helpText.style.cssText = 'color: var(--text-muted); font-size: 12px; margin-bottom: 15px; line-height: 1.4;';
+                    helpText.textContent = 'We\'ve added usernames to the forum! Please choose a username to continue using the forum.';
+                    form.insertBefore(helpText, form.firstChild);
+                }
+            }
+        });
+        
         modal.classList.add('show');
         
         // Set up form handler if not already done
@@ -4649,6 +4665,86 @@ async getUserProfile() {
             });
             form.setAttribute('data-listener-attached', 'true');
         }
+    }
+}
+
+async checkIfExistingUser() {
+    if (!this.currentUser) return false;
+    
+    try {
+        // Check if user has created any threads
+        const threadsSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
+            .where('authorId', '==', this.currentUser.uid)
+            .limit(1)
+            .get();
+        
+        if (!threadsSnapshot.empty) return true;
+        
+        // Check if user has made any replies
+        const userStatsDoc = await this.db.collection('userStats').doc(this.currentUser.uid).get();
+        if (userStatsDoc.exists && userStatsDoc.data().replyCount > 0) {
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error checking existing user:', error);
+        return false;
+    }
+}
+
+async migrateUserContent(username) {
+    if (!this.currentUser) return;
+    
+    try {
+        const displayName = username; // Use the username as display name
+        
+        // Update existing threads
+        const threadsSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
+            .where('authorId', '==', this.currentUser.uid)
+            .get();
+        
+        const threadUpdates = [];
+        threadsSnapshot.docs.forEach(doc => {
+            threadUpdates.push(
+                this.db.collection('forum').doc('threads').collection('threads')
+                    .doc(doc.id).update({ authorName: displayName })
+            );
+        });
+        
+        // Update existing replies - this is more complex as we need to check all threads
+        const allThreadsSnapshot = await this.db.collection('forum').doc('threads').collection('threads').get();
+        const replyUpdates = [];
+        
+        for (const threadDoc of allThreadsSnapshot.docs) {
+            const repliesSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
+                .doc(threadDoc.id).collection('replies')
+                .where('authorId', '==', this.currentUser.uid)
+                .get();
+            
+            repliesSnapshot.docs.forEach(replyDoc => {
+                replyUpdates.push(
+                    this.db.collection('forum').doc('threads').collection('threads')
+                        .doc(threadDoc.id).collection('replies')
+                        .doc(replyDoc.id).update({ authorName: displayName })
+                );
+            });
+        }
+        
+        // Update user stats
+        const userStatsRef = this.db.collection('userStats').doc(this.currentUser.uid);
+        const userStatsUpdate = userStatsRef.update({ 
+            userName: displayName,
+            username: username.toLowerCase()
+        });
+        
+        // Execute all updates
+        await Promise.all([...threadUpdates, ...replyUpdates, userStatsUpdate]);
+        
+        console.log('Successfully migrated user content');
+        
+    } catch (error) {
+        console.error('Error migrating user content:', error);
     }
 }
 
@@ -4690,10 +4786,13 @@ async handleUsernameSubmit() {
             isAnonymous: this.currentUser.isAnonymous
         };
         
+        await this.migrateUserContent(username);
+        
         this.closeUsernameModal();
         this.updateAuthUI();
         this.setupNotificationListener();
         this.loadUserProfile();
+        this.loadThreads(); 
         showNotification('Username set successfully!', 'success');
     } else {
         showNotification('Failed to set username. Please try again.');
