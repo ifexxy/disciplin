@@ -4493,14 +4493,18 @@ this.auth.onAuthStateChanged(async (user) => {
             authBtn.setAttribute('data-listener-attached', 'true');
         }
         
-        // Create thread button
-        const createThreadBtn = document.getElementById('createThreadBtn');
-        if (createThreadBtn && !createThreadBtn.hasAttribute('data-listener-attached')) {
-            createThreadBtn.addEventListener('click', () => {
-                document.getElementById('createThreadModal').classList.add('show');
-            });
-            createThreadBtn.setAttribute('data-listener-attached', 'true');
-        }
+// Create thread button
+const createThreadBtn = document.getElementById('createThreadBtn');
+if (createThreadBtn && !createThreadBtn.hasAttribute('data-listener-attached')) {
+    createThreadBtn.addEventListener('click', () => {
+        document.getElementById('createThreadModal').classList.add('show');
+        // Set up mention autocomplete for thread content
+        setTimeout(() => {
+            this.setupMentionAutocomplete('threadContent');
+        }, 200);
+    });
+    createThreadBtn.setAttribute('data-listener-attached', 'true');
+}
         
         // Create thread form - FIXED: Remove existing listeners first
         const createThreadForm = document.getElementById('createThreadForm');
@@ -5413,10 +5417,20 @@ async handleNotificationClick(notificationId, threadId) {
                 </div>
             `}
         `;
+        setTimeout(() => {
+            this.setupMentionAutocomplete('replyContent');
+        }, 100);
     }
 
     formatMentions(text) {
     return text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
+}
+
+setupCreateThreadAutocomplete() {
+    // Set up autocomplete for thread creation
+    setTimeout(() => {
+        this.setupMentionAutocomplete('threadContent');
+    }, 100);
 }
 
     async setupMentionAutocomplete(textareaId) {
