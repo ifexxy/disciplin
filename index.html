@@ -4416,7 +4416,8 @@ class ForumManager {
         this.threadsPerPage = 20;
         this.currentThreadId = null;
         this.currentUserProfile = null;
-        
+        this.notifications = [];
+        this.notificationListener = null;
         this.isCreatingThread = false; // Add flag to prevent double creation
         this.eventListenersAttached = false; // Add flag to prevent duplicate listeners
         this.isAddingReply = false; // Add flag to prevent double replies
@@ -4448,12 +4449,15 @@ this.auth.onAuthStateChanged(async (user) => {
             // User has username, proceed normally
             this.currentUserProfile = userProfile;
             this.updateAuthUI();
-
+            this.setupNotificationListener();
             this.loadUserProfile();
         }
     } else {
         this.currentUserProfile = null;
-        
+        if (this.notificationListener) {
+            this.notificationListener();
+            this.notificationListener = null;
+        }
         this.updateAuthUI();
     }
 });
@@ -4860,7 +4864,69 @@ closeUsernameModal() {
         });
 } 
 
+// Update createNotification method
+async createNotification(toUserId, type, data) {
+    try {
+        await this.db.collection('notifications').add({
+            to: toUserId,
+            from: this.currentUser.uid,
+            fromName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
+            type: type,
+            data: data,
+            read: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error creating notification:', error);
+    }
+}
 
+setupNotificationListener() {
+    if (!this.currentUser || this.notificationListener) return;
+    
+    this.notificationListener = this.db.collection('notifications')
+        .where('to', '==', this.currentUser.uid)
+        .where('read', '==', false)
+        .onSnapshot((snapshot) => {
+            this.notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            this.updateNotificationUI();
+        });
+}
+
+updateNotificationUI() {
+    const notificationContainer = document.getElementById('notificationContainer');
+    if (!notificationContainer) return;
+    
+    if (this.notifications.length === 0) {
+        notificationContainer.innerHTML = '<p>No new notifications</p>';
+        return;
+    }
+    
+    notificationContainer.innerHTML = this.notifications.map(notification => `
+        <div class="notification-item" onclick="forumManager.handleNotificationClick('${notification.id}', '${notification.data.threadId}')">
+            <div>${this.getNotificationMessage(notification)}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">${this.getTimeAgo(notification.createdAt?.toDate())}</div>
+        </div>
+    `).join('');
+}
+
+getNotificationMessage(notification) {
+    if (notification.type === 'reply') {
+        return `${notification.fromName} replied to your thread "${notification.data.threadTitle}"`;
+    } else if (notification.type === 'mention') {
+        return `${notification.fromName} mentioned you in "${notification.data.threadTitle}"`;
+    }
+    return 'New notification';
+}
+
+async handleNotificationClick(notificationId, threadId) {
+    // Mark as read
+    await this.db.collection('notifications').doc(notificationId).update({ read: true });
+    
+    // Switch to forum tab and open thread
+    switchTab('forum');
+    setTimeout(() => this.openThreadTab(threadId), 100);
+}
     
     async loadThreads(searchTerm = "") {
         try {
