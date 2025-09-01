@@ -4898,7 +4898,7 @@ updateNotificationUI() {
     if (!notificationContainer) return;
     
     if (this.notifications.length === 0) {
-        notificationContainer.innerHTML = '<p>No new notifications</p>';
+        notificationContainer.innerHTML = '<p>No new forum notifications</p>';
         return;
     }
     
@@ -4915,6 +4915,8 @@ getNotificationMessage(notification) {
         return `${notification.fromName} replied to your thread "${notification.data.threadTitle}"`;
     } else if (notification.type === 'mention') {
         return `${notification.fromName} mentioned you in "${notification.data.threadTitle}"`;
+    } else if (notification.type === 'like') {
+        return `${notification.fromName} liked your thread "${notification.data.threadTitle}"`;
     }
     return 'New notification';
 }
@@ -5367,7 +5369,7 @@ async handleNotificationClick(notificationId, threadId) {
                     <span class="thread-category">${thread.category}</span>
                     <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
                 </div>
-                <div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.escapeHtml(thread.content)}</div>
+                <div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.formatMentions(this.escapeHtml(thread.content))}</div>
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
                         ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
@@ -5392,7 +5394,7 @@ async handleNotificationClick(notificationId, threadId) {
                                 </div>
 </div>
    <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
+                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatMentions(this.escapeHtml(reply.content))}</div>
                         </div>
                     `;
                 }).join('')}
@@ -5412,6 +5414,131 @@ async handleNotificationClick(notificationId, threadId) {
             `}
         `;
     }
+
+    formatMentions(text) {
+    return text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
+}
+
+    async setupMentionAutocomplete(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) return;
+    
+    let autocompleteDiv = null;
+    
+    textarea.addEventListener('input', async (e) => {
+        const text = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        const textBeforeCursor = text.substring(0, cursorPos);
+        const mentionMatch = textBeforeCursor.match(/@([a-zA-Z0-9_]*)$/);
+        
+        if (mentionMatch) {
+            const query = mentionMatch[1].toLowerCase();
+            
+            // Get matching usernames
+            const users = await this.searchUsers(query);
+            
+            if (users.length > 0) {
+                this.showMentionAutocomplete(textarea, users, mentionMatch[0]);
+            } else {
+                this.hideMentionAutocomplete();
+            }
+        } else {
+            this.hideMentionAutocomplete();
+        }
+    });
+    
+    // Hide autocomplete when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.mention-autocomplete') && e.target !== textarea) {
+            this.hideMentionAutocomplete();
+        }
+    });
+}
+
+async searchUsers(query) {
+    if (!query) return [];
+    
+    try {
+        const snapshot = await this.db.collection('users')
+            .where('username', '>=', query)
+            .where('username', '<=', query + '\uf8ff')
+            .limit(5)
+            .get();
+        
+        return snapshot.docs.map(doc => doc.data());
+    } catch (error) {
+        console.error('Error searching users:', error);
+        return [];
+    }
+}
+
+showMentionAutocomplete(textarea, users, currentMention) {
+    this.hideMentionAutocomplete(); // Remove existing
+    
+    const autocompleteDiv = document.createElement('div');
+    autocompleteDiv.className = 'mention-autocomplete';
+    autocompleteDiv.style.cssText = `
+        position: absolute;
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 1000;
+        min-width: 150px;
+    `;
+    
+    users.forEach(user => {
+        const item = document.createElement('div');
+        item.className = 'mention-item';
+        item.style.cssText = `
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        `;
+        item.innerHTML = `
+            <div style="font-weight: 600;">@${user.username}</div>
+            <div style="font-size: 12px; color: var(--text-muted);">${user.displayName}</div>
+        `;
+        
+        item.addEventListener('click', () => {
+            const text = textarea.value;
+            const cursorPos = textarea.selectionStart;
+            const textBeforeCursor = text.substring(0, cursorPos);
+            const textAfterCursor = text.substring(cursorPos);
+            const newTextBefore = textBeforeCursor.replace(/@[a-zA-Z0-9_]*$/, `@${user.username} `);
+            
+            textarea.value = newTextBefore + textAfterCursor;
+            textarea.focus();
+            textarea.setSelectionRange(newTextBefore.length, newTextBefore.length);
+            
+            this.hideMentionAutocomplete();
+        });
+        
+        item.addEventListener('mouseenter', () => {
+            item.style.backgroundColor = 'var(--bg-secondary)';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            item.style.backgroundColor = 'transparent';
+        });
+        
+        autocompleteDiv.appendChild(item);
+    });
+    
+    // Position autocomplete below textarea
+    const rect = textarea.getBoundingClientRect();
+    autocompleteDiv.style.top = (rect.bottom + window.scrollY) + 'px';
+    autocompleteDiv.style.left = rect.left + 'px';
+    
+    document.body.appendChild(autocompleteDiv);
+}
+
+hideMentionAutocomplete() {
+    const existing = document.querySelector('.mention-autocomplete');
+    if (existing) existing.remove();
+}
     
     async addReply(threadId) {
         // FIXED: Add protection against double submission
@@ -5652,43 +5779,53 @@ renderForumStats(totalThreads, totalUsers) {
 }
     
     async toggleLike(threadId) {
-        if (!this.currentUser) {
-            showNotification('Please sign in to like threads');
-            return;
-        }
+    if (!this.currentUser) {
+        showNotification('Please sign in to like threads');
+        return;
+    }
+    
+    try {
+        const threadRef = this.db.collection('forum').doc('threads').collection('threads').doc(threadId);
+        const threadDoc = await threadRef.get();
         
-        try {
-            const threadRef = this.db.collection('forum').doc('threads').collection('threads').doc(threadId);
-            const threadDoc = await threadRef.get();
+        if (!threadDoc.exists) return;
+        
+        const thread = threadDoc.data();
+        const likes = thread.likes || {};
+        const isLiked = likes[this.currentUser.uid];
+        
+        if (isLiked) {
+            // Unlike
+            delete likes[this.currentUser.uid];
+            await threadRef.update({
+                likes,
+                likeCount: firebase.firestore.FieldValue.increment(-1)
+            });
+        } else {
+            // Like - ADD NOTIFICATION HERE
+            likes[this.currentUser.uid] = true;
+            await threadRef.update({
+                likes,
+                likeCount: firebase.firestore.FieldValue.increment(1)
+            });
             
-            if (!threadDoc.exists) return;
-            
-            const thread = threadDoc.data();
-            const likes = thread.likes || {};
-            const isLiked = likes[this.currentUser.uid];
-            
-            if (isLiked) {
-                delete likes[this.currentUser.uid];
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(-1)
-                });
-            } else {
-                likes[this.currentUser.uid] = true;
-                await threadRef.update({
-                    likes,
-                    likeCount: firebase.firestore.FieldValue.increment(1)
+            // Create notification for thread author (only when liking, not unliking)
+            if (thread.authorId !== this.currentUser.uid) {
+                await this.createNotification(thread.authorId, 'like', {
+                    threadId: threadId,
+                    threadTitle: thread.title
                 });
             }
-            
-            // Reload thread
-            this.openThread(threadId);
-            
-        } catch (error) {
-            console.error('Error toggling like:', error);
-            showNotification('Failed to update like');
         }
+        
+        // Reload thread
+        this.openThread(threadId);
+        
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        showNotification('Failed to update like');
     }
+}
     
     async deleteThread(threadId) {
         if (!this.currentUser) return;
