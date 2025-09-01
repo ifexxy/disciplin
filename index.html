@@ -5232,7 +5232,7 @@ async handleNotificationClick(notificationId, threadId) {
                                 </div>
 </div>
    <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.escapeHtml(reply.content)}</div>
+                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.processContentWithMentions(this.escapeHtml(reply.content))}</div>
                         </div>
                     `;
                 }).join('')}
@@ -5637,7 +5637,9 @@ renderForumStats(totalThreads, totalUsers) {
         return date.toLocaleDateString();
     }
     
-    
+    processContentWithMentions(content) {
+    return content.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+}
     
     escapeHtml(text) {
         const div = document.createElement('div');
