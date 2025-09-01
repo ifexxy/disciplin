@@ -5485,13 +5485,6 @@ for (const mention of mentions) {
             threadId: threadId,
             threadTitle: thread.title
         });
-       } catch (error) {
-    console.error('DETAILED ERROR:', error);
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    console.error('Error details:', JSON.stringify(error, null, 2));
-    showNotification('Failed to add reply');
-}
     }  
 } 
 
