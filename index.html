@@ -5448,16 +5448,22 @@ async handleNotificationClick(notificationId, threadId) {
     authorName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
 };
+
+    console.log('About to add reply with data:', reply);
+    console.log('Thread ID:', threadId);
+    console.log('Current user:', this.currentUser.uid);
             
             // Add reply
             await this.db.collection('forum').doc('threads').collection('threads')
                 .doc(threadId).collection('replies').add(reply);
+            console.log('Reply added successfully:', replyRef.id);
             
             // Update thread reply count and last activity
             await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
                 replyCount: firebase.firestore.FieldValue.increment(1),
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp()
             });
+            console.log('Thread counters updated successfully');
             
             // Get thread data for notifications
         const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
@@ -5480,7 +5486,15 @@ for (const mention of mentions) {
             threadTitle: thread.title
         });
     }
+} catch (error) {
+    console.error('DETAILED ERROR:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error details:', JSON.stringify(error, null, 2));
+    showNotification('Failed to add reply');
 }
+
+            
         
         
         // Update thread reply count and last activity
