@@ -5038,49 +5038,71 @@ async handleNotificationClick(notificationId, threadId) {
     async loadThreads(searchTerm = "") {
     try {
         const categoryFilter = document.getElementById('categoryFilter')?.value || '';
-        let query;
-
+        
         if (searchTerm) {
-            // Search by title (prefix match) 
-            query = this.db.collection('forum').doc('threads').collection('threads')
+            // Search by title (prefix match)
+            const query = this.db.collection('forum').doc('threads').collection('threads')
                 .orderBy('title')
                 .startAt(searchTerm)
-                .endAt(searchTerm + '\uf8ff');
+                .endAt(searchTerm + '\uf8ff')
+                .limit(this.threadsPerPage);
+
+            const snapshot = await query.get();
+            const threads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // Process threads and render
+            await this.processAndRenderThreads(threads);
+            
         } else {
-            // Order by pinned first, then by last activity
-            query = this.db.collection('forum').doc('threads').collection('threads')
-                .orderBy('pinned', 'desc')
+            // Get pinned threads first
+            const pinnedQuery = this.db.collection('forum').doc('threads').collection('threads')
+                .where('pinned', '==', true)
                 .orderBy('lastActivity', 'desc');
-        }
+                
+            // Get regular threads
+            const regularQuery = this.db.collection('forum').doc('threads').collection('threads')
+                .where('pinned', '!=', true)
+                .orderBy('lastActivity', 'desc')
+                .limit(this.threadsPerPage - 3); // Leave room for pinned threads
 
-        if (categoryFilter) {
-            query = query.where('category', '==', categoryFilter);
-        }
-
-        const snapshot = await query.limit(this.threadsPerPage).get();
-        const threads = [];
-
-        for (const doc of snapshot.docs) {
-            const thread = { id: doc.id, ...doc.data() };
-
-            // Check if user has read this thread
-            if (this.currentUser) {
-                const readStatus = await this.getUserReadStatus(thread.id);
-                thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+            // Apply category filter if selected
+            let pinnedSnapshot, regularSnapshot;
+            
+            if (categoryFilter) {
+                pinnedSnapshot = await pinnedQuery.where('category', '==', categoryFilter).get();
+                regularSnapshot = await regularQuery.where('category', '==', categoryFilter).get();
             } else {
-                thread.unread = false;
+                pinnedSnapshot = await pinnedQuery.get();
+                regularSnapshot = await regularQuery.get();
             }
 
-            threads.push(thread);
+            // Combine results: pinned threads first, then regular threads
+            const pinnedThreads = pinnedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const regularThreads = regularSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const allThreads = [...pinnedThreads, ...regularThreads];
+            
+            await this.processAndRenderThreads(allThreads);
         }
-
-        this.renderThreads(threads);
-        this.updateForumPagination(threads.length);
 
     } catch (error) {
         console.error('Error loading threads:', error);
         this.showForumError('Failed to load threads');
     }
+}
+
+async processAndRenderThreads(threads) {
+    // Check read status for each thread
+    for (const thread of threads) {
+        if (this.currentUser) {
+            const readStatus = await this.getUserReadStatus(thread.id);
+            thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+        } else {
+            thread.unread = false;
+        }
+    }
+
+    this.renderThreads(threads);
+    this.updateForumPagination(threads.length);
 }
     
     renderThreads(threads) {
