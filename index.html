@@ -4611,12 +4611,19 @@ async createUserProfile(username) {
     if (!this.currentUser) return false;
     
     try {
+    
+            // Check if this is the designated admin user (replace with your email/UID)
+        const isAdmin = this.currentUser.email === 'ifexxy9@gmail.com' || 
+                       this.currentUser.uid === 'LpIUrqjGfYO5xqSsaXVu8lqPIBi1';
+    
         await this.db.collection('users').doc(this.currentUser.uid).set({
             uid: this.currentUser.uid,
             username: username.toLowerCase(),
             displayName: username,
             email: this.currentUser.email || null,
             isAnonymous: this.currentUser.isAnonymous,
+            role: isAdmin ? 'admin' : 'user',
+            isBanned: false,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             lastActive: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -4625,6 +4632,20 @@ async createUserProfile(username) {
     } catch (error) {
         console.error('Error creating user profile:', error);
         return false;
+    }
+}
+
+isCurrentUserAdmin() {
+    return this.currentUserProfile && this.currentUserProfile.role === 'admin';
+}
+
+async getUserRole(userId) {
+    try {
+        const doc = await this.db.collection('users').doc(userId).get();
+        return doc.exists ? doc.data().role : 'user';
+    } catch (error) {
+        console.error('Error getting user role:', error);
+        return 'user';
     }
 }
 
@@ -4945,11 +4966,12 @@ async handleNotificationClick(notificationId, threadId) {
                     .orderBy('title')
                     .startAt(searchTerm)
                     .endAt(searchTerm + '\uf8ff');
-            } else {
-                // Default: order by last activity
-                query = this.db.collection('forum').doc('threads').collection('threads')
-                    .orderBy('lastActivity', 'desc');
-            }
+         } else {
+    // Load pinned threads first, then others
+    query = this.db.collection('forum').doc('threads').collection('threads')
+        .orderBy('pinned', 'desc')
+        .orderBy('lastActivity', 'desc');
+}
 
             if (categoryFilter) {
                 query = query.where('category', '==', categoryFilter);
@@ -5365,10 +5387,23 @@ async handleNotificationClick(notificationId, threadId) {
         
         threadDetailContent.innerHTML = `
             <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2> 
-                    ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
-                </div>
+// In the thread header section, replace the edit/delete buttons section with:
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)} ${thread.pinned ? '<span style="color: #F59E0B;"><i class="fas icon-pushpin"></i></span>' : ''}</h2>
+    <div>
+        ${canEdit ? `
+            <button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button>
+            <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px;">Delete</button>
+        ` : ''}
+        ${this.isCurrentUserAdmin() ? `
+            <button onclick="forumManager.${thread.pinned ? 'unpinThread' : 'pinThread'}('${thread.id}')" class="admin-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #F59E0B; color: white; border: none; border-radius: 3px;">
+                ${thread.pinned ? 'Unpin' : 'Pin'}
+            </button>
+            ${!canEdit ? `<button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px;">Admin Delete</button>` : ''}
+            <button onclick="forumManager.banUser('${thread.authorId}')" class="ban-btn" style="padding: 4px 8px; font-size: 12px; background: #EF4444; color: white; border: none; border-radius: 3px;">Ban User</button>
+        ` : ''}
+    </div>
+</div>
                 <div style="margin-bottom: 10px;">
                     <span class="thread-category">${thread.category}</span>
                     <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
@@ -5422,8 +5457,20 @@ async handleNotificationClick(notificationId, threadId) {
         }, 100);
     }
 
-    formatMentions(text) {
-    return text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
+    async formatMentionsWithRoles(text) {
+    // First apply basic mention formatting
+    let formattedText = text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
+    
+    return formattedText;
+}
+
+// Add method to display names with admin badges
+formatDisplayName(authorName, authorId) {
+    if (this.currentUserProfile && this.currentUserProfile.uid === authorId && this.isCurrentUserAdmin()) {
+        return `${authorName} <span style="color: #10B981; font-weight: bold;">✓</span>`;
+    }
+    // For other users, you'd need to check their role from a cached list or make a query
+    return authorName;
 }
 
 setupCreateThreadAutocomplete() {
@@ -5658,6 +5705,92 @@ for (const mention of mentions) {
             }
         }
     }
+    
+    async pinThread(threadId) {
+    if (!this.isCurrentUserAdmin()) {
+        showNotification('Only admins can pin threads');
+        return;
+    }
+    
+    try {
+        // Check current pinned count
+        const pinnedSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
+            .where('pinned', '==', true).get();
+        
+        if (pinnedSnapshot.size >= 3) {
+            showNotification('Maximum 3 threads can be pinned');
+            return;
+        }
+        
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).update({
+                pinned: true,
+                pinnedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        
+        this.loadThreads();
+        showNotification('Thread pinned successfully!', 'success');
+    } catch (error) {
+        console.error('Error pinning thread:', error);
+        showNotification('Failed to pin thread');
+    }
+}
+
+async unpinThread(threadId) {
+    if (!this.isCurrentUserAdmin()) return;
+    
+    try {
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).update({
+                pinned: firebase.firestore.FieldValue.delete(),
+                pinnedAt: firebase.firestore.FieldValue.delete()
+            });
+        
+        this.loadThreads();
+        showNotification('Thread unpinned successfully!', 'success');
+    } catch (error) {
+        console.error('Error unpinning thread:', error);
+        showNotification('Failed to unpin thread');
+    }
+}
+
+async banUser(userId, reason = '') {
+    if (!this.isCurrentUserAdmin()) return;
+    
+    if (!confirm('Are you sure you want to ban this user?')) return;
+    
+    try {
+        await this.db.collection('users').doc(userId).update({
+            isBanned: true,
+            banReason: reason,
+            bannedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            bannedBy: this.currentUser.uid
+        });
+        
+        showNotification('User banned successfully!', 'success');
+    } catch (error) {
+        console.error('Error banning user:', error);
+        showNotification('Failed to ban user');
+    }
+}
+
+async unbanUser(userId) {
+    if (!this.isCurrentUserAdmin()) return;
+    
+    try {
+        await this.db.collection('users').doc(userId).update({
+            isBanned: false,
+            banReason: firebase.firestore.FieldValue.delete(),
+            bannedAt: firebase.firestore.FieldValue.delete(),
+            bannedBy: firebase.firestore.FieldValue.delete()
+        });
+        
+        showNotification('User unbanned successfully!', 'success');
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+        showNotification('Failed to unban user');
+    }
+}
     
     async extractMentions(text) {
     const mentionRegex = /@([a-zA-Z0-9_]+)/g;
