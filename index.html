@@ -5481,6 +5481,12 @@ async isAdmin(userId = null) {
     const isCurrentUserAdmin = await this.checkAdminStatus();
     const isAuthorAdmin = await this.isAdmin(thread.authorId);
     
+    // Pre-calculate admin status for all reply authors to fix the checkmark bug
+    const replyAuthorAdminStatuses = {};
+    for (const reply of replies) {
+        replyAuthorAdminStatuses[reply.id] = await this.isAdmin(reply.authorId);
+    }
+    
     // Admin controls HTML
     const adminControls = isCurrentUserAdmin ? `
         <div style="margin-top: 10px; padding: 10px; background: #FEF3C7; border-radius: 5px;">
@@ -5499,7 +5505,7 @@ async isAdmin(userId = null) {
     threadDetailContent.innerHTML = `
         <div style="margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <h2 style="color: #4F46E5; margin: 0;">${thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span> ' : ''}${this.escapeHtml(thread.title)}</h2> 
+                <h2 style="color: #4F46E5; margin: 0;">${thread.pinned ? '📌 ' : ''}${this.escapeHtml(thread.title)}</h2> 
                 ${canEdit || isCurrentUserAdmin ? `
                     <div>
                         ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button>` : ''}
@@ -5509,7 +5515,7 @@ async isAdmin(userId = null) {
             </div>
             <div style="margin-bottom: 10px;">
                 <span class="thread-category">${thread.category}</span>
-                <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} ${isAuthorAdmin ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''} • ${timeAgo}</span>
+                <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} ${isAuthorAdmin ? '✓' : ''} • ${timeAgo}</span>
             </div>
             <div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.formatMentions(this.escapeHtml(thread.content))}</div>
             ${adminControls}
@@ -5523,15 +5529,15 @@ async isAdmin(userId = null) {
         
         <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
             <h3 style="margin-bottom: 15px;">Replies (${replies.length})</h3>
-            ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">Ugh...no replies yet! drop a reply to start a conversation or check back later.</p>' : ''}
+            ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">No replies yet. Be the first to reply!</p>' : ''}
             ${replies.map(reply => {
                 const replyTime = this.getTimeAgo(reply.createdAt?.toDate() || new Date());
                 const canEditReply = this.currentUser && this.currentUser.uid === reply.authorId;
-                const isReplyAuthorAdmin = this.isAdmin(reply.authorId);
+                const isReplyAuthorAdmin = replyAuthorAdminStatuses[reply.id]; // Fixed: now uses pre-calculated boolean
                 return `
                     <div class="reply-item">
                         <div class="reply-header">
-                            <span class="reply-author">${this.escapeHtml(reply.authorName)} ${isReplyAuthorAdmin ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''}</span>
+                            <span class="reply-author">${this.escapeHtml(reply.authorName)} ${isReplyAuthorAdmin ? '✓' : ''}</span>
                             <div>
                                 <span style="color: var(--text-muted);">${replyTime}</span>
                                 ${canEditReply || isCurrentUserAdmin ? `
@@ -5553,7 +5559,7 @@ async isAdmin(userId = null) {
         ${this.currentUser ? `
             <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
                 <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="2000"></textarea>
+                <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
                 <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
             </div>
         ` : `
@@ -5567,6 +5573,7 @@ async isAdmin(userId = null) {
     setTimeout(() => {
         this.setupMentionAutocomplete('replyContent');
     }, 100);
+}
 }
 
     formatMentions(text) {
