@@ -5041,13 +5041,12 @@ async handleNotificationClick(notificationId, threadId) {
         let query;
 
         if (searchTerm) {
-            // Search by title (prefix match)
             query = this.db.collection('forum').doc('threads').collection('threads')
                 .orderBy('title')
                 .startAt(searchTerm)
                 .endAt(searchTerm + '\uf8ff');
         } else {
-            // Default: order by last activity
+            // Simple approach: get all threads and sort pinned ones in JavaScript
             query = this.db.collection('forum').doc('threads').collection('threads')
                 .orderBy('lastActivity', 'desc');
         }
@@ -5062,7 +5061,6 @@ async handleNotificationClick(notificationId, threadId) {
         for (const doc of snapshot.docs) {
             const thread = { id: doc.id, ...doc.data() };
 
-            // Check if user has read this thread
             if (this.currentUser) {
                 const readStatus = await this.getUserReadStatus(thread.id);
                 thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
@@ -5072,6 +5070,13 @@ async handleNotificationClick(notificationId, threadId) {
 
             threads.push(thread);
         }
+
+        // Sort pinned threads to the top (do this in JavaScript instead of Firestore)
+        threads.sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return 0; // Keep original order for same type
+        });
 
         this.renderThreads(threads);
         this.updateForumPagination(threads.length);
