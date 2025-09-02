@@ -5574,7 +5574,7 @@ async isAdmin(userId = null) {
         this.setupMentionAutocomplete('replyContent');
     }, 100);
 }
-}
+
 
     formatMentions(text) {
     return text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
