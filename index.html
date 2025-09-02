@@ -4608,6 +4608,18 @@ if (createThreadBtn && !createThreadBtn.hasAttribute('data-listener-attached')) 
         this.currentThreadId = null;
     }
 
+    async checkIfUserIsBanned() {
+    if (!this.currentUser) return false;
+    
+    try {
+        const bannedDoc = await this.db.collection('bannedUsers').doc(this.currentUser.uid).get();
+        return bannedDoc.exists;
+    } catch (error) {
+        console.error('Error checking ban status:', error);
+        return false;
+    }
+}
+
 // Add after the constructor
 async checkAdminStatus() {
     if (!this.currentUser) return false;
@@ -5363,6 +5375,13 @@ async isAdmin(userId = null) {
             showNotification('Please sign in to create threads');
             return;
         }
+
+// Check if user is banned
+    const isBanned = await this.checkIfUserIsBanned();
+    if (isBanned) {
+        showNotification('You are banned from posting');
+        return;
+    }
         
         const title = document.getElementById('threadTitle')?.value.trim() || '';
         const content = document.getElementById('threadContent')?.value.trim() || '';
@@ -5726,6 +5745,13 @@ hideMentionAutocomplete() {
             showNotification('Please sign in to reply');
             return;
         }
+
+         // Check if user is banned
+    const isBanned = await this.checkIfUserIsBanned();
+    if (isBanned) {
+        showNotification('You are banned from posting');
+        return;
+    }
         
         const content = document.getElementById('replyContent')?.value.trim() || '';
         if (!content) {
