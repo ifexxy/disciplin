@@ -5078,7 +5078,7 @@ async handleNotificationClick(notificationId, threadId) {
             return 0; // Keep original order for same type
         });
 
-        this.renderThreads(threads);
+        await this.renderThreads(threads);
         this.updateForumPagination(threads.length);
 
     } catch (error) {
@@ -5087,7 +5087,7 @@ async handleNotificationClick(notificationId, threadId) {
     }
 }
     
-    renderThreads(threads) {
+    async renderThreads(threads) {
     const threadList = document.getElementById('threadList');
     
     if (!threadList) return;
@@ -5102,10 +5102,17 @@ async handleNotificationClick(notificationId, threadId) {
         return;
     }
     
+    // Pre-calculate admin status for all thread authors to fix the checkmark bug
+    const threadAuthorAdminStatuses = {};
+    for (const thread of threads) {
+        threadAuthorAdminStatuses[thread.id] = await this.isAdmin(thread.authorId);
+    }
+    
     threadList.innerHTML = threads.map(thread => {
         const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
         const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
         const pinnedBadge = thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span>' : '';
+        const isThreadAuthorAdmin = threadAuthorAdminStatuses[thread.id]; // Fixed: now uses pre-calculated boolean
         
         return `
             <div class="forum-thread ${thread.unread ? 'unread' : ''} ${thread.pinned ? 'pinned' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
@@ -5113,7 +5120,7 @@ async handleNotificationClick(notificationId, threadId) {
                 <div class="thread-meta">
                     <div>
                         <span class="thread-category">${thread.category}</span>
-                        <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} ${this.isAdmin(thread.authorId) ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''} • ${timeAgo}</span>
+                        <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} ${isThreadAuthorAdmin ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''} • ${timeAgo}</span>
                     </div>
                     <div>Last activity: ${lastActivity}</div>
                 </div>
