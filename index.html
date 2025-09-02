@@ -2473,6 +2473,17 @@ body[data-active-tab="resources"] .sos-button {
     margin-top: 5px;
     font-size: 12px;
 }
+
+.pinned {
+    border-left: 4px solid #EF4444 !important;
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.admin-checkmark {
+    color: #10B981;
+    font-weight: bold;
+    margin-left: 3px;
+}
         
     </style>
 </head>
@@ -4432,6 +4443,8 @@ class ForumManager {
             this.auth = firebase.auth();
             this.loadForumStats();
             
+            
+            
 
             
             // In the init() method, update the auth state listener
@@ -4448,7 +4461,8 @@ this.auth.onAuthStateChanged(async (user) => {
         } else {
             // User has username, proceed normally
             this.currentUserProfile = userProfile;
-            this.updateAuthUI();
+this.isCurrentUserAdmin = await this.checkAdminStatus();
+    this.updateAuthUI();
             this.setupNotificationListener();
             this.loadUserProfile();
         }
@@ -4461,6 +4475,7 @@ this.auth.onAuthStateChanged(async (user) => {
         this.updateAuthUI();
     }
 });
+
 
             
             // Set up event listeners only once
@@ -4592,6 +4607,92 @@ if (createThreadBtn && !createThreadBtn.hasAttribute('data-listener-attached')) 
         
         this.currentThreadId = null;
     }
+
+// Add after the constructor
+async checkAdminStatus() {
+    if (!this.currentUser) return false;
+    
+    try {
+        const adminDoc = await this.db.collection('admins').doc(this.currentUser.uid).get();
+        return adminDoc.exists;
+    } catch (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+    }
+}
+
+async banUser(userId, username) {
+    if (!await this.checkAdminStatus()) {
+        showNotification('Access denied');
+        return;
+    }
+    
+    if (confirm(`Ban user ${username}? This will prevent them from posting.`)) {
+        try {
+            await this.db.collection('bannedUsers').doc(userId).set({
+                userId,
+                username,
+                bannedBy: this.currentUser.uid,
+                bannedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showNotification('User banned successfully', 'success');
+        } catch (error) {
+            console.error('Error banning user:', error);
+            showNotification('Failed to ban user');
+        }
+    }
+}
+
+async unbanUser(userId) {
+    if (!await this.checkAdminStatus()) return;
+    
+    try {
+        await this.db.collection('bannedUsers').doc(userId).delete();
+        showNotification('User unbanned successfully', 'success');
+    } catch (error) {
+        console.error('Error unbanning user:', error);
+        showNotification('Failed to unban user');
+    }
+}
+
+async pinThread(threadId) {
+    if (!await this.checkAdminStatus()) return;
+    
+    try {
+        // Check current pinned threads count
+        const pinnedQuery = await this.db.collection('forum').doc('threads').collection('threads')
+            .where('pinned', '==', true).get();
+        
+        if (pinnedQuery.size >= 3) {
+            showNotification('Maximum 3 threads can be pinned');
+            return;
+        }
+        
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).update({ pinned: true });
+        
+        showNotification('Thread pinned successfully', 'success');
+        this.loadThreads(); // Reload to show updated order
+    } catch (error) {
+        console.error('Error pinning thread:', error);
+        showNotification('Failed to pin thread');
+    }
+}
+
+async unpinThread(threadId) {
+    if (!await this.checkAdminStatus()) return;
+    
+    try {
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).update({ pinned: false });
+        
+        showNotification('Thread unpinned successfully', 'success');
+        this.loadThreads();
+    } catch (error) {
+        console.error('Error unpinning thread:', error);
+        showNotification('Failed to unpin thread');
+    }
+}
 
     async checkUsernameAvailability(username) {
     try {
@@ -4935,89 +5036,103 @@ async handleNotificationClick(notificationId, threadId) {
 }
     
     async loadThreads(searchTerm = "") {
-        try {
-            const categoryFilter = document.getElementById('categoryFilter')?.value || '';
-            let query;
+    try {
+        const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+        let query;
 
-            if (searchTerm) {
-                // Search by title (prefix match)
-                query = this.db.collection('forum').doc('threads').collection('threads')
-                    .orderBy('title')
-                    .startAt(searchTerm)
-                    .endAt(searchTerm + '\uf8ff');
-            } else {
-                // Default: order by last activity
-                query = this.db.collection('forum').doc('threads').collection('threads')
-                    .orderBy('lastActivity', 'desc');
-            }
-
-            if (categoryFilter) {
-                query = query.where('category', '==', categoryFilter);
-            }
-
-            const snapshot = await query.limit(this.threadsPerPage).get();
-            const threads = [];
-
-            for (const doc of snapshot.docs) {
-                const thread = { id: doc.id, ...doc.data() };
-
-                // Check if user has read this thread
-                if (this.currentUser) {
-                    const readStatus = await this.getUserReadStatus(thread.id);
-                    thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
-                } else {
-                    thread.unread = false;
-                }
-
-                threads.push(thread);
-            }
-
-            this.renderThreads(threads);
-            this.updateForumPagination(threads.length);
-
-        } catch (error) {
-            console.error('Error loading threads:', error);
-            this.showForumError('Failed to load threads');
+        if (searchTerm) {
+            // Search by title (prefix match) 
+            query = this.db.collection('forum').doc('threads').collection('threads')
+                .orderBy('title')
+                .startAt(searchTerm)
+                .endAt(searchTerm + '\uf8ff');
+        } else {
+            // Order by pinned first, then by last activity
+            query = this.db.collection('forum').doc('threads').collection('threads')
+                .orderBy('pinned', 'desc')
+                .orderBy('lastActivity', 'desc');
         }
+
+        if (categoryFilter) {
+            query = query.where('category', '==', categoryFilter);
+        }
+
+        const snapshot = await query.limit(this.threadsPerPage).get();
+        const threads = [];
+
+        for (const doc of snapshot.docs) {
+            const thread = { id: doc.id, ...doc.data() };
+
+            // Check if user has read this thread
+            if (this.currentUser) {
+                const readStatus = await this.getUserReadStatus(thread.id);
+                thread.unread = !readStatus || readStatus.lastRead < thread.lastActivity;
+            } else {
+                thread.unread = false;
+            }
+
+            threads.push(thread);
+        }
+
+        this.renderThreads(threads);
+        this.updateForumPagination(threads.length);
+
+    } catch (error) {
+        console.error('Error loading threads:', error);
+        this.showForumError('Failed to load threads');
     }
+}
     
     renderThreads(threads) {
-        const threadList = document.getElementById('threadList');
-        
-        if (!threadList) return;
-        
-        if (threads.length === 0) {
-            threadList.innerHTML = `
-                <div class="empty-state">
-                    <h3>No threads found</h3>
-                    <p>Be the first to start a discussion!</p>
-                </div>
-            `;
-            return;
-        }
-        
-        threadList.innerHTML = threads.map(thread => {
-            const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
-            const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
-            
-            return `
-                <div class="forum-thread ${thread.unread ? 'unread' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
-                    <div class="thread-title ${thread.unread ? 'unread' : ''}">${this.escapeHtml(thread.title)}</div>
-                    <div class="thread-meta">
-                        <div>
-                            <span class="thread-category">${thread.category}</span>
-                            <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
-                        </div>
-                        <div>Last activity: ${lastActivity}</div>
-                    </div>
-                    <div class="thread-stats">
-                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
+    const threadList = document.getElementById('threadList');
+    
+    if (!threadList) return;
+    
+    if (threads.length === 0) {
+        threadList.innerHTML = `
+            <div class="empty-state">
+                <h3>No threads found</h3>
+                <p>Be the first to start a discussion!</p>
+            </div>
+        `;
+        return;
     }
+    
+    threadList.innerHTML = threads.map(thread => {
+        const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
+        const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
+        const pinnedBadge = thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span>' : '';
+        
+        return `
+            <div class="forum-thread ${thread.unread ? 'unread' : ''} ${thread.pinned ? 'pinned' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
+                <div class="thread-title ${thread.unread ? 'unread' : ''}">${pinnedBadge}${this.escapeHtml(thread.title)}</div>
+                <div class="thread-meta">
+                    <div>
+                        <span class="thread-category">${thread.category}</span>
+                        <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} ${this.isAdmin(thread.authorId) ? '✓' : ''} • ${timeAgo}</span>
+                    </div>
+                    <div>Last activity: ${lastActivity}</div>
+                </div>
+                <div class="thread-stats">
+                    <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
+                    <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+async isAdmin(userId = null) {
+    const checkUserId = userId || (this.currentUser ? this.currentUser.uid : null);
+    if (!checkUserId) return false;
+    
+    try {
+        const adminDoc = await this.db.collection('admins').doc(checkUserId).get();
+        return adminDoc.exists;
+    } catch (error) {
+        return false;
+    }
+}
     
     async loadRecentThreadsForHome() {
         console.log('🔄 HOME: Loading threads...');
@@ -5355,72 +5470,100 @@ async handleNotificationClick(notificationId, threadId) {
         }
     }
     
-    renderThreadDetail(thread, replies) {
-        const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
-        const canEdit = this.currentUser && this.currentUser.uid === thread.authorId;
-        const isLiked = this.currentUser && thread.likes && thread.likes[this.currentUser.uid];
-        
-        const threadDetailContent = document.getElementById('threadDetailContent');
-        if (!threadDetailContent) return;
-        
-        threadDetailContent.innerHTML = `
-            <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                    <h2 style="color: #4F46E5; margin: 0;">${this.escapeHtml(thread.title)}</h2> 
-                    ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px;">Delete</button>` : ''}
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <span class="thread-category">${thread.category}</span>
-                    <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} • ${timeAgo}</span>
-                </div>
-                <div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.formatMentions(this.escapeHtml(thread.content))}</div>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
-                        ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
-                    </button>
-                    <span style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-solid fa-comment"></i> ${replies.length}</span>
-                </div>
+    async renderThreadDetail(thread, replies) {
+    const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
+    const canEdit = this.currentUser && this.currentUser.uid === thread.authorId;
+    const isLiked = this.currentUser && thread.likes && thread.likes[this.currentUser.uid];
+    const isCurrentUserAdmin = await this.checkAdminStatus();
+    const isAuthorAdmin = await this.isAdmin(thread.authorId);
+    
+    // Admin controls HTML
+    const adminControls = isCurrentUserAdmin ? `
+        <div style="margin-top: 10px; padding: 10px; background: #FEF3C7; border-radius: 5px;">
+            <strong>Admin Controls:</strong>
+            ${thread.pinned ? 
+                `<button onclick="forumManager.unpinThread('${thread.id}')" style="margin-left: 10px; padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 3px; font-size: 12px;">Unpin</button>` :
+                `<button onclick="forumManager.pinThread('${thread.id}')" style="margin-left: 10px; padding: 4px 8px; background: #10B981; color: white; border: none; border-radius: 3px; font-size: 12px;">Pin Thread</button>`
+            }
+            ${thread.authorId !== this.currentUser.uid ? `<button onclick="forumManager.banUser('${thread.authorId}', '${thread.authorName}')" style="margin-left: 5px; padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 3px; font-size: 12px;">Ban User</button>` : ''}
+        </div>
+    ` : '';
+    
+    const threadDetailContent = document.getElementById('threadDetailContent');
+    if (!threadDetailContent) return;
+    
+    threadDetailContent.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <h2 style="color: #4F46E5; margin: 0;">${thread.pinned ? '📌 ' : ''}${this.escapeHtml(thread.title)}</h2> 
+                ${canEdit || isCurrentUserAdmin ? `
+                    <div>
+                        ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button>` : ''}
+                        <button onclick="forumManager.deleteThread('${thread.id}')" class="delete-btn" style="padding: 4px 8px; font-size: 12px; background: #EF4444; color: white; border: none; border-radius: 3px;">Delete</button>
+                    </div>
+                ` : ''}
             </div>
-            
-            <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px;">Replies (${replies.length})</h3>
-                ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">No replies yet. Be the first to reply!</p>' : ''}
-                ${replies.map(reply => {
-                    const replyTime = this.getTimeAgo(reply.createdAt?.toDate() || new Date());
-                    const canEditReply = this.currentUser && this.currentUser.uid === reply.authorId;
-                    return `
-                        <div class="reply-item">
-                            <div class="reply-header">
-                                <span class="reply-author">${this.escapeHtml(reply.authorName)}</span>
-                                <div>
-                                    <span style="color: var(--text-muted);">${replyTime}</span>
-                                    ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button> <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 10px; padding: 2px 6px; font-size: 10px;">Delete</button>` : ''}
-                                </div>
-</div>
-   <div class="reply-content" id="replyContent${reply.id}" 
-                                 style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatMentions(this.escapeHtml(reply.content))}</div>
+            <div style="margin-bottom: 10px;">
+                <span class="thread-category">${thread.category}</span>
+                <span style="margin-left: 10px; font-size: 12px; color: var(--text-secondary);">by ${this.escapeHtml(thread.authorName)} ${isAuthorAdmin ? '✓' : ''} • ${timeAgo}</span>
+            </div>
+            <div style="margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 0;">${this.formatMentions(this.escapeHtml(thread.content))}</div>
+            ${adminControls}
+            <div style="display: flex; gap: 15px; align-items: center; margin-top: 15px;">
+                <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="forumManager.toggleLike('${thread.id}')">
+                    ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
+                </button>
+                <span style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-solid fa-comment"></i> ${replies.length}</span>
+            </div>
+        </div>
+        
+        <div style="border-top: 2px solid var(--border-color); padding-top: 20px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">Replies (${replies.length})</h3>
+            ${replies.length === 0 ? '<p style="color: var(--text-secondary); font-style: italic;">No replies yet. Be the first to reply!</p>' : ''}
+            ${replies.map(reply => {
+                const replyTime = this.getTimeAgo(reply.createdAt?.toDate() || new Date());
+                const canEditReply = this.currentUser && this.currentUser.uid === reply.authorId;
+                const isReplyAuthorAdmin = this.isAdmin(reply.authorId);
+                return `
+                    <div class="reply-item">
+                        <div class="reply-header">
+                            <span class="reply-author">${this.escapeHtml(reply.authorName)} ${isReplyAuthorAdmin ? '✓' : ''}</span>
+                            <div>
+                                <span style="color: var(--text-muted);">${replyTime}</span>
+                                ${canEditReply || isCurrentUserAdmin ? `
+                                    <div style="display: inline-block; margin-left: 5px;">
+                                        ${canEditReply ? `<button onclick="forumManager.editReply('${thread.id}', '${reply.id}')" class="edit-btn" style="padding: 2px 6px; font-size: 10px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button>` : ''}
+                                        <button onclick="forumManager.deleteReply('${thread.id}', '${reply.id}')" class="delete-btn" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #EF4444; color: white; border: none; border-radius: 3px;">Delete</button>
+                                        ${isCurrentUserAdmin && reply.authorId !== this.currentUser.uid ? `<button onclick="forumManager.banUser('${reply.authorId}', '${reply.authorName}')" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #EF4444; color: white; border: none; border-radius: 3px;">Ban</button>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
-                    `;
-                }).join('')}
+                        <div class="reply-content" id="replyContent${reply.id}" 
+                             style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatMentions(this.escapeHtml(reply.content))}</div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        
+        ${this.currentUser ? `
+            <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
+                <h4 style="margin-bottom: 10px;">Add Reply</h4>
+                <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
+                <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
             </div>
-            
-            ${this.currentUser ? `
-                <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
-                    <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                    <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="1000"></textarea>
-                    <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
-                </div>
-            ` : `
-                <div style="border-top: 2px solid var(--border-color); padding-top: 20px; text-align: center;">
-                    <p style="color: var(--text-secondary);">Sign in to reply to this thread</p>
-                    <button onclick="forumManager.signIn()" class="btn" style="margin-top: 10px;">Sign In</button>
-                </div>
-            `}
-        `;
-        setTimeout(() => {
-            this.setupMentionAutocomplete('replyContent');
-        }, 100);
-    }
+        ` : `
+            <div style="border-top: 2px solid var(--border-color); padding-top: 20px; text-align: center;">
+                <p style="color: var(--text-secondary);">Sign in to reply to this thread</p>
+                <button onclick="forumManager.signIn()" class="btn" style="margin-top: 10px;">Sign In</button>
+            </div>
+        `}
+    `;
+    
+    setTimeout(() => {
+        this.setupMentionAutocomplete('replyContent');
+    }, 100);
+}
 
     formatMentions(text) {
     return text.replace(/@([a-zA-Z0-9_]+)/g, '<span style="color: #4F46E5; font-weight: 600; background: rgba(79, 70, 229, 0.1); padding: 2px 4px; border-radius: 3px;">@$1</span>');
