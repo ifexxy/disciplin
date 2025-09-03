@@ -5124,11 +5124,12 @@ async handleNotificationClick(notificationId, threadId) {
         const timeAgo = this.getTimeAgo(thread.createdAt?.toDate() || new Date());
         const lastActivity = this.getTimeAgo(thread.lastActivity?.toDate() || new Date());
         const pinnedBadge = thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span>' : '';
+        const closedBadge = thread.closed ? '<span style="background: #F59E0B; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;"> CLOSED</span>' : '';
         const isThreadAuthorAdmin = threadAuthorAdminStatuses[thread.id]; // Fixed: now uses pre-calculated boolean
         
         return `
             <div class="forum-thread ${thread.unread ? 'unread' : ''} ${thread.pinned ? 'pinned' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
-                <div class="thread-title ${thread.unread ? 'unread' : ''}">${pinnedBadge}${this.escapeHtml(thread.title)}</div>
+                <div class="thread-title ${thread.unread ? 'unread' : ''}">${pinnedBadge}${closedBadge}${this.escapeHtml(thread.title)}</div>
                 <div class="thread-meta">
                     <div>
                         <span class="thread-category">${thread.category}</span>
@@ -5154,6 +5155,52 @@ async isAdmin(userId = null) {
         return adminDoc.exists;
     } catch (error) {
         return false;
+    }
+}
+
+async closeThread(threadId) {
+    if (!await this.checkAdminStatus()) {
+        showNotification('Access denied');
+        return;
+    }
+    
+    if (confirm('Close this thread? Users will no longer be able to reply.')) {
+        try {
+            await this.db.collection('forum').doc('threads').collection('threads')
+                .doc(threadId).update({ 
+                    closed: true,
+                    closedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    closedBy: this.currentUser.uid
+                });
+            
+            showNotification('Thread closed successfully', 'success');
+            this.openThread(threadId); // Reload thread to show closed state
+        } catch (error) {
+            console.error('Error closing thread:', error);
+            showNotification('Failed to close thread');
+        }
+    }
+}
+
+async reopenThread(threadId) {
+    if (!await this.checkAdminStatus()) {
+        showNotification('Access denied');
+        return;
+    }
+    
+    try {
+        await this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).update({ 
+                closed: false,
+                reopenedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                reopenedBy: this.currentUser.uid
+            });
+        
+        showNotification('Thread reopened successfully', 'success');
+        this.openThread(threadId); // Reload thread
+    } catch (error) {
+        console.error('Error reopening thread:', error);
+        showNotification('Failed to reopen thread');
     }
 }
 
@@ -5543,7 +5590,11 @@ formatLinksAndMentions(text) {
                 `<button onclick="forumManager.unpinThread('${thread.id}')" style="margin-left: 10px; padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 3px; font-size: 12px;">Unpin</button>` :
                 `<button onclick="forumManager.pinThread('${thread.id}')" style="margin-left: 10px; padding: 4px 8px; background: #10B981; color: white; border: none; border-radius: 3px; font-size: 12px;">Pin Thread</button>`
             }
-            ${thread.authorId !== this.currentUser.uid ? `<button onclick="forumManager.banUser('${thread.authorId}', '${thread.authorName}')" style="margin-left: 5px; padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 3px; font-size: 12px;">Ban User</button>` : ''}
+            ${thread.closed ? 
+            `<button onclick="forumManager.reopenThread('${thread.id}')" style="margin-left: 5px; padding: 4px 8px; background: #10B981; color: white; border: none; border-radius: 3px; font-size: 12px;">Reopen Thread</button>` :
+            `<button onclick="forumManager.closeThread('${thread.id}')" style="margin-left: 5px; padding: 4px 8px; background: #F59E0B; color: white; border: none; border-radius: 3px; font-size: 12px;">Close Thread</button>`
+        }
+     ${thread.authorId !== this.currentUser.uid ? `<button onclick="forumManager.banUser('${thread.authorId}', '${thread.authorName}')" style="margin-left: 5px; padding: 4px 8px; background: #EF4444; color: white; border: none; border-radius: 3px; font-size: 12px;">Ban User</button>` : ''}
         </div>
     ` : '';
     
@@ -5553,7 +5604,9 @@ formatLinksAndMentions(text) {
     threadDetailContent.innerHTML = `
         <div style="margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <h2 style="color: #4F46E5; margin: 0;">${thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span> ' : ''}${this.escapeHtml(thread.title)}</h2> 
+                <h2 style="color: #4F46E5; margin: 0;">${thread.pinned ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">📌 PINNED</span> ' : ''}
+                  ${thread.closed ? '<span style="background: #F59E0B; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;"> CLOSED</span>' : ''}
+                  ${this.escapeHtml(thread.title)}</h2> 
                 ${canEdit || isCurrentUserAdmin ? `
                     <div>
                         ${canEdit ? `<button onclick="forumManager.editThread('${thread.id}')" class="edit-btn" style="padding: 4px 8px; font-size: 12px; margin-right: 5px; background: #10B981; color: white; border: none; border-radius: 3px;">Edit</button>` : ''}
@@ -5605,17 +5658,23 @@ formatLinksAndMentions(text) {
         </div>
         
         ${this.currentUser ? `
-            <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
-                <h4 style="margin-bottom: 10px;">Add Reply</h4>
-                <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="2000"></textarea>
-                <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
+    <div style="border-top: 2px solid var(--border-color); padding-top: 20px;">
+        ${thread.closed ? `
+            <div style="text-align: center; padding: 20px; background: #FEF3C7; border-radius: 5px;">
+                <p style="color: #92400E; margin: 0;">This thread is no longer open to additional replies!</p>
             </div>
         ` : `
-            <div style="border-top: 2px solid var(--border-color); padding-top: 20px; text-align: center;">
-                <p style="color: var(--text-secondary);">Sign in to reply to this thread</p>
-                <button onclick="forumManager.signIn()" class="btn" style="margin-top: 10px;">Sign In</button>
-            </div>
+            <h4 style="margin-bottom: 10px;">Add Reply</h4>
+            <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="2000"></textarea>
+            <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
         `}
+    </div>
+` : `
+    <div style="border-top: 2px solid var(--border-color); padding-top: 20px; text-align: center;">
+        <p style="color: var(--text-secondary);">Sign in to reply to this thread</p>
+        <button onclick="forumManager.signIn()" class="btn" style="margin-top: 10px;">Sign In</button>
+    </div>
+`}
     `;
     
     setTimeout(() => {
@@ -5757,6 +5816,20 @@ hideMentionAutocomplete() {
 }
     
     async addReply(threadId) {
+    
+    // Check if thread is closed
+    try {
+        const threadDoc = await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).get();
+        if (threadDoc.exists && threadDoc.data().closed) {
+            showNotification('This thread is closed and cannot accept new replies');
+            return;
+        }
+    } catch (error) {
+        console.error('Error checking thread status:', error);
+        showNotification('Error checking thread status');
+        return;
+    }
+    
         // FIXED: Add protection against double submission
         if (this.isAddingReply) {
             console.log('Reply addition already in progress, ignoring duplicate request');
