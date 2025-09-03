@@ -2518,13 +2518,13 @@ body[data-active-tab="resources"] .sos-button {
 <!-- Loading Screen -->
 <div id="loadingOverlay" class="loading-overlay" style="display: none;">
     <div class="loading-spinner"></div>
-    <div class="loading-text">Loading...</div>
+    <div class="loading-text">Loading...please wait</div>
 </div>
         <div class="tabs">
          
             <button class="tab active" data-tab="home"><i class="fas fa-home tab-icon"></i><br>Home</button>
             <button class="tab" data-tab="howto"><i class="fas fa-question-circle tab-icon"></i><br>Guide</button>
-            <button class="tab" data-tab="chat"><i class="fas fa-comments tab-icon"></i><br>Chat</button>
+            <button class="tab" data-tab="forum"><i class="fas fa-comment tab-icon"></i><br>Forum</button>
 
             <button class="tab" data-tab="log"><i class="fas fa-plus tab-icon"></i><br>Log</button>
             
@@ -2535,6 +2535,11 @@ body[data-active-tab="resources"] .sos-button {
         </div>
 
         <div id="home" class="tab-content active">
+            <!-- Loading Screen -->
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading...please wait</div>
+</div>
             <div id="notificationContainer" style="margin-bottom: 20px;"></div>
                 <!-- SOS Floating Button -->
 <button class="sos-button" id="sosButton" onclick="activateSOS()" title="Need help? Click for resources">
@@ -2619,7 +2624,7 @@ body[data-active-tab="resources"] .sos-button {
                 </div>
             </div> <div class="stats-grid">
             <div style="text-align: center; margin: 20px 0;">
-    <button onclick="switchTab('chat')" style="
+    <button class="tab active" data-tab="chat" onclick="switchTab('chat')" style="
         padding: 12px;
         background: var(--level-bg);
         color: white;
@@ -2634,7 +2639,7 @@ body[data-active-tab="resources"] .sos-button {
     </button>
 </div>
             <div style="text-align: center; margin: 20px 0;">
-    <button onclick="switchTab('forum')" style="
+    <button class="tab active" data-tab="forum" onclick="switchTab('forum')" style="
         padding: 12px;
         background: var(--level-bg);
         color: white;
@@ -7316,7 +7321,7 @@ container.innerHTML = journalEntries.map(entry => `
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            initializeDarkMode(); // Initialize dark mode first
+            
             
             initAnalytics(); // Initialize analytics
             showWelcomeModal();
@@ -8011,7 +8016,6 @@ document.getElementById('threadSearch').addEventListener('input', (e) => {
   
 
 
-
     
     function isNewSession() {
     if (!sessionStorage.getItem('disciplin_session_started')) {
@@ -8084,6 +8088,10 @@ document.addEventListener('visibilitychange', function() {
 
     // Refresh data when switching to relevant tabs
     if (tabName === 'home') {
+            // Show loading screen first
+    showLoading();
+    
+    
         console.log('🔄 HOME TAB: Loading threads using existing function...');
     
     if (forumManager) {
