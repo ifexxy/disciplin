@@ -3145,7 +3145,7 @@ body[data-active-tab="resources"] .sos-button {
                 </div>
                 <div class="form-group">
                     <label>Content <span class="required">*</span></label>
-                    <textarea id="threadContent" class="form-control" rows="5" required maxlength="2000"></textarea>
+                    <textarea id="threadContent" class="form-control" rows="5" required maxlength="4000"></textarea>
                 </div>
                 <div class="modal-buttons">
                     <button type="button" class="modal-btn secondary" onclick="closeCreateThreadModal()">Cancel</button>
@@ -5388,7 +5388,7 @@ formatLinksAndMentions(text) {
             const originalContent = contentDiv.innerHTML;
             contentDiv.innerHTML = `
                 <div id="editReply${replyId}">
-                    <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="1000">${this.escapeHtml(reply.content)}</textarea>
+                    <textarea id="editReplyContent${replyId}" class="form-control" rows="3" maxlength="2000">${this.escapeHtml(reply.content)}</textarea>
                     <div style="margin-top: 10px;">
                         <button onclick="forumManager.updateReply('${threadId}', '${replyId}')" class="btn-secondary">Update</button>
                         <button onclick="forumManager.cancelEditReply('${replyId}', \`${originalContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="btn-secondary">Cancel</button>
@@ -5665,7 +5665,7 @@ formatLinksAndMentions(text) {
             </div>
         ` : `
             <h4 style="margin-bottom: 10px;">Add Reply</h4>
-            <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." maxlength="2000"></textarea>
+            <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply...use @username for mentions!" maxlength="2000"></textarea>
             <button onclick="forumManager.addReply('${thread.id}')" class="btn" style="margin-top: 10px; width: 100%;" id="addReplyBtn">Post Reply</button>
         `}
     </div>
