@@ -3412,7 +3412,13 @@ Share encouragement, tips, and support with fellow users.</div>
         </div>
 
     <!-- Modals -->
- 
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Disciplin</h2>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, Please proceed to read the full guide by clicking continue. </p>
+            <button class="modal-btn primary" onclick="switchTab('guide')">Continue</button> or <button class="modal-btn primary" onclick="closeWelcomeModal()">Close Pop Up</button>
+        </div>
+    </div>
 <!-- Anonymous Username Modal -->
         <div id="anonymousModal" class="modal">
         <div class="modal-content">
@@ -7318,7 +7324,7 @@ container.innerHTML = journalEntries.map(entry => `
             
             
             initAnalytics(); // Initialize analytics
-            
+            showWelcomeModal();
             checkForUpdates();
             initializeApp();                      
             loadThreadsForHome();
@@ -8125,27 +8131,12 @@ document.addEventListener('visibilitychange', function() {
     }
     
     
-// Update URL path instead of hash
-if (tabName !== 'home') {
-    const newPath = window.location.pathname.replace(/\/[^/]*$/, '') + '/' + tabName + '/';
-    window.history.replaceState(null, null, newPath);
-} else {
-    // Default path for home
-    window.history.replaceState(null, null, '/index.html');
-}
-
-window.addEventListener('load', function() {
-    const pathParts = window.location.pathname.split('/');
-    const lastPart = pathParts[pathParts.length - 2]; // get 'chat' from '/index.html/chat/'
-    
-    if (lastPart && lastPart !== 'index.html') {
-        switchTab(lastPart);
+    // Update URL hash (optional - for shareable URLs)
+    if (tabName !== 'home') {
+        window.history.replaceState(null, null, '#' + tabName);
     } else {
-        switchTab('home');
+        window.history.replaceState(null, null, window.location.pathname);
     }
-});
-
-
         
     // Add this to your switchTab function
     if (tabName === 'chat') {
@@ -8647,11 +8638,19 @@ function updateFloatingNotificationButton() {
                 alert('✅ Entry deleted successfully!');
             }
         }
-        
 
+        function showWelcomeModal() {
+            const hasVisited = localStorage.getItem('disciplin_visited');
+            if (!hasVisited) {
+                document.getElementById('welcomeModal').classList.add('show');
+            }
+        }
 
-
-        
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.remove('show');
+            localStorage.setItem('disciplin_visited', 'true');
+            trackActivity();
+        }
 
         function resetForm() {
             document.getElementById('logForm').reset();
@@ -8719,14 +8718,6 @@ function updateFloatingNotificationButton() {
 
         // Define the popstate handler function
         popstateHandler = function(e) {
-            const pathParts = window.location.pathname.split('/');
-    const lastPart = pathParts[pathParts.length - 2]; // e.g. "chat"
-    if (lastPart && lastPart !== 'index.html') {
-        switchTab(lastPart);
-    } else {
-        switchTab('home');
-    }
-            
             // Push current state back to prevent immediate navigation
             history.pushState(null, null, window.location.pathname);
             
