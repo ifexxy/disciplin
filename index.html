@@ -3588,7 +3588,7 @@ Share encouragement, tips, and support with fellow users.</div>
                 // Configuration
                 this.config = {
                     backendUrl: 'https://disciplinback-production.up.railway.app', // Your Railway backend URL
-                    enabled: true, // Set to false to disable analytics
+                    enabled: false, // Set to false to disable analytics
                     heartbeatInterval: 5 * 60 * 1000, // 5 minutes
                     retryAttempts: 3,
                     retryDelay: 1000,
@@ -7324,7 +7324,7 @@ container.innerHTML = journalEntries.map(entry => `
             
             
             initAnalytics(); // Initialize analytics
-            showWelcomeModal();
+            
             checkForUpdates();
             initializeApp();                      
             loadThreadsForHome();
@@ -8088,8 +8088,7 @@ document.addEventListener('visibilitychange', function() {
 
     // Refresh data when switching to relevant tabs
     if (tabName === 'home') {
-            // Show loading screen first
-    showLoading();
+
     
     
         console.log('🔄 HOME TAB: Loading threads using existing function...');
