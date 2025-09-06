@@ -3612,46 +3612,6 @@ Share encouragement, tips, and support with fellow users.</div>
     <!-- Analytics Integration Script -->
     <script>
     
-    // Welcome modal functions
-function showWelcomeModal() {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal) {
-        welcomeModal.classList.add('show');
-    }
-}
-
-function closeWelcomeModal() {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal) {
-        welcomeModal.classList.remove('show');
-    }
-    // Track that user closed the modal
-    trackActivity();
-}
-
-function goToGuide() {
-    closeWelcomeModal();
-    switchTab('howto');
-    trackActivity();
-}
-
-function checkAndShowWelcome() {
-    // Get visit count from localStorage
-    let visitCount = parseInt(localStorage.getItem('disciplin_visit_count')) || 0;
-    
-    // Increment visit count
-    visitCount++;
-    localStorage.setItem('disciplin_visit_count', visitCount.toString());
-    
-    // Show welcome modal for first 3 visits
-    if (visitCount <= 3) {
-        // Show modal after a short delay to ensure page is fully loaded
-        setTimeout(() => {
-            showWelcomeModal();
-        }, 1000);
-    }
-}
-    
         // Analytics integration for Disciplin app
         class DisciplinAnalytics {
             constructor() {
@@ -7999,6 +7959,46 @@ function hideLoading() {
         loadingOverlay.style.display = 'none';
     }, 300); // Wait for fade out animation
 }
+
+          // Welcome modal functions
+function showWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.add('show');
+    }
+}
+
+function closeWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.remove('show');
+    }
+    // Track that user closed the modal
+    trackActivity();
+}
+
+function goToGuide() {
+    closeWelcomeModal();
+    switchTab('howto');
+    trackActivity();
+}
+
+function checkAndShowWelcome() {
+    // Get visit count from localStorage
+    let visitCount = parseInt(localStorage.getItem('disciplin_visit_count')) || 0;
+    
+    // Increment visit count
+    visitCount++;
+    localStorage.setItem('disciplin_visit_count', visitCount.toString());
+    
+    // Show welcome modal for first 3 visits
+    if (visitCount <= 3) {
+        // Show modal after a short delay to ensure page is fully loaded
+        setTimeout(() => {
+            showWelcomeModal();
+        }, 1000);
+    }
+}  
 
 // Modified switchTab function
 function switchTabWithLoading(tabName) {
