@@ -3415,13 +3415,7 @@ Share encouragement, tips, and support with fellow users.</div>
         </div>
 
     <!-- Modals -->
-    <div id="welcomeModal" class="modal">
-        <div class="modal-content">
-            <h2>Welcome to Disciplin</h2>
-            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, Please proceed to read the full guide by clicking continue. </p>
-            <button class="modal-btn primary" onclick="switchTab('guide')">Continue</button> or <button class="modal-btn primary" onclick="closeWelcomeModal()">Close Pop Up</button>
-        </div>
-    </div>
+
 <!-- Anonymous Username Modal -->
         <div id="anonymousModal" class="modal">
         <div class="modal-content">
@@ -3516,7 +3510,7 @@ Share encouragement, tips, and support with fellow users.</div>
         
         <h2 style="color: #4F46E5; margin-bottom: 20px;">Welcome to Disciplin App</h2>
         <p style="margin-bottom: 20px; line-height: 1.5;">
-            Accountability App for PMO Addiction. For easy access, please install the app on the top right corner.
+            Accountability App for PMO Addiction. For easy access, please install the app on the top right corner. Please click on how to use to learn how to use this app, otherwise click cancel if you're familiar with the app functions.
         </p>
         <div class="modal-buttons" style="gap: 10px;">
             <button class="modal-btn secondary" onclick="closeWelcomeModal()">Close</button>
@@ -3543,6 +3537,13 @@ Share encouragement, tips, and support with fellow users.</div>
                 <button class="modal-btn secondary" onclick="closeNotificationModal()">Cancel</button>
                 <button class="modal-btn primary" onclick="enableNotifications()">Enable</button>
             </div>
+        </div>
+    </div>
+        <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to Disciplin</h2>
+            <p>First time? Please install the app by clicking on "Install App" to enjoy full offline capabilities. Disciplin is an app for tracking compulsive sexual behavior, such as masturbation and porn addiction, Please proceed to read the full guide by clicking continue. </p>
+            <button class="modal-btn primary" onclick="switchTab('guide')">Continue</button> or <button class="modal-btn primary" onclick="closeWelcomeModal()">Close Pop Up</button>
         </div>
     </div>
 <!-- Add Goal Modal -->
@@ -3611,6 +3612,46 @@ Share encouragement, tips, and support with fellow users.</div>
 </div>
     <!-- Analytics Integration Script -->
     <script>
+    
+    // Welcome modal functions
+function showWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.add('show');
+    }
+}
+
+function closeWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.remove('show');
+    }
+    // Track that user closed the modal
+    trackActivity();
+}
+
+function goToGuide() {
+    closeWelcomeModal();
+    switchTab('howto');
+    trackActivity();
+}
+
+function checkAndShowWelcome() {
+    // Get visit count from localStorage
+    let visitCount = parseInt(localStorage.getItem('disciplin_visit_count')) || 0;
+    
+    // Increment visit count
+    visitCount++;
+    localStorage.setItem('disciplin_visit_count', visitCount.toString());
+    
+    // Show welcome modal for first 3 visits
+    if (visitCount <= 3) {
+        // Show modal after a short delay to ensure page is fully loaded
+        setTimeout(() => {
+            showWelcomeModal();
+        }, 1000);
+    }
+}
     
         // Analytics integration for Disciplin app
         class DisciplinAnalytics {
@@ -7362,12 +7403,12 @@ container.innerHTML = journalEntries.map(entry => `
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
-            
+            initializeDarkMode();
             
             initAnalytics(); // Initialize analytics
             
             checkForUpdates();
-            initializeApp();                      
+            initializeApp();                     checkAndShowWelcome();
             loadThreadsForHome();
             setupEventListeners();
             updateStats();
@@ -7959,46 +8000,6 @@ function hideLoading() {
         loadingOverlay.style.display = 'none';
     }, 300); // Wait for fade out animation
 }
-
-          // Welcome modal functions
-function showWelcomeModal() {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal) {
-        welcomeModal.classList.add('show');
-    }
-}
-
-function closeWelcomeModal() {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal) {
-        welcomeModal.classList.remove('show');
-    }
-    // Track that user closed the modal
-    trackActivity();
-}
-
-function goToGuide() {
-    closeWelcomeModal();
-    switchTab('howto');
-    trackActivity();
-}
-
-function checkAndShowWelcome() {
-    // Get visit count from localStorage
-    let visitCount = parseInt(localStorage.getItem('disciplin_visit_count')) || 0;
-    
-    // Increment visit count
-    visitCount++;
-    localStorage.setItem('disciplin_visit_count', visitCount.toString());
-    
-    // Show welcome modal for first 3 visits
-    if (visitCount <= 3) {
-        // Show modal after a short delay to ensure page is fully loaded
-        setTimeout(() => {
-            showWelcomeModal();
-        }, 1000);
-    }
-}  
 
 // Modified switchTab function
 function switchTabWithLoading(tabName) {
@@ -8719,18 +8720,47 @@ function updateFloatingNotificationButton() {
             }
         }
 
-        function showWelcomeModal() {
-            const hasVisited = localStorage.getItem('disciplin_visited');
-            if (!hasVisited) {
-                document.getElementById('welcomeModal').classList.add('show');
-            }
-        }
+        // Remove the test setTimeout code and add these functions instead
 
-        function closeWelcomeModal() {
-            document.getElementById('welcomeModal').classList.remove('show');
-            localStorage.setItem('disciplin_visited', 'true');
-            trackActivity();
+function showWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.add('show');
+        console.log('Welcome modal shown');
+    }
+}
+
+function closeWelcomeModal() {
+    const welcomeModal = document.getElementById('welcomeModal');
+    if (welcomeModal) {
+        welcomeModal.classList.remove('show');
+    }
+    trackActivity();
+}
+
+function goToGuide() {
+    closeWelcomeModal();
+    switchTab('howto');
+    trackActivity();
+}
+
+function checkAndShowWelcome() {
+    try {
+        let visitCount = parseInt(localStorage.getItem('disciplin_visit_count')) || 0;
+        visitCount++;
+        localStorage.setItem('disciplin_visit_count', visitCount.toString());
+        
+        console.log('Visit count:', visitCount); // Debug log
+        
+        if (visitCount <= 3) {
+            setTimeout(() => {
+                showWelcomeModal();
+            }, 1500);
         }
+    } catch (error) {
+        console.error('Error in checkAndShowWelcome:', error);
+    }
+}
 
         function resetForm() {
             document.getElementById('logForm').reset();
