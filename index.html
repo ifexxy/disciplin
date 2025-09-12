@@ -5358,7 +5358,7 @@ formatLinksAndMentions(text) {
                         </div>
                         <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
                             <span><i class="fas fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                            <span><i class="fas fa-comment"></i> ${thread.replyCount || 0}</span>
+                            <span><i class="fas fa-comment"></i> ${replies.length || 0}</span>
                         </div>
                     </div>
                 `;
@@ -5645,8 +5645,7 @@ formatLinksAndMentions(text) {
                 console.log('ERROR: threadDetailTab not found!');
             }
             
-            // Scroll to top of the page
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             
         } catch (error) {
             console.error('Error loading thread:', error);
@@ -6410,7 +6409,7 @@ function renderThreadsOnHome(threads) {
                     </div>
                     <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
                         <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
+                        <span><i class="fas fa-solid fa-comment"></i> ${replies.length || 0}</span>
                     </div>
                 </div>
             `;
@@ -8853,7 +8852,7 @@ function checkAndShowWelcome() {
                 <div id="exitModal" class="modal show" style="z-index: 9999;">
                     <div class="modal-content">
                         <h2>Leave Disciplin?</h2>
-                        <p>Are you sure you want to leave the app? Your progress is saved locally and will be here when you return.</p>
+                        <p>Are you sure you want to leave the app?</p>
                         <div class="modal-buttons">
                             <button class="modal-btn secondary" onclick="cancelExit()">Stay in App</button>
                             <button class="modal-btn primary" onclick="confirmExit()">Leave App</button>
