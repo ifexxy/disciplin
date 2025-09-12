@@ -5123,8 +5123,6 @@ getNotificationMessage(notification) {
     return 'New notification';
 }
 
-
-
 async handleNotificationClick(notificationId, threadId) {
     // Mark as read
     await this.db.collection('notifications').doc(notificationId).update({ read: true });
@@ -5969,7 +5967,7 @@ hideMentionAutocomplete() {
             
             // Update thread reply count and last activity
             await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-                replyCount: firebase.firestore.FieldValue.increment(1),
+                
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp()
             });
             console.log('Thread counters updated successfully');
