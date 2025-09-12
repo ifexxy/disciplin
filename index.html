@@ -5222,10 +5222,7 @@ async handleNotificationClick(notificationId, threadId) {
                     </div>
                     <div>Last activity: ${lastActivity}</div>
                 </div>
-                <div class="thread-stats">
-                    <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                    <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
-                </div>
+
             </div>
         `;
     }).join('');
@@ -5357,8 +5354,7 @@ formatLinksAndMentions(text) {
                             ${this.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
                         </div>
                         <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                            <span><i class="fas fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                            <span><i class="fas fa-comment"></i> ${thread.replyCount || 0}</span>
+
                         </div>
                     </div>
                 `;
@@ -6408,8 +6404,7 @@ function renderThreadsOnHome(threads) {
                         ${forumManager.escapeHtml(thread.content).substring(0, 100)}${thread.content.length > 100 ? '...' : ''}
                     </div>
                     <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
-                        <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
+                      
                     </div>
                 </div>
             `;
