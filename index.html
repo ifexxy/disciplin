@@ -5740,17 +5740,18 @@ formatLinksAndMentions(text) {
                             </div>
                         </div>
                         <div class="reply-content" id="replyContent${reply.id}" 
-                             style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatLinksAndMentions(reply.content)}</div><div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
-    ${this.currentUser ? `
-        <button class="like-btn ${reply.likes && reply.likes[this.currentUser.uid] ? 'liked' : ''}" 
-                onclick="forumManager.toggleReplyLike('${threadId}', '${reply.id}')"
+                             style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatLinksAndMentions(reply.content)}</div>
+                         <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+    ${this.currentUser ? 
+        `<button class="like-btn ${reply.likes && reply.likes[this.currentUser.uid] ? 'liked' : ''}" 
+                onclick="forumManager.toggleReplyLike('${thread.id}', '${reply.id}')"
                 style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">
             ${reply.likes && reply.likes[this.currentUser.uid] ? '❤️' : '🤍'} ${reply.likeCount || 0}
-        </button>
-    ` : `
-        <span style="font-size: 12px; color: var(--text-muted);">🤍 ${reply.likeCount || 0}</span>
-    `}
-</div>
+        </button>` 
+        : 
+        `<span style="font-size: 12px; color: var(--text-muted);">🤍 ${reply.likeCount || 0}</span>`
+    }
+</div>   
                     </div>
                 `;
             }).join('')}
