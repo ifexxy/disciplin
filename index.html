@@ -5358,7 +5358,7 @@ formatLinksAndMentions(text) {
                         </div>
                         <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
                             <span><i class="fas fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                            <span><i class="fas fa-comment"></i> ${replies.length || 0}</span>
+                            <span><i class="fas fa-comment"></i> ${thread.replyCount || 0}</span>
                         </div>
                     </div>
                 `;
@@ -6409,7 +6409,7 @@ function renderThreadsOnHome(threads) {
                     </div>
                     <div style="display: flex; gap: 15px; margin-top: 8px; font-size: 11px; color: var(--text-muted);">
                         <span><i class="fas fa-solid fa-thumbs-up"></i> ${thread.likeCount || 0}</span>
-                        <span><i class="fas fa-solid fa-comment"></i> ${replies.length || 0}</span>
+                        <span><i class="fas fa-solid fa-comment"></i> ${thread.replyCount || 0}</span>
                     </div>
                 </div>
             `;
