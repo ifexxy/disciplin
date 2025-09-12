@@ -3094,7 +3094,11 @@ body[data-active-tab="resources"] .sos-button {
         <!-- Create Thread Button -->
         <button id="createThreadBtn" class="btn" style="width: 100%; display: none;">Create New Thread</button>
     </div>
-
+<!-- Temporary migration button - remove after use -->
+<button onclick="forumManager.fixAllReplyCountsOneTime()" 
+        style="background: #F59E0B; color: white; padding: 8px 12px; border: none; border-radius: 5px; margin: 10px;">
+    Fix Reply Counts (One-time)
+</button>
     <!-- Thread List -->
     
 <div class="forum-rules" style="margin-bottom: 20px; padding: 15px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); text-align: left;">
@@ -5121,6 +5125,52 @@ getNotificationMessage(notification) {
         return `${notification.fromName} liked your thread "${notification.data.threadTitle}"`;
     }
     return 'New notification';
+}
+
+async fixAllReplyCountsOneTime() {
+    if (!confirm('This will fix all reply counts in the database. This may take a while. Continue?')) {
+        return;
+    }
+    
+    console.log('Starting reply count migration...');
+    let fixedCount = 0;
+    
+    try {
+        // Get all threads
+        const threadsSnapshot = await this.db.collection('forum').doc('threads').collection('threads').get();
+        
+        for (const threadDoc of threadsSnapshot.docs) {
+            const threadId = threadDoc.id;
+            
+            // Count actual replies
+            const repliesSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
+                .doc(threadId).collection('replies').get();
+            
+            const actualCount = repliesSnapshot.size;
+            const currentCount = threadDoc.data().replyCount || 0;
+            
+            // Only update if counts don't match
+            if (actualCount !== currentCount) {
+                await this.db.collection('forum').doc('threads').collection('threads')
+                    .doc(threadId).update({
+                        replyCount: actualCount
+                    });
+                
+                console.log(`Fixed thread ${threadId}: ${currentCount} -> ${actualCount}`);
+                fixedCount++;
+            }
+        }
+        
+        console.log(`Migration complete! Fixed ${fixedCount} threads.`);
+        showNotification(`Fixed reply counts for ${fixedCount} threads`, 'success');
+        
+        // Reload threads to show corrected counts
+        this.loadThreads();
+        
+    } catch (error) {
+        console.error('Migration failed:', error);
+        showNotification('Failed to fix reply counts');
+    }
 }
 
 async handleNotificationClick(notificationId, threadId) {
