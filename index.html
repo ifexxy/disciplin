@@ -5967,7 +5967,7 @@ hideMentionAutocomplete() {
             
             // Update thread reply count and last activity
             await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-                
+                replyCount: firebase.firestore.FieldValue.increment(1),
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp()
             });
             console.log('Thread counters updated successfully');
@@ -6000,7 +6000,7 @@ for (const mention of mentions) {
         
         // Update thread reply count and last activity
         await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
-            replyCount: firebase.firestore.FieldValue.increment(1),
+            
             lastActivity: firebase.firestore.FieldValue.serverTimestamp()
         });
         
