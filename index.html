@@ -2484,6 +2484,12 @@ body[data-active-tab="resources"] .sos-button {
     font-weight: bold;
     margin-left: 3px;
 }
+
+.like-btn.liked {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: #EF4444;
+    color: #EF4444;
+}
         
     </style>
 </head>
@@ -5119,7 +5125,10 @@ getNotificationMessage(notification) {
         return `${notification.fromName} mentioned you in "${notification.data.threadTitle}"`;
     } else if (notification.type === 'like') {
         return `${notification.fromName} liked your thread "${notification.data.threadTitle}"`;
+    } else if (notification.type === 'reply_like') {  
+        return `${notification.fromName} liked your reply in "${notification.data.threadTitle}"`;
     }
+    
     return 'New notification';
 }
 
@@ -5731,7 +5740,17 @@ formatLinksAndMentions(text) {
                             </div>
                         </div>
                         <div class="reply-content" id="replyContent${reply.id}" 
-                             style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatLinksAndMentions(reply.content)}</div>
+                             style="line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; text-align: left; max-width: 100%; padding: 10px 0; margin-top: 8px;">${this.formatLinksAndMentions(reply.content)}</div><div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+    ${this.currentUser ? `
+        <button class="like-btn ${reply.likes && reply.likes[this.currentUser.uid] ? 'liked' : ''}" 
+                onclick="forumManager.toggleReplyLike('${threadId}', '${reply.id}')"
+                style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+            ${reply.likes && reply.likes[this.currentUser.uid] ? '❤️' : '🤍'} ${reply.likeCount || 0}
+        </button>
+    ` : `
+        <span style="font-size: 12px; color: var(--text-muted);">🤍 ${reply.likeCount || 0}</span>
+    `}
+</div>
                     </div>
                 `;
             }).join('')}
@@ -5949,7 +5968,9 @@ hideMentionAutocomplete() {
     content,
     authorId: this.currentUser.uid,
     authorName: this.currentUserProfile?.displayName || 'Unknown User', // Updated
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    likeCount: 0,  
+    likes: {}      
 };
 
     console.log('About to add reply with data:', reply);
@@ -6020,6 +6041,61 @@ for (const mention of mentions) {
             }
         }
     }
+    
+    async toggleReplyLike(threadId, replyId) {
+    if (!this.currentUser) {
+        showNotification('Please sign in to like replies');
+        return;
+    }
+    
+    try {
+        const replyRef = this.db.collection('forum').doc('threads').collection('threads')
+            .doc(threadId).collection('replies').doc(replyId);
+        const replyDoc = await replyRef.get();
+        
+        if (!replyDoc.exists) return;
+        
+        const reply = replyDoc.data();
+        const likes = reply.likes || {};
+        const isLiked = likes[this.currentUser.uid];
+        
+        if (isLiked) {
+            // Unlike
+            delete likes[this.currentUser.uid];
+            await replyRef.update({
+                likes,
+                likeCount: firebase.firestore.FieldValue.increment(-1)
+            });
+        } else {
+            // Like
+            likes[this.currentUser.uid] = true;
+            await replyRef.update({
+                likes,
+                likeCount: firebase.firestore.FieldValue.increment(1)
+            });
+            
+            // Create notification for reply author
+            if (reply.authorId !== this.currentUser.uid) {
+                const threadDoc = await this.db.collection('forum').doc('threads').collection('threads')
+                    .doc(threadId).get();
+                const thread = threadDoc.data();
+                
+                await this.createNotification(reply.authorId, 'reply_like', {
+                    threadId: threadId,
+                    threadTitle: thread.title,
+                    replyId: replyId
+                });
+            }
+        }
+        
+        // Reload thread to show updated likes
+        this.openThread(threadId);
+        
+    } catch (error) {
+        console.error('Error toggling reply like:', error);
+        showNotification('Failed to update reply like');
+    }
+}
     
     async extractMentions(text) {
     const mentionRegex = /@([a-zA-Z0-9_]+)/g;
