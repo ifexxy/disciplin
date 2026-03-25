@@ -5222,18 +5222,20 @@ async handleNotificationClick(notificationId, threadId) {
         const isThreadAuthorAdmin = threadAuthorAdminStatuses[thread.id]; // Fixed: now uses pre-calculated boolean
         
         return `
-            <div class="forum-thread ${thread.unread ? 'unread' : ''} ${thread.pinned ? 'pinned' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
-                <div class="thread-title ${thread.unread ? 'unread' : ''}">${pinnedBadge}${closedBadge}${this.escapeHtml(thread.title)}</div>
-                <div class="thread-meta">
-                    <div>
-                        <span class="thread-category">${thread.category}</span>
-                        <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} ${isThreadAuthorAdmin ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''} • ${timeAgo}</span>
-                    </div>
-                    <div>Last activity: ${lastActivity}</div>
-                </div>
-
+    <div class="forum-thread ${thread.unread ? 'unread' : ''} ${thread.pinned ? 'pinned' : ''}" onclick="forumManager.openThreadTab('${thread.id}')">
+        <div class="thread-title ${thread.unread ? 'unread' : ''}">${pinnedBadge}${closedBadge}${this.escapeHtml(thread.title)}</div>
+        <div class="thread-meta">
+            <div>
+                <span class="thread-category">${thread.category}</span>
+                <span style="margin-left: 10px;">by ${this.escapeHtml(thread.authorName)} ${isThreadAuthorAdmin ? '<span style="background: #EF4444; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 5px;">admin</span>' : ''} • ${timeAgo}</span>
             </div>
-        `;
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span>Last activity: ${lastActivity}</span>
+                <span style="font-size: 11px; color: var(--text-muted);">👁️ ${thread.viewCount || 0}</span>  <!-- ADD THIS -->
+            </div>
+        </div>
+    </div>
+`;
     }).join('');
 }
 
@@ -5572,6 +5574,7 @@ formatLinksAndMentions(text) {
     lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
     likeCount: 0,
     replyCount: 0,
+    viewCount: 0,
     likes: {}
 };
             
@@ -5614,11 +5617,17 @@ formatLinksAndMentions(text) {
             }
             
             const thread = { id: threadDoc.id, ...threadDoc.data() };
-            
-            // Mark as read for authenticated users
-            if (this.currentUser) {
-                await this.markThreadAsRead(threadId);
-            }
+
+// Increment view count for every visit
+await this.db.collection('forum').doc('threads').collection('threads').doc(threadId).update({
+    viewCount: firebase.firestore.FieldValue.increment(1)
+});
+thread.viewCount = (thread.viewCount || 0) + 1; // update local copy for immediate display
+
+// Mark as read for authenticated users
+if (this.currentUser) {
+    await this.markThreadAsRead(threadId);
+}
             
             // Load replies
             const repliesSnapshot = await this.db.collection('forum').doc('threads').collection('threads')
@@ -5714,6 +5723,7 @@ formatLinksAndMentions(text) {
                     ${isLiked ? '❤️' : '🤍'} ${thread.likeCount || 0}
                 </button>
                 <span style="font-size: 12px; color: var(--text-muted);"><i class="fas fa-solid fa-comment"></i> ${replies.length}</span>
+<span style="font-size: 12px; color: var(--text-muted);">👁️ ${thread.viewCount || 0}</span>
             </div>
         </div>
         
