@@ -21,13 +21,306 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disciplin</title>
+    <title>Disciplin — Break the cycle. Build your streak.</title>
+    <!-- SEO meta description -->
+<meta name="description" content="Disciplin is a free, private accountability app to track and overcome PMO addiction. Log daily entries, track streaks, earn XP achievements, and connect with a supportive community. No account required.">
+ 
+<!-- FIX 5: Open Graph tags — -->
+<meta property="og:title" content="Disciplin — Break the cycle. Build your streak.">
+<meta property="og:description" content="Free accountability app for overcoming PMO addiction. Track streaks, earn XP, connect with community. 100% private.">
+<meta property="og:image" content="https://miseducatemen.wordpress.com/wp-content/uploads/2025/08/disciplin-header-icon.png">
+<meta property="og:url" content="https://disciplinme.vercel.app">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Disciplin — Break the cycle. Build your streak.">
+<meta name="twitter:description" content="Free, private PMO accountability app. Streaks, XP, community support.">
+<meta name="twitter:image" content="https://miseducatemen.wordpress.com/wp-content/uploads/2025/08/disciplin-header-icon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4F46E5">
     <!-- Version for cache busting - UPDATE THIS WHEN MAKING CHANGES -->
     <meta name="app-version" content="3.2.27">
     <link rel="icon" type="image/png" sizes="192x192" href="https://miseducatemen.wordpress.com/wp-content/uploads/2025/08/favicon.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+/* ---- ONBOARDING OVERLAY ------------------------------------------ */
+#disciplin-onboarding {
+    position: fixed;
+    inset: 0;
+    background: #0f0f0f;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: opacity 0.4s ease;
+}
+ 
+#disciplin-onboarding.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+ 
+.ob-card {
+    width: 100%;
+    max-width: 360px;
+    background: #1a1a1a;
+    border-radius: 24px;
+    padding: 32px 24px 24px;
+    margin: 0 16px;
+    border: 0.5px solid rgba(255,255,255,0.08);
+}
+ 
+.ob-dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+ 
+.ob-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s ease;
+}
+ 
+.ob-dot.active {
+    width: 24px;
+    background: #1D9E75;
+}
+ 
+.ob-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 20px;
+}
+ 
+.ob-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #f0f0f0;
+    text-align: center;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+ 
+.ob-sub {
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+ 
+.ob-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+ 
+.ob-opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #ccc;
+    text-align: left;
+    width: 100%;
+}
+ 
+.ob-opt:hover {
+    border-color: rgba(29,158,117,0.4);
+    background: rgba(29,158,117,0.06);
+    color: #e0e0e0;
+}
+ 
+.ob-opt.selected {
+    border-color: #1D9E75;
+    background: rgba(29,158,117,0.12);
+    color: #e0e0e0;
+}
+ 
+.ob-opt-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+}
+ 
+.ob-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+ 
+.ob-chip {
+    padding: 7px 16px;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    font-size: 13px;
+    color: #999;
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    transition: all 0.2s ease;
+}
+ 
+.ob-chip.picked {
+    background: rgba(29,158,117,0.15);
+    border-color: #1D9E75;
+    color: #5DCAA5;
+}
+ 
+.ob-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    font-size: 14px;
+    background: rgba(255,255,255,0.04);
+    color: #e0e0e0;
+    margin-bottom: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+ 
+.ob-input:focus {
+    border-color: #1D9E75;
+}
+ 
+.ob-input::placeholder {
+    color: #555;
+}
+ 
+.ob-hint {
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+ 
+.ob-sync-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+ 
+.ob-sync-card:hover {
+    border-color: rgba(29,158,117,0.4);
+}
+ 
+.ob-sync-card.chosen {
+    border-color: #1D9E75;
+    background: rgba(29,158,117,0.08);
+}
+ 
+.ob-sync-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    font-weight: 700;
+}
+ 
+.ob-sync-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #e0e0e0;
+    margin-bottom: 2px;
+}
+ 
+.ob-sync-sub {
+    font-size: 12px;
+    color: #666;
+}
+ 
+.ob-btn {
+    width: 100%;
+    padding: 14px;
+    background: #1D9E75;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: auto;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.01em;
+}
+ 
+.ob-btn:hover {
+    opacity: 0.88;
+}
+ 
+.ob-btn:active {
+    transform: scale(0.98);
+}
+ 
+.ob-skip {
+    text-align: center;
+    font-size: 13px;
+    color: #444;
+    margin-top: 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+ 
+.ob-skip:hover {
+    color: #666;
+}
+ 
+.ob-success-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(29,158,117,0.15);
+    border: 2px solid #1D9E75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #1D9E75;
+    margin: 0 auto 20px;
+}
+ 
+/* ---- CHAT POSITION FIX ------------------------------------------- */
+/* ✅ FIX 8: Unified #chat rule — no duplicate, no !important conflict */
+#chat {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    bottom: 80px;
+    margin: 0;
+    padding: 20px;
+    overflow-y: auto;
+}
+</style>
     <style>
         :root {
             /* Light mode colors */
@@ -2699,6 +2992,216 @@ body[data-active-tab="resources"] .sos-button {
     </style>
 </head>
 <body>
+    <div id="disciplin-onboarding">
+    <div class="ob-card" id="ob-card">
+        <!-- Steps rendered by JS below -->
+    </div>
+</div>
+ 
+<script>
+(function() {
+    // Don't show onboarding if user has already completed it
+    if (localStorage.getItem('disciplin_onboarded') === '1') {
+        var el = document.getElementById('disciplin-onboarding');
+        if (el) el.remove();
+        return;
+    }
+ 
+    var step = 0;
+ 
+    var steps = [
+        // Step 1 — context
+        function() {
+            return `
+            <div class="ob-dots">
+                <div class="ob-dot active"></div>
+                <div class="ob-dot"></div>
+                <div class="ob-dot"></div>
+            </div>
+            <div class="ob-icon" style="background:rgba(29,158,117,0.12);">🔥</div>
+            <div class="ob-title">Ready to take control?</div>
+            <div class="ob-sub">How long has PMO been affecting your life?</div>
+            <div class="ob-options" id="ob-opts">
+                <button class="ob-opt" data-v="less1" onclick="obPick(this)">
+                    <span class="ob-opt-icon">📅</span> Less than a year
+                </button>
+                <button class="ob-opt" data-v="1to3" onclick="obPick(this)">
+                    <span class="ob-opt-icon">📆</span> 1–3 years
+                </button>
+                <button class="ob-opt" data-v="3to5" onclick="obPick(this)">
+                    <span class="ob-opt-icon">🗓</span> 3–5 years
+                </button>
+                <button class="ob-opt" data-v="5plus" onclick="obPick(this)">
+                    <span class="ob-opt-icon">⏳</span> More than 5 years
+                </button>
+            </div>
+            <button class="ob-btn" onclick="obNext()">Continue</button>
+            <div class="ob-skip" onclick="obFinish()">Skip setup</div>
+            `;
+        },
+        // Step 2 — goal
+        function() {
+            return `
+            <div class="ob-dots">
+                <div class="ob-dot"></div>
+                <div class="ob-dot active"></div>
+                <div class="ob-dot"></div>
+            </div>
+            <div class="ob-icon" style="background:rgba(99,87,237,0.12);">🎯</div>
+            <div class="ob-title">Set your first goal</div>
+            <div class="ob-sub">Pick a streak target to work toward</div>
+            <div class="ob-chips" id="ob-chips">
+                <div class="ob-chip" onclick="obChip(this)">7 days</div>
+                <div class="ob-chip" onclick="obChip(this)">14 days</div>
+                <div class="ob-chip picked" onclick="obChip(this)">30 days</div>
+                <div class="ob-chip" onclick="obChip(this)">60 days</div>
+                <div class="ob-chip" onclick="obChip(this)">90 days</div>
+                <div class="ob-chip" onclick="obChip(this)">365 days</div>
+            </div>
+            <input class="ob-input" id="ob-custom-days" type="number" min="1" max="3650"
+                   placeholder="Or enter a custom number of days…"
+                   oninput="obClearChips()">
+            <div class="ob-hint">Most users start with 30 days — ambitious but achievable.</div>
+            <button class="ob-btn" onclick="obSaveGoalAndNext()">Set goal & continue</button>
+            `;
+        },
+        // Step 3 — backup
+        function() {
+            return `
+            <div class="ob-dots">
+                <div class="ob-dot"></div>
+                <div class="ob-dot"></div>
+                <div class="ob-dot active"></div>
+            </div>
+            <div class="ob-icon" style="background:rgba(59,130,246,0.12);">☁️</div>
+            <div class="ob-title">Protect your progress</div>
+            <div class="ob-sub">Your data lives on this device. Back it up so you never lose your streak.</div>
+            <div class="ob-sync-card chosen" id="ob-gc" onclick="obSyncPick('gc')">
+                <div class="ob-sync-icon" style="background:rgba(59,130,246,0.15);color:#60A5FA;font-weight:700;">G</div>
+                <div>
+                    <div class="ob-sync-title">Google sync</div>
+                    <div class="ob-sync-sub">Auto-backup across devices — recommended</div>
+                </div>
+            </div>
+            <div class="ob-sync-card" id="ob-manual" onclick="obSyncPick('manual')">
+                <div class="ob-sync-icon" style="background:rgba(255,255,255,0.06);font-size:18px;">📁</div>
+                <div>
+                    <div class="ob-sync-title">Manual backup</div>
+                    <div class="ob-sync-sub">Export a file yourself regularly</div>
+                </div>
+            </div>
+            <div class="ob-sync-card" id="ob-skip2" onclick="obSyncPick('skip2')">
+                <div class="ob-sync-icon" style="background:rgba(239,68,68,0.1);font-size:18px;">⚠️</div>
+                <div>
+                    <div class="ob-sync-title" style="color:#f87171;">Skip for now</div>
+                    <div class="ob-sync-sub">Risk losing progress if cache clears</div>
+                </div>
+            </div>
+            <button class="ob-btn" style="margin-top:16px;" onclick="obFinish()">Start my journey →</button>
+            `;
+        }
+    ];
+ 
+    function render() {
+        document.getElementById('ob-card').innerHTML = steps[step]();
+    }
+ 
+    window.obPick = function(el) {
+        document.querySelectorAll('.ob-opt').forEach(function(o) { o.classList.remove('selected'); });
+        el.classList.add('selected');
+    };
+ 
+    window.obNext = function() {
+        if (step < steps.length - 1) { step++; render(); }
+    };
+ 
+    window.obChip = function(el) {
+        document.querySelectorAll('.ob-chip').forEach(function(c) { c.classList.remove('picked'); });
+        el.classList.add('picked');
+        var inp = document.getElementById('ob-custom-days');
+        if (inp) inp.value = '';
+    };
+ 
+    window.obClearChips = function() {
+        document.querySelectorAll('.ob-chip').forEach(function(c) { c.classList.remove('picked'); });
+    };
+ 
+    window.obSyncPick = function(id) {
+        ['gc','manual','skip2'].forEach(function(k) {
+            var el = document.getElementById('ob-' + k);
+            if (el) el.classList.toggle('chosen', k === id);
+        });
+        // If Google sync chosen, trigger sign-in flow after finish
+        window._obSyncChoice = id;
+    };
+ 
+    window.obSaveGoalAndNext = function() {
+        // Read chosen goal
+        var picked = document.querySelector('.ob-chip.picked');
+        var custom = document.getElementById('ob-custom-days');
+        var days = 30;
+        if (custom && custom.value) {
+            days = parseInt(custom.value) || 30;
+        } else if (picked) {
+            days = parseInt(picked.textContent) || 30;
+        }
+        // Save to localStorage so the existing goals system can pick it up
+        try {
+            var existingGoals = JSON.parse(localStorage.getItem('disciplin_goals') || '[]');
+            var alreadyHasGoal = existingGoals.length > 0;
+            if (!alreadyHasGoal) {
+                existingGoals.push({
+                    id: Date.now(),
+                    type: 'streak',
+                    target: days,
+                    title: days + '-day streak',
+                    createdAt: new Date().toISOString(),
+                    completed: false
+                });
+                localStorage.setItem('disciplin_goals', JSON.stringify(existingGoals));
+            }
+        } catch(e) {}
+        obNext();
+    };
+ 
+    window.obFinish = function() {
+        // Mark onboarding complete
+        localStorage.setItem('disciplin_onboarded', '1');
+ 
+        var overlay = document.getElementById('disciplin-onboarding');
+ 
+        // Show success card briefly before dismissing
+        document.getElementById('ob-card').innerHTML = `
+            <div class="ob-success-icon">✓</div>
+            <div class="ob-title">You're all set</div>
+            <div class="ob-sub" style="margin-bottom:28px;">
+                Day 1 starts now. Log your first entry tonight and your streak begins.
+            </div>
+            <button class="ob-btn" onclick="obDismiss()">Open Disciplin →</button>
+        `;
+ 
+        // If Google sync was chosen, fire sign-in after dismiss
+        if (window._obSyncChoice === 'gc') {
+            window._obTriggerGoogleSync = true;
+        }
+    };
+ 
+    window.obDismiss = function() {
+        var overlay = document.getElementById('disciplin-onboarding');
+        overlay.classList.add('fade-out');
+        setTimeout(function() {
+            overlay.remove();
+            // Trigger Google sync if chosen — hooks into the existing firebaseManager
+            if (window._obTriggerGoogleSync && window.firebaseManager) {
+                try { window.firebaseManager.signInWithGoogle(); } catch(e) {}
+            }
+        }, 400);
+    };
+ 
+    // Render step 0
+    render();
+})();
+</script>
     <div id="updateNotification" class="update-notification">
         <div class="backup-reminder">⚠️ Please backup your data before updating!</div>
         <span>New version available!</span>
@@ -3102,13 +3605,13 @@ body[data-active-tab="resources"] .sos-button {
     <!-- day labels + grid -->
     <div class="sc-grid-row">
         <div class="sc-day-labels">
-            <div class="sc-day-lbl"></div>
             <div class="sc-day-lbl">M</div>
-            <div class="sc-day-lbl"></div>
+            <div class="sc-day-lbl">T</div>
             <div class="sc-day-lbl">W</div>
-            <div class="sc-day-lbl"></div>
+            <div class="sc-day-lbl">T</div>
             <div class="sc-day-lbl">F</div>
-            <div class="sc-day-lbl"></div>
+            <div class="sc-day-lbl">S</div>
+            <div class="sc-day-lbl">S</div>
         </div>
         <div class="sc-grid" id="sc-grid"></div>
     </div>
@@ -6835,10 +7338,8 @@ forumManager = new ForumManager();
         return entries;
     }
  
-    /* ----------------------------------------------------------
-       2.  Normalise an entry date to 'YYYY-MM-DD' string.
-           Your entries have { date: 'YYYY-MM-DD' } or a timestamp.
-    ---------------------------------------------------------- */
+    /* Normalise an entry date to 'YYYY-MM-DD' string.
+           Your entries have { date: 'YYYY-MM-DD' } or a timestamp. */
     function toDateStr(entry) {
         if (entry.date && /^\d{4}-\d{2}-\d{2}$/.test(entry.date)) {
             return entry.date;
@@ -6854,9 +7355,7 @@ forumManager = new ForumManager();
         return null;
     }
  
-    /* ----------------------------------------------------------
-       3.  Build a lookup map: { 'YYYY-MM-DD': 'clean' | 'relapse' }
-    ---------------------------------------------------------- */
+    /*  Build a lookup map: */
     function buildMap(entries) {
         var map = {};
         entries.forEach(function (e) {
