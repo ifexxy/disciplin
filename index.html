@@ -3190,6 +3190,534 @@ body[data-active-tab="resources"] .sos-button {
 @keyframes sc-spin {
     to { transform: rotate(360deg); }
 }
+
+        /* ── Outer tab reset ─────────────────────────────────────────── */
+#log.tab-content {
+    padding: 0 !important;
+    background: var(--bg-primary) !important;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+}
+ 
+/* ── Header bar ──────────────────────────────────────────────── */
+.ls-header {
+    background: var(--header-bg);
+    padding: 20px 20px 16px;
+    color: #fff;
+    flex-shrink: 0;
+}
+ 
+.ls-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+ 
+.ls-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.2px;
+}
+ 
+.ls-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    text-align: right;
+}
+ 
+/* ── Progress bar ────────────────────────────────────────────── */
+.ls-progress-track {
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+ 
+.ls-progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+ 
+.ls-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+}
+ 
+/* ── Slide viewport ──────────────────────────────────────────── */
+.ls-viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+ 
+.ls-slides {
+    display: flex;
+    height: 100%;
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+ 
+/* ── Single slide ────────────────────────────────────────────── */
+.ls-slide {
+    min-width: 100%;
+    padding: 28px 20px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+}
+ 
+.ls-q-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+ 
+.ls-q-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+ 
+.ls-q-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+ 
+/* ── Choice cards (Yes / No) ─────────────────────────────────── */
+.ls-choice-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+ 
+.ls-choice {
+    position: relative;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+ 
+.ls-choice input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+ 
+.ls-choice-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-primary);
+    transition: all 0.2s ease;
+    user-select: none;
+}
+ 
+.ls-choice-body:hover {
+    border-color: var(--border-hover);
+    transform: translateX(3px);
+}
+ 
+.ls-choice-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+ 
+.ls-choice-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+ 
+.ls-choice-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ 
+/* No = green */
+.ls-choice.lc-clean input[type="radio"]:checked + .ls-choice-body {
+    border-color: #10b981;
+    background: rgba(16,185,129,0.06);
+}
+.ls-choice.lc-clean input[type="radio"]:checked + .ls-choice-body .ls-choice-check {
+    background: #10b981;
+    border-color: #10b981;
+}
+.ls-choice.lc-clean input[type="radio"]:checked + .ls-choice-body .ls-choice-check::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+}
+ 
+/* Yes = red */
+.ls-choice.lc-relapse input[type="radio"]:checked + .ls-choice-body {
+    border-color: #ef4444;
+    background: rgba(239,68,68,0.06);
+}
+.ls-choice.lc-relapse input[type="radio"]:checked + .ls-choice-body .ls-choice-check {
+    background: #ef4444;
+    border-color: #ef4444;
+}
+.ls-choice.lc-relapse input[type="radio"]:checked + .ls-choice-body .ls-choice-check::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+}
+ 
+/* ── Time-of-day checkboxes ──────────────────────────────────── */
+.ls-check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+ 
+.ls-check-item {
+    position: relative;
+    cursor: pointer;
+}
+ 
+.ls-check-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+ 
+.ls-check-body {
+    padding: 16px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    text-align: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+ 
+.ls-check-body:hover {
+    border-color: var(--border-hover);
+}
+ 
+.ls-check-item input[type="checkbox"]:checked + .ls-check-body {
+    border-color: #4F46E5;
+    background: rgba(79,70,229,0.07);
+}
+ 
+.ls-check-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 2px;
+}
+ 
+.ls-check-time {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+ 
+/* ── 3-option row (Energy, Sleep) ────────────────────────────── */
+.ls-option-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+ 
+.ls-option {
+    position: relative;
+    cursor: pointer;
+}
+ 
+.ls-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+ 
+.ls-option-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-primary);
+    transition: all 0.2s ease;
+    user-select: none;
+}
+ 
+.ls-option-body:hover {
+    border-color: var(--border-hover);
+    transform: translateX(3px);
+}
+ 
+.ls-option input[type="radio"]:checked + .ls-option-body {
+    border-color: #4F46E5;
+    background: rgba(79,70,229,0.07);
+}
+ 
+.ls-option input[type="radio"]:checked + .ls-option-body .ls-opt-check {
+    background: #4F46E5;
+    border-color: #4F46E5;
+}
+ 
+.ls-option input[type="radio"]:checked + .ls-option-body .ls-opt-check::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+}
+ 
+.ls-opt-info {}
+ 
+.ls-opt-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+ 
+.ls-opt-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+}
+ 
+.ls-opt-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ 
+/* ── Mood emoji row ──────────────────────────────────────────── */
+.ls-mood-row {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+ 
+.ls-mood-btn {
+    flex: 1;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    padding: 14px 4px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    -webkit-tap-highlight-color: transparent;
+}
+ 
+.ls-mood-btn:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+}
+ 
+.ls-mood-btn.selected {
+    border-color: #f59e0b;
+    background: rgba(245,158,11,0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 14px rgba(245,158,11,0.2);
+}
+ 
+.ls-mood-emoji {
+    font-size: 26px;
+    line-height: 1;
+    display: block;
+}
+ 
+.ls-mood-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+ 
+/* ── Notes textarea ──────────────────────────────────────────── */
+.ls-textarea {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 15px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+ 
+.ls-textarea:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+}
+ 
+.ls-textarea::placeholder {
+    color: var(--text-muted);
+}
+ 
+.ls-privacy-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+ 
+/* ── Navigation bar ──────────────────────────────────────────── */
+.ls-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 20px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+ 
+.ls-back-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+ 
+.ls-back-btn:hover:not(:disabled) {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+ 
+.ls-back-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+ 
+.ls-next-btn {
+    flex: 1;
+    padding: 14px;
+    background: #4F46E5;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.2px;
+}
+ 
+.ls-next-btn:hover:not(:disabled) {
+    background: #3730a3;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(79,70,229,0.3);
+}
+ 
+.ls-next-btn:disabled {
+    background: var(--border-color);
+    color: var(--text-muted);
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+}
+ 
+.ls-next-btn.submit {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+}
+ 
+.ls-next-btn.submit:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669, #047857);
+    box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+}
+ 
+/* ── Skip label ──────────────────────────────────────────────── */
+.ls-skip-link {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: var(--border-color);
+    transition: color 0.2s;
+}
+ 
+.ls-skip-link:hover {
+    color: var(--text-secondary);
+}
+ 
+/* ── Auto-advance hint ───────────────────────────────────────── */
+.ls-auto-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 18px;
+    font-style: italic;
+}
+ 
+/* ── Dark mode tweaks ────────────────────────────────────────── */
+[data-theme="dark"] .ls-choice-body,
+[data-theme="dark"] .ls-check-body,
+[data-theme="dark"] .ls-option-body,
+[data-theme="dark"] .ls-mood-btn,
+[data-theme="dark"] .ls-textarea {
+    background: var(--card-bg);
+}
         
     </style>
 </head>
@@ -3804,99 +4332,266 @@ body[data-active-tab="resources"] .sos-button {
         </div>
 
         <div id="log" class="tab-content">
-            <div class="motivational-text" id="logMotivationalText">
-                Everyday is a new day, to achieve something new
-            </div>
-            <form id="logForm">
-                <div class="form-group">
-                    <label>Did you masturbate yesterday? <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="no" name="masturbated" value="no" required>
-                            <label for="no">No</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="yes" name="masturbated" value="yes" required>
-                            <label for="yes">Yes</label>
-                        </div>
-                    </div>
-
-                    <div id="timeQuestion" class="conditional-question">
-                        <label>What time of day did you masturbate? (Multiple answers allowed)</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-option">
-                                <input type="checkbox" id="morning" name="timeOfDay" value="morning">
-                                <label for="morning">Morning</label>
-                            </div>
-                            <div class="checkbox-option">
-                                <input type="checkbox" id="afternoon" name="timeOfDay" value="afternoon">
-                                <label for="afternoon">Afternoon</label>
-                            </div>
-                            <div class="checkbox-option">
-                                <input type="checkbox" id="evening" name="timeOfDay" value="evening">
-                                <label for="evening">Evening</label>
-                            </div>
-                            <div class="checkbox-option">
-                                <input type="checkbox" id="nighttime" name="timeOfDay" value="nighttime">
-                                <label for="nighttime">Nighttime</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>How is your energy level today? <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="low" name="energyLevel" value="Low" required>
-                            <label for="low">Low</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="medium" name="energyLevel" value="Medium" required>
-                            <label for="medium">Medium</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="high" name="energyLevel" value="High" required>
-                            <label for="high">High</label>
-                        </div>
-                    </div>
-                </div><br>
-                <div class="form-group">
-                    <label>What time did you sleep last night? <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="before8pm" name="sleepTime" value="Before 8pm" required>
-                            <label for="before8pm">Before 8pm</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="8pm11pm" name="sleepTime" value="8pm - 11pm" required>
-                            <label for="8pm11pm">8pm - 11pm</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="after12am" name="sleepTime" value="After 12am" required>
-                            <label for="after12am">After 12am</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>How are you feeling today?</label>
-                    <div class="emoji-selector">
-                        <button type="button" class="emoji-btn" data-mood="😊">😊</button>
-                        <button type="button" class="emoji-btn" data-mood="😔">😔</button>
-                        <button type="button" class="emoji-btn" data-mood="😤">😤</button>
-                        <button type="button" class="emoji-btn" data-mood="💪">💪</button>
-                        <button type="button" class="emoji-btn" data-mood="😌">😌</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <p class="form-hint">If you masturbated, what caused it? (write on the optional notes if any)</p>
-                    <label>Optional Notes</label>
-                    <textarea class="form-control" id="notes" rows="4" placeholder="Any additional thoughts or triggers..."></textarea>
-                </div>
-
-                <button type="submit" class="btn" id="logSubmitBtn">Log Entry</button>
-            </form>
+ 
+    <!-- Header -->
+    <div class="ls-header">
+        <div class="ls-header-top">
+            <div class="ls-title">Daily Check-in</div>
+            <div class="ls-date" id="lsDate"></div>
         </div>
+        <div class="ls-progress-track">
+            <div class="ls-progress-fill" id="lsProgress" style="width:0%"></div>
+        </div>
+        <div class="ls-progress-label">
+            <span id="lsStepLabel">Step 1 of 5</span>
+            <span id="lsStepName">Yesterday</span>
+        </div>
+    </div>
+ 
+    <!-- The actual form — wraps everything so submit works normally -->
+    <form id="logForm" style="display:contents;">
+ 
+        <!-- Slide viewport -->
+        <div class="ls-viewport">
+            <div class="ls-slides" id="lsSlides">
+ 
+                <!-- ── SLIDE 1: Did you masturbate yesterday? ── -->
+                <div class="ls-slide" id="ls-slide-0">
+                    <div class="ls-q-label">Question 1 of 5</div>
+                    <div class="ls-q-text">Did you masturbate yesterday?</div>
+                    <div class="ls-q-sub">Be honest — your data stays private on your device.</div>
+ 
+                    <div class="ls-choice-stack">
+                        <label class="ls-choice lc-clean">
+                            <input type="radio" id="no" name="masturbated" value="no" required>
+                            <div class="ls-choice-body">
+                                <div>
+                                    <div class="ls-choice-text">No</div>
+                                    <div class="ls-choice-desc">I stayed clean</div>
+                                </div>
+                                <div class="ls-choice-check"></div>
+                            </div>
+                        </label>
+ 
+                        <label class="ls-choice lc-relapse">
+                            <input type="radio" id="yes" name="masturbated" value="yes" required>
+                            <div class="ls-choice-body">
+                                <div>
+                                    <div class="ls-choice-text">Yes</div>
+                                    <div class="ls-choice-desc">I had a relapse</div>
+                                </div>
+                                <div class="ls-choice-check"></div>
+                            </div>
+                        </label>
+                    </div>
+ 
+                    <div class="ls-auto-hint">Select an answer to continue</div>
+                </div>
+ 
+                <!-- ── SLIDE 1b: When did it happen? (conditional) ── -->
+                <div class="ls-slide" id="ls-slide-1b">
+                    <div class="ls-q-label">Follow-up</div>
+                    <div class="ls-q-text">When did it happen?</div>
+                    <div class="ls-q-sub">Select all that apply.</div>
+ 
+                    <!--
+                        timeQuestion div kept for compatibility with your existing JS
+                        that may toggle its .show class. We override display here.
+                    -->
+                    <div id="timeQuestion" class="conditional-question show"
+                         style="display:block !important; margin:0; padding:0;
+                                background:transparent; border:none;">
+                        <div class="ls-check-grid">
+                            <label class="ls-check-item">
+                                <input type="checkbox" id="morning" name="timeOfDay" value="morning">
+                                <div class="ls-check-body">
+                                    <span class="ls-check-label">Morning</span>
+                                    <span class="ls-check-time">Before noon</span>
+                                </div>
+                            </label>
+                            <label class="ls-check-item">
+                                <input type="checkbox" id="afternoon" name="timeOfDay" value="afternoon">
+                                <div class="ls-check-body">
+                                    <span class="ls-check-label">Afternoon</span>
+                                    <span class="ls-check-time">12pm – 5pm</span>
+                                </div>
+                            </label>
+                            <label class="ls-check-item">
+                                <input type="checkbox" id="evening" name="timeOfDay" value="evening">
+                                <div class="ls-check-body">
+                                    <span class="ls-check-label">Evening</span>
+                                    <span class="ls-check-time">5pm – 10pm</span>
+                                </div>
+                            </label>
+                            <label class="ls-check-item">
+                                <input type="checkbox" id="nighttime" name="timeOfDay" value="nighttime">
+                                <div class="ls-check-body">
+                                    <span class="ls-check-label">Nighttime</span>
+                                    <span class="ls-check-time">After 10pm</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+ 
+                    <span class="ls-skip-link" id="lsSkipTime">Skip this question</span>
+                </div>
+ 
+                <!-- ── SLIDE 2: Energy level ── -->
+                <div class="ls-slide" id="ls-slide-2">
+                    <div class="ls-q-label">Question 2 of 5</div>
+                    <div class="ls-q-text">How is your energy level today?</div>
+                    <div class="ls-q-sub">This helps track patterns between your energy and your log.</div>
+ 
+                    <div class="ls-option-row">
+                        <label class="ls-option">
+                            <input type="radio" id="low" name="energyLevel" value="Low" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">Low</div>
+                                    <div class="ls-opt-desc">Drained, sluggish, no motivation</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                        <label class="ls-option">
+                            <input type="radio" id="medium" name="energyLevel" value="Medium" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">Medium</div>
+                                    <div class="ls-opt-desc">Okay, getting by, average day</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                        <label class="ls-option">
+                            <input type="radio" id="high" name="energyLevel" value="High" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">High</div>
+                                    <div class="ls-opt-desc">Energised, focused, firing well</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                    </div>
+ 
+                    <div class="ls-auto-hint">Select an answer to continue</div>
+                </div>
+ 
+                <!-- ── SLIDE 3: Sleep time ── -->
+                <div class="ls-slide" id="ls-slide-3">
+                    <div class="ls-q-label">Question 3 of 5</div>
+                    <div class="ls-q-text">What time did you sleep last night?</div>
+                    <div class="ls-q-sub">Sleep time is one of the strongest predictors of relapse patterns.</div>
+ 
+                    <div class="ls-option-row">
+                        <label class="ls-option">
+                            <input type="radio" id="before8pm" name="sleepTime" value="Before 8pm" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">Before 8pm</div>
+                                    <div class="ls-opt-desc">Early to bed</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                        <label class="ls-option">
+                            <input type="radio" id="8pm11pm" name="sleepTime" value="8pm - 11pm" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">8pm – 11pm</div>
+                                    <div class="ls-opt-desc">Normal bedtime</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                        <label class="ls-option">
+                            <input type="radio" id="after12am" name="sleepTime" value="After 12am" required>
+                            <div class="ls-option-body">
+                                <div class="ls-opt-info">
+                                    <div class="ls-opt-title">After 12am</div>
+                                    <div class="ls-opt-desc">Late night — high risk window</div>
+                                </div>
+                                <div class="ls-opt-check"></div>
+                            </div>
+                        </label>
+                    </div>
+ 
+                    <div class="ls-auto-hint">Select an answer to continue</div>
+                </div>
+ 
+                <!-- ── SLIDE 4: Mood ── -->
+                <div class="ls-slide" id="ls-slide-4">
+                    <div class="ls-q-label">Question 4 of 5</div>
+                    <div class="ls-q-text">How are you feeling today?</div>
+                    <div class="ls-q-sub">Optional — but helpful for tracking emotional patterns.</div>
+ 
+                    <!-- Original emoji-selector structure kept exactly as-is
+                         so your existing JS (selectedMood etc.) still works -->
+                    <div class="emoji-selector ls-mood-row">
+                        <button type="button" class="emoji-btn ls-mood-btn" data-mood="😊">
+                            <span class="ls-mood-emoji">😊</span>
+                            <span class="ls-mood-label">Happy</span>
+                        </button>
+                        <button type="button" class="emoji-btn ls-mood-btn" data-mood="😔">
+                            <span class="ls-mood-emoji">😔</span>
+                            <span class="ls-mood-label">Low</span>
+                        </button>
+                        <button type="button" class="emoji-btn ls-mood-btn" data-mood="😤">
+                            <span class="ls-mood-emoji">😤</span>
+                            <span class="ls-mood-label">Angry</span>
+                        </button>
+                        <button type="button" class="emoji-btn ls-mood-btn" data-mood="💪">
+                            <span class="ls-mood-emoji">💪</span>
+                            <span class="ls-mood-label">Strong</span>
+                        </button>
+                        <button type="button" class="emoji-btn ls-mood-btn" data-mood="😌">
+                            <span class="ls-mood-emoji">😌</span>
+                            <span class="ls-mood-label">Calm</span>
+                        </button>
+                    </div>
+ 
+                    <span class="ls-skip-link" id="lsSkipMood">Skip mood</span>
+                </div>
+ 
+                <!-- ── SLIDE 5: Notes + Submit ── -->
+                <div class="ls-slide" id="ls-slide-5">
+                    <div class="ls-q-label">Question 5 of 5</div>
+                    <div class="ls-q-text">Any notes for today?</div>
+                    <div class="ls-q-sub">What triggered it? How are you feeling? Completely optional.</div>
+ 
+                    <textarea
+                        class="form-control ls-textarea"
+                        id="notes"
+                        rows="5"
+                        placeholder="Write anything on your mind — thoughts, triggers, victories..."></textarea>
+ 
+                    <div class="ls-privacy-note">
+                        Your notes are stored only on your device and never shared.
+                    </div>
+                </div>
+ 
+            </div><!-- /ls-slides -->
+        </div><!-- /ls-viewport -->
+ 
+        <!-- Nav bar -->
+        <div class="ls-nav">
+            <button type="button" class="ls-back-btn" id="lsBackBtn" disabled
+                    aria-label="Previous question">&#8592;</button>
+            <button type="button" class="ls-next-btn" id="lsNextBtn"
+                    disabled>Next</button>
+        </div>
+ 
+        <!--
+            Hidden submit trigger — your existing logForm submit handler fires
+            when this button is clicked by the JS below.
+        -->
+        <button type="submit" id="logSubmitBtn" style="display:none;">Log Entry</button>
+ 
+    </form>
+ 
+</div><!-- /log tab -->
+
 
         <!-- New Journal Tab -->
         <div id="journal" class="tab-content">
@@ -11156,6 +11851,188 @@ function updateMovingTexts(newTexts) {
 //     "New message 3"
 // ]);
 
+ (function () {
+ 
+    /* ── Config ──────────────────────────────────────────────── */
+    // Slide order when "no" was selected (skip the time-of-day slide)
+    var ORDER_CLEAN   = [0, 2, 3, 4, 5];
+    // Slide order when "yes" was selected (include time-of-day)
+    var ORDER_RELAPSE = [0, 1, 2, 3, 4, 5];  // 1 = slide-1b
+ 
+    var STEP_NAMES = ['Yesterday', 'When', 'Energy', 'Sleep', 'Mood', 'Notes'];
+ 
+    /* ── State ───────────────────────────────────────────────── */
+    var order      = ORDER_CLEAN; // default; updated after Q1 answer
+    var stepIdx    = 0;           // index into current order array
+    var moodPicked = false;
+ 
+    /* ── DOM refs ────────────────────────────────────────────── */
+    var slidesEl   = document.getElementById('lsSlides');
+    var nextBtn    = document.getElementById('lsNextBtn');
+    var backBtn    = document.getElementById('lsBackBtn');
+    var progressEl = document.getElementById('lsProgress');
+    var stepLblEl  = document.getElementById('lsStepLabel');
+    var stepNameEl = document.getElementById('lsStepName');
+    var dateEl     = document.getElementById('lsDate');
+    var submitBtn  = document.getElementById('logSubmitBtn');
+ 
+    /* ── Date in header ──────────────────────────────────────── */
+    if (dateEl) {
+        var days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var now    = new Date();
+        dateEl.textContent = days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()];
+    }
+ 
+    /* ── Render current slide ────────────────────────────────── */
+    function goTo(idx) {
+        stepIdx = idx;
+        var slideNum = order[stepIdx];
+ 
+        // Translate the rail
+        slidesEl.style.transform = 'translateX(-' + (slideNum * 100) + '%)';
+ 
+        // Progress
+        var pct = Math.round(((stepIdx) / (order.length - 1)) * 100);
+        progressEl.style.width = pct + '%';
+ 
+        // Labels — show user-facing step number (skip hidden slide 1b in count)
+        var userStep = stepIdx + 1;
+        var totalSteps = order.length;
+        stepLblEl.textContent = 'Step ' + userStep + ' of ' + totalSteps;
+        stepNameEl.textContent = STEP_NAMES[slideNum] || '';
+ 
+        // Back button
+        backBtn.disabled = (stepIdx === 0);
+ 
+        // Next / Submit button
+        var isLast = (stepIdx === order.length - 1);
+        if (isLast) {
+            nextBtn.textContent = 'Submit Log';
+            nextBtn.classList.add('submit');
+            nextBtn.disabled = false; // notes is optional
+        } else {
+            nextBtn.textContent = 'Next';
+            nextBtn.classList.remove('submit');
+            nextBtn.disabled = !isSlideAnswered(slideNum);
+        }
+    }
+ 
+    /* ── Check if a slide has been answered ──────────────────── */
+    function isSlideAnswered(slideNum) {
+        switch (slideNum) {
+            case 0:  return !!document.querySelector('input[name="masturbated"]:checked');
+            case 1:  return true; // time of day is optional, can skip
+            case 2:  return !!document.querySelector('input[name="energyLevel"]:checked');
+            case 3:  return !!document.querySelector('input[name="sleepTime"]:checked');
+            case 4:  return true; // mood is optional
+            case 5:  return true; // notes is optional
+            default: return false;
+        }
+    }
+ 
+    /* ── Advance to next slide ───────────────────────────────── */
+    function advance() {
+        var isLast = (stepIdx === order.length - 1);
+        if (isLast) {
+            // Fire the real submit button (triggers existing logForm handler)
+            submitBtn.click();
+            return;
+        }
+ 
+        // After Q1, decide which order to use
+        if (order[stepIdx] === 0) {
+            var masturbated = document.querySelector('input[name="masturbated"]:checked');
+            order = (masturbated && masturbated.value === 'yes')
+                ? ORDER_RELAPSE
+                : ORDER_CLEAN;
+        }
+ 
+        if (stepIdx < order.length - 1) {
+            goTo(stepIdx + 1);
+        }
+    }
+ 
+    /* ── Go back ─────────────────────────────────────────────── */
+    function goBack() {
+        if (stepIdx > 0) goTo(stepIdx - 1);
+    }
+ 
+    /* ── Button listeners ────────────────────────────────────── */
+    nextBtn.addEventListener('click', advance);
+    backBtn.addEventListener('click', goBack);
+ 
+    /* ── Skip links ──────────────────────────────────────────── */
+    var skipTime = document.getElementById('lsSkipTime');
+    if (skipTime) skipTime.addEventListener('click', advance);
+ 
+    var skipMood = document.getElementById('lsSkipMood');
+    if (skipMood) skipMood.addEventListener('click', advance);
+ 
+    /* ── Auto-advance on radio selection ─────────────────────── */
+    document.addEventListener('change', function (e) {
+        var slideNum = order[stepIdx];
+        if (!e.target || e.target.type !== 'radio') return;
+ 
+        // Re-evaluate next button
+        nextBtn.disabled = !isSlideAnswered(slideNum);
+ 
+        // Auto-advance after short delay for slides 0, 2, 3
+        if (slideNum === 0 || slideNum === 2 || slideNum === 3) {
+            setTimeout(advance, 380);
+        }
+    });
+ 
+    /* ── Mood button: keep existing emoji-btn selected logic ─── */
+    document.addEventListener('click', function (e) {
+        // Handles both .emoji-btn and .ls-mood-btn (they share the same element)
+        var btn = e.target.closest('.emoji-btn');
+        if (!btn) return;
+ 
+        document.querySelectorAll('.emoji-btn').forEach(function (b) {
+            b.classList.remove('selected');
+        });
+        btn.classList.add('selected');
+        moodPicked = true;
+ 
+        // Enable next on mood slide
+        if (order[stepIdx] === 4) {
+            nextBtn.disabled = false;
+        }
+    });
+ 
+    /* ── Re-initialise when Log tab is opened ────────────────── */
+    document.querySelectorAll('.tab[data-tab="log"]').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            setTimeout(function () {
+                // Reset to first slide only if form is clean
+                var answered = document.querySelector('input[name="masturbated"]:checked');
+                if (!answered) {
+                    stepIdx = 0;
+                    order   = ORDER_CLEAN;
+                    goTo(0);
+                }
+            }, 60);
+        });
+    });
+ 
+    /* ── After successful form submit: reset slides ──────────── */
+    var form = document.getElementById('logForm');
+    if (form) {
+        form.addEventListener('submit', function () {
+            setTimeout(function () {
+                stepIdx = 0;
+                order   = ORDER_CLEAN;
+                moodPicked = false;
+                goTo(0);
+            }, 800);
+        });
+    }
+ 
+    /* ── Init ────────────────────────────────────────────────── */
+    goTo(0);
+ 
+})();   
     
 </script>
 
