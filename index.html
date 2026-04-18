@@ -3339,7 +3339,23 @@ body[data-active-tab="resources"] .sos-button {
             </div>
             <div id="cloudEntryCount" style="display: none;">
     <span id="cloudCountText">Synced entries: 0</span>
-</div> <div class="card" style="margin-bottom: 20px;">
+</div><div class="stats-grid">
+            
+            <div style="text-align: center; margin: 20px 0;">
+    <button class="tab active" data-tab="forum" onclick="switchTab('forum')" style="
+        padding: 12px;
+        background: var(--level-bg);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 15px;">
+        <i class="fas fa-comment"></i> View/Create Threads
+    </button>
+</div></div> <div class="card" style="margin-bottom: 20px;">
     <div id="homeRecentThreads">Loading forum threads...</div>
 </div><!-- Goals Section --><div class="goals-section" style="margin-bottom: 30px;">
     <div class="goals-title" style="font-size: 18px; font-weight: 600; margin-bottom: 15px; text-align: center; color: var(--text-primary); transition: color 0.3s ease;">
@@ -4295,7 +4311,386 @@ function checkAndShowWelcome() {
     }
 }
     
+        // Analytics integration for Disciplin app
+        class DisciplinAnalytics {
+            constructor() {
+                // Configuration
+                this.config = {
+                    backendUrl: 'https://disciplinback-production.up.railway.app', // Your Railway backend URL
+                    enabled: true, // Set to false to disable analytics
+                    heartbeatInterval: 5 * 60 * 1000, // 5 minutes
+                    retryAttempts: 3,
+                    retryDelay: 1000,
+                    fetchInterval: 30 * 1000 // 30 seconds for fetching global stats
+                };
+                
+                // State
+                this.userId = null;
+                this.sessionId = null;
+                this.heartbeatTimer = null;
+                this.fetchTimer = null;
+                this.isOnline = navigator.onLine;
+                this.pendingRequests = [];
+                
+                this.init();
+            }
+            
+            async init() {
+                if (!this.config.enabled) return;
+                
+                try {
+                    // Get or create user ID from localStorage
+                    this.userId = localStorage.getItem('disciplin_user_id');
+                    
+                    await this.initSession();
+                    this.startHeartbeat();
+                    this.startFetchingStats();
+                    this.setupEventListeners();
+                    
+                    console.log('📊 Disciplin Analytics initialized');
+                } catch (error) {
+                    console.warn('Analytics initialization failed:', error);
+                }
+            }
+            
+            async initSession() {
+                try {
+                    const response = await this.makeRequest('/api/init-session', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            userId: this.userId
+                        })
+                    });
+                    
+                    if (response.success) {
+                        this.userId = response.userId;
+                        this.sessionId = response.sessionId;
+                        
+                        // Store user ID for future sessions
+                        localStorage.setItem('disciplin_user_id', this.userId);
+                        
+                        console.log('📊 Session initialized:', this.sessionId);
+                    }
+                } catch (error) {
+                    console.warn('Failed to initialize session:', error);
+                }
+            }
+            
+            async trackEntry(entryCount = 1, entryType = 'log', metadata = {}) {
+                if (!this.config.enabled || !this.userId) return;
+                
+                try {
+                    const response = await this.makeRequest('/api/track-entry', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            userId: this.userId,
+                            sessionId: this.sessionId,
+                            entryCount,
+                            entryType,
+                            metadata: {
+                                ...metadata,
+                                timestamp: new Date().toISOString(),
+                                userAgent: navigator.userAgent,
+                                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                            }
+                        })
+                    });
+                    
+                    if (response.success) {
+                        console.log('📊 Entry tracked:', entryCount, entryType);
+                        // Immediately fetch updated stats
+                        this.fetchGlobalStats();
+                    }
+                } catch (error) {
+                    console.warn('Failed to track entry:', error);
+                    // Queue for retry when online
+                    this.queueRequest('trackEntry', arguments);
+                }
+            }
+            
+            async sendHeartbeat() {
+                if (!this.config.enabled || !this.userId) return;
+                
+                try {
+                    const response = await this.makeRequest('/api/heartbeat', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            userId: this.userId,
+                            sessionId: this.sessionId
+                        })
+                    });
+                    
+                    if (response.success) {
+                        console.log('💓 Heartbeat sent');
+                    }
+                } catch (error) {
+                    console.warn('Heartbeat failed:', error);
+                }
+            }
+            
+            async fetchGlobalStats() {
+                if (!this.config.enabled) return;
+                
+                try {
+                    const response = await this.makeRequest('/api/analytics', {
+                        method: 'GET'
+                    });
+                    
+                    if (response.success && response.data) {
+                        this.updateGlobalStatsUI(response.data);
+                        console.log('📊 Global stats updated');
+                    }
+                } catch (error) {
+                    console.warn('Failed to fetch global stats:', error);
+                }
+            }
+            
+            updateGlobalStatsUI(data) {
+                const globalEntriesEl = document.getElementById('globalEntries');
+                const activeUsersEl = document.getElementById('activeUsers');
+                
+                if (globalEntriesEl && data.totalEntries !== undefined) {
+                    // Animate number change
+                    this.animateNumber(globalEntriesEl, parseInt(globalEntriesEl.textContent) || 0, data.totalEntries);
+                }
+                
+                if (activeUsersEl && data.activeUsers !== undefined) {
+                    this.animateNumber(activeUsersEl, parseInt(activeUsersEl.textContent) || 0, data.activeUsers);
+                }
+            }
+            
+            animateNumber(element, from, to) {
+                const duration = 1000; // 1 second
+                const steps = 30;
+                const stepValue = (to - from) / steps;
+                let current = from;
+                let step = 0;
+                
+                const timer = setInterval(() => {
+                    step++;
+                    current += stepValue;
+                    
+                    if (step >= steps) {
+                        current = to;
+                        clearInterval(timer);
+                    }
+                    
+                    element.textContent = Math.round(current);
+                }, duration / steps);
+            }
+            
+            async makeRequest(endpoint, options = {}) {
+                const url = `${this.config.backendUrl}${endpoint}`;
+                
+                const defaultOptions = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    timeout: 10000
+                };
+                
+                for (let attempt = 0; attempt < this.config.retryAttempts; attempt++) {
+                    try {
+                        const response = await fetch(url, { ...defaultOptions, ...options });
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        
+                        return await response.json();
+                    } catch (error) {
+                        console.warn(`Request attempt ${attempt + 1} failed:`, error);
+                        
+                        if (attempt < this.config.retryAttempts - 1) {
+                            await this.delay(this.config.retryDelay * Math.pow(2, attempt));
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            }
+            
+            startHeartbeat() {
+                if (this.heartbeatTimer) {
+                    clearInterval(this.heartbeatTimer);
+                }
+                
+                this.heartbeatTimer = setInterval(() => {
+                    this.sendHeartbeat();
+                }, this.config.heartbeatInterval);
+                
+                // Send initial heartbeat
+                this.sendHeartbeat();
+            }
+            
+            startFetchingStats() {
+                if (this.fetchTimer) {
+                    clearInterval(this.fetchTimer);
+                }
+                
+                // Fetch stats immediately
+                this.fetchGlobalStats();
+                
+                // Then fetch every 30 seconds
+                this.fetchTimer = setInterval(() => {
+                    this.fetchGlobalStats();
+                }, this.config.fetchInterval);
+            }
+            
+            stopHeartbeat() {
+                if (this.heartbeatTimer) {
+                    clearInterval(this.heartbeatTimer);
+                    this.heartbeatTimer = null;
+                }
+            }
+            
+            stopFetchingStats() {
+                if (this.fetchTimer) {
+                    clearInterval(this.fetchTimer);
+                    this.fetchTimer = null;
+                }
+            }
+            
+            setupEventListeners() {
+                // Track online/offline status
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    console.log('📊 Back online - processing queued requests');
+                    this.processPendingRequests();
+                    this.startHeartbeat();
+                    this.startFetchingStats();
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    console.log('📊 Offline - queuing requests');
+                    this.stopHeartbeat();
+                    this.stopFetchingStats();
+                });
+                
+                // Track page visibility changes
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        this.stopHeartbeat();
+                        this.stopFetchingStats();
+                    } else {
+                        this.startHeartbeat();
+                        this.startFetchingStats();
+                    }
+                });
+                
+                // Track app being closed
+                window.addEventListener('beforeunload', () => {
+                    this.stopHeartbeat();
+                    this.stopFetchingStats();
+                });
+            }
+            
+            queueRequest(method, args) {
+                this.pendingRequests.push({ method, args, timestamp: Date.now() });
+                
+                // Limit queue size
+                if (this.pendingRequests.length > 50) {
+                    this.pendingRequests = this.pendingRequests.slice(-25);
+                }
+            }
+            
+            async processPendingRequests() {
+                if (!this.isOnline || this.pendingRequests.length === 0) return;
+                
+                const requests = [...this.pendingRequests];
+                this.pendingRequests = [];
+                
+                for (const request of requests) {
+                    try {
+                        // Skip old requests (older than 1 hour)
+                        if (Date.now() - request.timestamp > 60 * 60 * 1000) {
+                            continue;
+                        }
+                        
+                        if (request.method === 'trackEntry') {
+                            await this.trackEntry(...request.args);
+                        }
+                        
+                        // Small delay between requests
+                        await this.delay(100);
+                    } catch (error) {
+                        console.warn('Failed to process pending request:', error);
+                    }
+                }
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            // Public methods for integration
+            disable() {
+                this.config.enabled = false;
+                this.stopHeartbeat();
+                this.stopFetchingStats();
+                console.log('📊 Analytics disabled');
+            }
+            
+            enable() {
+                this.config.enabled = true;
+                this.init();
+                console.log('📊 Analytics enabled');
+            }
+        }
+
+        // Initialize analytics globally
+        let disciplinAnalytics = null;
         
+        function initAnalytics() {
+            if (!disciplinAnalytics) {
+                disciplinAnalytics = new DisciplinAnalytics();
+            }
+        }
+
+        // Integration functions for existing app
+        function trackFormSubmission(entry) {
+            if (disciplinAnalytics) {
+                disciplinAnalytics.trackEntry(1, 'log_entry', {
+                    masturbated: entry.masturbated,
+                    hasNotes: !!entry.notes,
+                    timeOfDay: entry.timeOfDay,
+                    energy: entry.energy,
+                    mood: entry.mood
+                });
+            }
+        }
+
+        function trackDataExport() {
+            if (disciplinAnalytics) {
+                disciplinAnalytics.trackEntry(0, 'data_export', {
+                    action: 'export'
+                });
+            }
+        }
+
+        function trackDataImport() {
+            if (disciplinAnalytics) {
+                disciplinAnalytics.trackEntry(0, 'data_import', {
+                    action: 'import'
+                });
+            }
+        }
+
+        function trackTabSwitch(tabName) {
+            if (disciplinAnalytics) {
+                disciplinAnalytics.trackEntry(1, 'tab_switch', {
+                    tab: tabName
+                });
+            }
+        }
+        
+        function updatePageTitle(tabName) {
+    const newTitle = tabTitles[tabName] || 'Disciplin';
+    document.title = newTitle;
+}
         
  // Firebase Chat System
 class FirebaseChat {
