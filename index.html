@@ -3340,21 +3340,7 @@ body[data-active-tab="resources"] .sos-button {
             <div id="cloudEntryCount" style="display: none;">
     <span id="cloudCountText">Synced entries: 0</span>
 </div><div class="stats-grid">
-            <div style="text-align: center; margin: 20px 0;">
-    <button class="tab active" data-tab="chat" onclick="switchTab('chat')" style="
-        padding: 12px;
-        background: var(--level-bg);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 15px;">
-        <i class="fas fa-comments"></i> Join Community Chat
-    </button>
-</div>
+            
             <div style="text-align: center; margin: 20px 0;">
     <button class="tab active" data-tab="forum" onclick="switchTab('forum')" style="
         padding: 12px;
@@ -3466,22 +3452,7 @@ body[data-active-tab="resources"] .sos-button {
                 <div class="achievements-grid" id="achievementsGrid"></div>
             </div>
              <!-- Analytics Section -->
-            <div class="analytics-section">
-                <div class="analytics-title">Total Stats</div>
-                <div class="analytics-stats">
-                    <div class="analytics-card">
-                        <div class="analytics-number" id="globalEntries">---</div>
-                        <div class="analytics-label">Total Entries</div>
-                    </div>
-                    <div class="analytics-card">
-                        <div class="analytics-number" id="activeUsers">---</div>
-                        <div class="analytics-label">Active Users</div>
-                    </div>
-                </div>
-                <div style="text-align: center; margin-top: 10px; font-size: 12px; color: var(--text-muted); transition: color 0.3s ease;">
-                    Real-time data from all Disciplin users
-                </div>
-            </div>
+            
 <br>        <p style="font-size: 12px; font-style: italic; color: var(--text-muted); margin-top: 20px; text-align: center; transition: color 0.3s ease;">Built with ❤️ by Smile >_<br>1000% Privacy<br>Hosted on GitHub </p>
             <div class="motivational-text" id="motivationalText">
                 Everyday is a new day, to achieve something new
@@ -3513,7 +3484,6 @@ body[data-active-tab="resources"] .sos-button {
                <li><strong>Journal:</strong> Write personal reflections and track your thoughts</li>
                <li><strong>Personalized Insights:</strong> AI-powered insights based on your unique patterns</li>
                <li><strong>Goals:</strong> Set goals according to your streak or custom and let the app do the counting!</li> 
-               <li><strong>Community Chat:</strong> A global community chat system powered by Firebase is now available on the Chat Tab</li>
                <li><strong>Google Cloud Sync:</strong> An optional method for data backup is now available, users can, with their google accounts be able to sync their data across devices, available in the history/backup tab.</li>
                <li><strong>Forum:</strong> Users can now create threads, reply to threads, like and delete threads! Available in Home tab.</li>
            </ul>
@@ -3529,7 +3499,6 @@ body[data-active-tab="resources"] .sos-button {
                <li>• Level System with XP progression</li>
                <li>• Personal Journal for reflections</li>
                <li>• AI-powered Personalized Insights</li>
-               <li>• Chat with fellow Disciplin users in the chat tab</li>
                <li>• Create threads, reply and like threads, available in home tab
                <li>• Achievements Badges on Home Tab based on clean days, highest being 365 clean days</li>
                <li>• Anti Relapse/SOS Button to put you back on track</li>
@@ -3546,9 +3515,9 @@ body[data-active-tab="resources"] .sos-button {
            <p style="margin-bottom: 20px;">"Disciplin" is a free to use app and can also be used offline as well, however to submit an entry, use the chat tab and sync with google(optional), the user will have to be online, every other feature can be used when offline.</p>
 
            <h3 style="color: #4F46E5; font-weight: 600; margin-top: 20px; margin-bottom: 10px;">Contact</h3>
-           <p style="margin-bottom: 20px;">If you would like to contact us for any partnership, suggestions or complaints(bug reports), please send a mail to <a href="mailto:ifexxy9@gmail.com" style="color: #4F46E5; text-decoration: underline;">ifexxy9@gmail.com</a>  or use the chat tab</p>
+           <p style="margin-bottom: 20px;">If you would like to contact us for any partnership, suggestions or complaints(bug reports), please send a mail to <a href="mailto:ifexxy9@gmail.com" style="color: #4F46E5; text-decoration: underline;">ifexxy9@gmail.com</a>  or use the forum</p>
 
-           <p style="font-size: 12px; font-style: italic; color: var(--text-muted); margin-top: 20px; text-align: center; transition: color 0.3s ease;">This doc was last updated Sunday 17th August, 2025</p>
+           <p style="font-size: 12px; font-style: italic; color: var(--text-muted); margin-top: 20px; text-align: center; transition: color 0.3s ease;">This doc was last updated Sunday 18th April, 2026</p>
        </div>
    </div>
    
@@ -4150,104 +4119,7 @@ body[data-active-tab="resources"] .sos-button {
         Everyday is a new day, to achieve something new
     </div>
 </div>
-<div id="chat" class="tab-content">
-    <!-- Authentication Section -->
-    <div id="authSection" class="auth-section">
-        <div class="auth-title">Join the Community Chat</div>
-        <div class="auth-subtitle">Welcome to the Disciplin community chat!
-<br>
-Share encouragement, tips, and support with fellow users.</div>
-        
-        <div class="auth-buttons">
-            <button class="auth-btn google-btn" onclick="signInWithGoogle()">
-                <i class="fas fa-google"></i> Continue with Google
-            </button>
-            <button class="auth-btn anonymous-btn" onclick="showAnonymousModal()">
-                <i class="fas fa-user-secret"></i> Join Anonymously
-            </button>
-            <button class="auth-btn email-btn" onclick="showEmailModal()">
-                <i class="fas fa-envelope"></i> Sign up with Email
-            </button>
-        </div>
-    </div>
-     <!-- Chat Interface -->
-      <div style="background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; transition: all 0.3s ease;">
-       <h2 style="text-align: center; margin-bottom: 10px; color: #4F46E5; font-size: 22px;">Disciplin Community Chat </h2> <div style="line-height: 1.6; color: var(--text-primary); font-size: 14px; transition: color 0.3s ease;">
-           <p style="margin-bottom: 15px;"><b>RULE:</b> Please respond appropriately and treat others with respect, make sure your comment is relevant to whatever discussion ongoing in the chat space.<br></p></div></div>
-    <div id="chatInterface" class="chat-interface" style="display: none;">  
-        <div class="chat-header">
-            <div class="chat-user-info">
-                <span id="chatUsername">Loading...please wait</span>
-                <button class="logout-btn" onclick="signOut()">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
-        </div>
-        
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages will be loaded here -->
-        </div>
-        
-        <div class="chat-input-container">
-            <input type="text" id="messageInput" placeholder="Type your message..." maxlength="500">
-            <button id="sendButton" onclick="sendMessage()">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
-           <span class="chat-rules">
-                    <i class="fas fa-info-circle"></i>
-                    Be respectful and supportive(15 secs cool down enabled)
-                </span>
-        </div>
 
-    <!-- Modals -->
-
-<!-- Anonymous Username Modal -->
-        <div id="anonymousModal" class="modal">
-        <div class="modal-content">
-            <h2>Choose a Username</h2>
-            <p>Enter a username to join the chat anonymously:</p>
-            <input type="text" id="anonymousUsername" placeholder="Your username..." maxlength="20">
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeAnonymousModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="signInAnonymously()">Join Chat</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Email Registration Modal -->
-    <div id="emailModal" class="modal">
-        <div class="modal-content">
-            <h2>Create Account</h2>
-            <input type="email" id="emailInput" placeholder="Email address...">
-            <input type="password" id="passwordInput" placeholder="Password..." minlength="6">
-            <input type="text" id="emailUsername" placeholder="Display name..." maxlength="20">
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeEmailModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="signUpWithEmail()">Create Account</button>
-            </div>
-            <p style="text-align: center; margin-top: 10px;">
-                <a href="#" onclick="switchToSignIn()">Already have an account? Sign in</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- Email Sign In Modal -->
-    <div id="signInModal" class="modal">
-        <div class="modal-content">
-            <h2>Sign In</h2>
-            <input type="email" id="signInEmail" placeholder="Email address...">
-            <input type="password" id="signInPassword" placeholder="Password...">
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeSignInModal()">Cancel</button>
-                <button class="modal-btn primary" onclick="signInWithEmail()">Sign In</button>
-            </div>
-            <p style="text-align: center; margin-top: 10px;">
-                <a href="#" onclick="switchToSignUp()">Don't have an account? Sign up</a>
-            </p>
-        </div>
-    </div>
-</div>
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <h2>Delete Entry</h2>
@@ -4835,441 +4707,7 @@ class FirebaseChat {
         this.lastActivity = Date.now();
     }
 }
-    // Firebase Chat System
-class DisciplinChat {
-    constructor() {
-        this.firebaseConfig = {
-            apiKey: "AIzaSyDdZV7b_23WAuu6kiKfpLxdL-v9zpgWjBM",
-            authDomain: "disciplin-chat.firebaseapp.com",
-            projectId: "disciplin-chat",
-            storageBucket: "disciplin-chat.firebasestorage.app",
-            messagingSenderId: "595537471459",
-            appId: "1:595537471459:web:4c6c35e907c947a8d222d6"
-        };
-        
-        this.messagesRef = null;
-        this.unsubscribeMessages = null;
-        this.currentUser = null;
-        this.lastMessageTime = null;
-        
-        this.init();
-    }
-    
-    init() {
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(this.firebaseConfig);
-        }
-        
-        this.db = firebase.firestore();
-        this.auth = firebase.auth();
-        this.messagesRef = this.db.collection('chat');
-        
-        // Auth state observer
-        this.auth.onAuthStateChanged((user) => {
-            if (user) {
-                this.currentUser = user;
-                this.showChatInterface();
-                this.loadMessages();
-                this.updateUserLastSeen();
-            } else {
-                this.currentUser = null;
-                this.showAuthSection();
-            }
-        });
-        
-        this.setupMessageInput();
-    }
-    
-    async signInWithGoogle() {
-        try {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            const result = await this.auth.signInWithPopup(provider);
-            
-            // Save user profile
-            await this.saveUserProfile(result.user.uid, {
-                username: result.user.displayName,
-                email: result.user.email,
-                authMethod: 'google',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            showNotification('Signed in successfully!', 'success');
-        } catch (error) {
-            console.error('Google sign-in error:', error);
-            showNotification('Sign-in failed: ' + error.message);
-        }
-    }
-    
-    async signInAnonymously() {
-        const username = document.getElementById('anonymousUsername').value.trim();
-        
-        if (!username) {
-            showNotification('Please enter a username');
-            return;
-        }
-        
-        if (username.length < 3) {
-            showNotification('Username must be at least 3 characters');
-            return;
-        }
-        
-        try {
-            const result = await this.auth.signInAnonymously();
-            
-            // Save user profile with anonymous username
-            await this.saveUserProfile(result.user.uid, {
-                username: username,
-                authMethod: 'anonymous',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Remember username locally
-            localStorage.setItem('disciplin_anonymous_username', username);
-            
-            this.closeAnonymousModal();
-            showNotification('Joined chat successfully!', 'success');
-        } catch (error) {
-            console.error('Anonymous sign-in error:', error);
-            showNotification('Sign-in failed: ' + error.message);
-        }
-    }
-    
-    async signUpWithEmail() {
-        const email = document.getElementById('emailInput').value.trim();
-        const password = document.getElementById('passwordInput').value;
-        const username = document.getElementById('emailUsername').value.trim();
-        
-        if (!email || !password || !username) {
-            showNotification('Please fill in all fields');
-            return;
-        }
-        
-        if (password.length < 6) {
-            showNotification('Password must be at least 6 characters');
-            return;
-        }
-        
-        if (username.length < 3) {
-            showNotification('Username must be at least 3 characters');
-            return;
-        }
-        
-        try {
-            const result = await this.auth.createUserWithEmailAndPassword(email, password);
-            
-            // Save user profile
-            await this.saveUserProfile(result.user.uid, {
-                username: username,
-                email: email,
-                authMethod: 'email',
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            this.closeEmailModal();
-            showNotification('Account created successfully!', 'success');
-        } catch (error) {
-            console.error('Email sign-up error:', error);
-            showNotification('Sign-up failed: ' + error.message);
-        }
-    }
-    
-    async signInWithEmail() {
-        const email = document.getElementById('signInEmail').value.trim();
-        const password = document.getElementById('signInPassword').value;
-        
-        if (!email || !password) {
-            showNotification('Please fill in all fields');
-            return;
-        }
-        
-        try {
-            await this.auth.signInWithEmailAndPassword(email, password);
-            this.closeSignInModal();
-            showNotification('Signed in successfully!', 'success');
-        } catch (error) {
-            console.error('Email sign-in error:', error);
-            showNotification('Sign-in failed: ' + error.message);
-        }
-    }
-    
-    async signOut() {
-        try {
-            await this.auth.signOut();
-            if (this.unsubscribeMessages) {
-                this.unsubscribeMessages();
-                this.unsubscribeMessages = null;
-            }
-            showNotification('Signed out successfully!', 'success');
-        } catch (error) {
-            console.error('Sign-out error:', error);
-            showNotification('Sign-out failed: ' + error.message);
-        }
-    }
-    
-    async saveUserProfile(uid, data) {
-        try {
-            await this.db.collection('users').doc(uid).set(data, { merge: true });
-        } catch (error) {
-            console.error('Error saving user profile:', error);
-        }
-    }
-    
-    async updateUserLastSeen() {
-        if (this.currentUser) {
-            try {
-                await this.db.collection('users').doc(this.currentUser.uid).update({
-                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (error) {
-                console.error('Error updating last seen:', error);
-            }
-        }
-    }
-    
-    async loadMessages() {
-        if (!this.messagesRef || this.unsubscribeMessages) return;
-        
-        try {
-            this.unsubscribeMessages = this.messagesRef
-                .orderBy('timestamp', 'asc')
-                .limit(50)
-                .onSnapshot((snapshot) => {
-                    const messagesContainer = document.getElementById('chatMessages');
-                    
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') {
-                            const messageData = change.doc.data();
-                            this.displayMessage(messageData);
-                        }
-                    });
-                    
-                    // Auto-scroll to bottom
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                });
-        } catch (error) {
-            console.error('Error loading messages:', error);
-            showNotification('Error loading messages');
-        }
-    }
-    
-    displayMessage(messageData) {
-        const messagesContainer = document.getElementById('chatMessages');
-        const messageDiv = document.createElement('div');
-        const isOwnMessage = messageData.userId === this.currentUser.uid;
-        
-        messageDiv.className = `message ${isOwnMessage ? 'own' : ''}`;
-        
-        const timestamp = messageData.timestamp 
-  ? messageData.timestamp.toDate().toLocaleString([], { 
-      day: '2-digit', 
-      month: 'short',   // e.g. "Aug"
-      year: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    }) 
-  : 'Sent';
-
-        
-        messageDiv.innerHTML = `
-            <div class="message-content">
-                ${!isOwnMessage ? `<div class="message-author">${messageData.username}</div>` : ''}
-                <div class="message-text">${this.escapeHtml(messageData.text)}</div>
-                <div class="message-time">${timestamp}</div>
-            </div>
-        `;
-        
-        messagesContainer.appendChild(messageDiv);
-    }
-    
-    async sendMessage() {
-        const messageInput = document.getElementById('messageInput');
-        const messageText = messageInput.value.trim();
-        
-        if (!messageText || !this.currentUser) return;
-        
-        // Rate limiting: prevent spam
-        const now = Date.now();
-        if (this.lastMessageTime && now - this.lastMessageTime < 15000) {
-            showNotification('Please wait for 15 secs before sending another message');
-            return;
-        }
-        
-        try {
-            // Get user profile for username
-            const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
-            const userData = userDoc.data();
-            const username = userData?.username || 'Anonymous';
-            
-            await this.messagesRef.add({
-                text: messageText,
-                username: username,
-                userId: this.currentUser.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            messageInput.value = '';
-            this.lastMessageTime = now;
-            
-        } catch (error) {
-            console.error('Error sending message:', error);
-            showNotification('Error sending message');
-        }
-    }
-    
-    setupMessageInput() {
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        
-        if (messageInput) {
-            messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.sendMessage();
-                }
-            });
-            
-            messageInput.addEventListener('input', () => {
-                const hasText = messageInput.value.trim().length > 0;
-                sendButton.disabled = !hasText;
-            });
-        }
-    }
-    
-    showAuthSection() {
-        document.getElementById('authSection').style.display = 'block';
-        document.getElementById('chatInterface').style.display = 'none';
-    }
-    
-    async showChatInterface() {
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('chatInterface').style.display = 'flex';
-        
-        // Update username display
-        if (this.currentUser) {
-            try {
-                const userDoc = await this.db.collection('users').doc(this.currentUser.uid).get();
-                const userData = userDoc.data();
-                const username = userData?.username || 'Anonymous';
-                document.getElementById('chatUsername').textContent = username;
-            } catch (error) {
-                console.error('Error fetching username:', error);
-                document.getElementById('chatUsername').textContent = 'User';
-            }
-        }
-    }
-    
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    // Modal functions
-    showAnonymousModal() {
-        const savedUsername = localStorage.getItem('disciplin_anonymous_username');
-        if (savedUsername) {
-            document.getElementById('anonymousUsername').value = savedUsername;
-        }
-        document.getElementById('anonymousModal').classList.add('show');
-    }
-    
-    closeAnonymousModal() {
-        document.getElementById('anonymousModal').classList.remove('show');
-    }
-    
-    showEmailModal() {
-        document.getElementById('emailModal').classList.add('show');
-    }
-    
-    closeEmailModal() {
-        document.getElementById('emailModal').classList.remove('show');
-    }
-    
-    showSignInModal() {
-        document.getElementById('signInModal').classList.add('show');
-    }
-    
-    closeSignInModal() {
-        document.getElementById('signInModal').classList.remove('show');
-    }
-    
-    switchToSignIn() {
-        this.closeEmailModal();
-        this.showSignInModal();
-    }
-    
-    switchToSignUp() {
-        this.closeSignInModal();
-        this.showEmailModal();
-    }
-}
-
-// Initialize chat system
-let disciplinChat;
-
-// Chat-related global functions
-function signInWithGoogle() {
-    if (disciplinChat) disciplinChat.signInWithGoogle();
-}
-
-function signInAnonymously() {
-    if (disciplinChat) disciplinChat.signInAnonymously();
-}
-
-function signUpWithEmail() {
-    if (disciplinChat) disciplinChat.signUpWithEmail();
-}
-
-function signInWithEmail() {
-    if (disciplinChat) disciplinChat.signInWithEmail();
-}
-
-function signOut() {
-    if (disciplinChat) disciplinChat.signOut();
-}
-
-function sendMessage() {
-    if (disciplinChat) disciplinChat.sendMessage();
-}
-
-function showAnonymousModal() {
-    if (disciplinChat) disciplinChat.showAnonymousModal();
-}
-
-function closeAnonymousModal() {
-    if (disciplinChat) disciplinChat.closeAnonymousModal();
-}
-
-function showEmailModal() {
-    if (disciplinChat) disciplinChat.showEmailModal();
-}
-
-function closeEmailModal() {
-    if (disciplinChat) disciplinChat.closeEmailModal();
-}
-
-function closeSignInModal() {
-    if (disciplinChat) disciplinChat.closeSignInModal();
-}
-
-function switchToSignIn() {
-    if (disciplinChat) disciplinChat.switchToSignIn();
-}
-
-function switchToSignUp() {
-    if (disciplinChat) disciplinChat.switchToSignUp();
-}
-
-// Initialize chat when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit to ensure Firebase is loaded
-    setTimeout(() => {
-        disciplinChat = new DisciplinChat();
-    }, 1000);
-
-
-});
+   
 
 
 // Forum functionality with thread detail tabs - COMPLETE FIXED VERSION
@@ -10469,13 +9907,13 @@ window.addEventListener('offline', function() {
     <script>
         // Create and inject manifest
         const manifest = {
-            "id": "https://ifexxy.github.io/disciplin/",
+            "id": "https://disciplinme.vercel.app/",
             "dir": "ltr",
             "lang": "en-US",
             "name": "Disciplin",
-            "scope": "https://ifexxy.github.io/disciplin/",
+            "scope": "https://disciplinme.vercel.app/",
             "display": "standalone",
-            "start_url": "https://ifexxy.github.io/disciplin/",
+            "start_url": "https://disciplinme.vercel.app/",
             "short_name": "Disciplin",
             "theme_color": "#000000",
             "description": "Personal habit tracking app with enhanced features",
