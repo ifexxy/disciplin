@@ -41,6 +41,7 @@
     <meta name="app-version" content="3.2.27">
     <link rel="icon" type="image/png" sizes="192x192" href="https://miseducatemen.wordpress.com/wp-content/uploads/2025/08/favicon.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
 /* ---- ONBOARDING OVERLAY ------------------------------------------ */
 #disciplin-onboarding {
@@ -2987,6 +2988,207 @@ body[data-active-tab="resources"] .sos-button {
 .sc-insight strong {
     color: var(--text-primary);
     font-weight: 600;
+}
+        /* ── Share button inside calendar ────────────────────────────── */
+.sc-share-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+ 
+.sc-share-btn:hover {
+    border-color: #4F46E5;
+    color: #4F46E5;
+    background: rgba(79,70,229,0.06);
+}
+ 
+.sc-share-btn i {
+    font-size: 12px;
+}
+ 
+/* ── Share card — the element that gets screenshotted ────────── */
+#sc-share-card {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 360px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    padding: 24px 20px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #e5e5e5;
+    z-index: -1;
+}
+ 
+.sc-card-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+ 
+.sc-card-logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1D9E75;
+    letter-spacing: 0.5px;
+}
+ 
+.sc-card-tagline {
+    font-size: 11px;
+    color: #666;
+}
+ 
+.sc-card-pills {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+}
+ 
+.sc-card-pill {
+    background: #262626;
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+}
+ 
+.sc-card-pill-num {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e5e5e5;
+    line-height: 1;
+    margin-bottom: 3px;
+}
+ 
+.sc-card-pill-num.green { color: #10b981; }
+.sc-card-pill-num.red   { color: #ef4444; }
+ 
+.sc-card-pill-lbl {
+    font-size: 9px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+}
+ 
+.sc-card-grid-wrap {
+    margin-bottom: 14px;
+}
+ 
+.sc-card-grid-title {
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+ 
+.sc-card-grid {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 2.5px;
+    grid-auto-flow: column;
+}
+ 
+.sc-card-sq {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 2px;
+}
+ 
+.sc-card-insight {
+    background: #262626;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.55;
+    border-left: 3px solid #10b981;
+    margin-bottom: 16px;
+}
+ 
+.sc-card-insight strong {
+    color: #e5e5e5;
+}
+ 
+.sc-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+ 
+.sc-card-url {
+    font-size: 11px;
+    color: #444;
+}
+ 
+.sc-card-streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #10b981;
+}
+ 
+/* ── Generating overlay ──────────────────────────────────────── */
+.sc-generating {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+ 
+.sc-generating.show {
+    opacity: 1;
+    pointer-events: all;
+}
+ 
+.sc-generating-inner {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 28px 32px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+ 
+.sc-generating-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border-color);
+    border-top-color: #1D9E75;
+    border-radius: 50%;
+    animation: sc-spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+}
+ 
+@keyframes sc-spin {
+    to { transform: rotate(360deg); }
 }
         
     </style>
@@ -10542,6 +10744,207 @@ window.addEventListener('beforeunload', function() {
 });
 
 </script>
+
+<script>
+(function () {
+ 
+    /* ── 1. Inject the share button into the calendar title row ── */
+    function injectShareButton() {
+        var titleRow = document.querySelector('.sc-title-row');
+        if (!titleRow || titleRow.querySelector('.sc-share-btn')) return;
+ 
+        var btn = document.createElement('button');
+        btn.className = 'sc-share-btn';
+        btn.type = 'button';
+        btn.innerHTML = '<i class="fas fa-share-alt"></i> Share';
+        btn.addEventListener('click', shareCalendar);
+ 
+        // Remove the "Last 18 weeks" label and put the button there instead
+        var label = titleRow.querySelector('.sc-weeks-label');
+        if (label) label.replaceWith(btn);
+        else titleRow.appendChild(btn);
+    }
+ 
+    /* ── 2. Inject the off-screen share card ─────────────────── */
+    function injectShareCard() {
+        if (document.getElementById('sc-share-card')) return;
+        var el = document.createElement('div');
+        el.id = 'sc-share-card';
+        document.body.appendChild(el);
+    }
+ 
+    /* ── 3. Inject the generating overlay ───────────────────── */
+    function injectOverlay() {
+        if (document.getElementById('scGenerating')) return;
+        var el = document.createElement('div');
+        el.className = 'sc-generating';
+        el.id = 'scGenerating';
+        el.innerHTML = '<div class="sc-generating-inner">' +
+            '<div class="sc-generating-spinner"></div>' +
+            'Building your share card…' +
+            '</div>';
+        document.body.appendChild(el);
+    }
+ 
+    /* ── 4. Read current stats & grid from the live calendar ── */
+    function readCalendarData() {
+        return {
+            current : (document.getElementById('sc-current')  || {}).textContent || '0',
+            best    : (document.getElementById('sc-best')     || {}).textContent || '0',
+            rate    : (document.getElementById('sc-rate')     || {}).textContent || '0%',
+            total   : (document.getElementById('sc-total')    || {}).textContent || '0',
+            insight : (document.getElementById('sc-insight')  || {}).innerHTML   || '',
+            squares : collectSquares()
+        };
+    }
+ 
+    /* Collect colour class + today flag from every grid square */
+    function collectSquares() {
+        var sqs = document.querySelectorAll('#sc-grid .sc-sq');
+        var out = [];
+        sqs.forEach(function (sq) {
+            var cls = 'sc-none';
+            if (sq.classList.contains('sc-clean3'))  cls = 'sc-clean3';
+            else if (sq.classList.contains('sc-clean2')) cls = 'sc-clean2';
+            else if (sq.classList.contains('sc-clean1')) cls = 'sc-clean1';
+            else if (sq.classList.contains('sc-relapse')) cls = 'sc-relapse';
+            out.push({ cls: cls, today: sq.classList.contains('sc-today'), invisible: sq.style.opacity === '0' });
+        });
+        return out;
+    }
+ 
+    /* ── 5. Build the share card HTML ────────────────────────── */
+    function buildShareCard(data) {
+        // Map class names to hex colours (dark background card)
+        var colours = {
+            'sc-none'    : '#2a2a2a',
+            'sc-clean1'  : '#6EE7B7',
+            'sc-clean2'  : '#10b981',
+            'sc-clean3'  : '#059669',
+            'sc-relapse' : '#ef4444'
+        };
+ 
+        // Build grid HTML
+        var gridHTML = '';
+        data.squares.forEach(function (sq) {
+            var bg = sq.invisible ? 'transparent' : colours[sq.cls];
+            var outline = sq.today ? 'outline:2px solid #818cf8;outline-offset:1px;' : '';
+            gridHTML += '<div class="sc-card-sq" style="background:' + bg + ';' + outline + '"></div>';
+        });
+ 
+        // Pill colour
+        var currentNum = parseInt(data.current) || 0;
+        var pillClass = currentNum > 0 ? 'green' : 'red';
+ 
+        // Strip HTML tags from insight for clean text
+        var insightText = data.insight.replace(/<strong>/g,'').replace(/<\/strong>/g,'').replace(/<[^>]+>/g,'');
+ 
+        var card = document.getElementById('sc-share-card');
+        card.innerHTML =
+            '<div class="sc-card-brand">' +
+                '<div class="sc-card-logo">🔥 Disciplin</div>' +
+                '<div class="sc-card-tagline">disciplinme.vercel.app</div>' +
+            '</div>' +
+ 
+            '<div class="sc-card-pills">' +
+                '<div class="sc-card-pill"><div class="sc-card-pill-num ' + pillClass + '">' + data.current + '</div><div class="sc-card-pill-lbl">Streak</div></div>' +
+                '<div class="sc-card-pill"><div class="sc-card-pill-num">' + data.best + '</div><div class="sc-card-pill-lbl">Best</div></div>' +
+                '<div class="sc-card-pill"><div class="sc-card-pill-num">' + data.rate + '</div><div class="sc-card-pill-lbl">Clean %</div></div>' +
+                '<div class="sc-card-pill"><div class="sc-card-pill-num">' + data.total + '</div><div class="sc-card-pill-lbl">Logged</div></div>' +
+            '</div>' +
+ 
+            '<div class="sc-card-grid-wrap">' +
+                '<div class="sc-card-grid-title">Last 18 weeks</div>' +
+                '<div class="sc-card-grid">' + gridHTML + '</div>' +
+            '</div>' +
+ 
+            (insightText.trim() ? (
+                '<div class="sc-card-insight">' + insightText + '</div>'
+            ) : '') +
+ 
+            '<div class="sc-card-footer">' +
+                '<div class="sc-card-url">disciplinme.vercel.app</div>' +
+                '<div class="sc-card-streak-badge">🔥 ' + data.current + ' day streak</div>' +
+            '</div>';
+    }
+ 
+    /* ── 6. Main share function ──────────────────────────────── */
+    function shareCalendar() {
+        var overlay = document.getElementById('scGenerating');
+        overlay.classList.add('show');
+ 
+        var data = readCalendarData();
+        buildShareCard(data);
+ 
+        var card = document.getElementById('sc-share-card');
+ 
+        // Small delay so browser paints the card before screenshot
+        setTimeout(function () {
+            html2canvas(card, {
+                backgroundColor : '#1a1a1a',
+                scale           : 2,        // retina quality
+                useCORS         : true,
+                logging         : false
+            }).then(function (canvas) {
+                overlay.classList.remove('show');
+                canvas.toBlob(function (blob) {
+                    if (!blob) { fallbackDownload(canvas); return; }
+ 
+                    var file = new File([blob], 'disciplin-streak.png', { type: 'image/png' });
+ 
+                    // Web Share API — works on iOS/Android Chrome
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title : 'My Disciplin Streak',
+                            text  : 'Check out my streak on Disciplin — disciplinme.vercel.app',
+                            files : [file]
+                        }).catch(function () {
+                            // User cancelled — that's fine
+                        });
+                    } else {
+                        // Desktop fallback: download the image
+                        fallbackDownload(canvas);
+                    }
+                }, 'image/png');
+ 
+            }).catch(function (err) {
+                overlay.classList.remove('show');
+                console.error('Screenshot failed:', err);
+                alert('Could not generate image. Try again.');
+            });
+        }, 120);
+    }
+ 
+    /* ── 7. Desktop fallback: trigger a PNG download ─────────── */
+    function fallbackDownload(canvas) {
+        var link = document.createElement('a');
+        link.download = 'disciplin-streak.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+ 
+    /* ── 8. Init ─────────────────────────────────────────────── */
+    function init() {
+        injectShareCard();
+        injectOverlay();
+        injectShareButton();
+    }
+ 
+    // Run after the streak calendar renders (it runs on DOMContentLoaded)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(init, 300); });
+    } else {
+        setTimeout(init, 300);
+    }
+ 
+    // Also re-inject when Stats tab is opened (in case calendar re-rendered)
+    document.addEventListener('click', function (e) {
+        var tab = e.target.closest('.tab[data-tab="insights"]');
+        if (tab) setTimeout(injectShareButton, 400);
+    });
+ 
+})();
+</script>        
 <script>
 
 
@@ -10752,6 +11155,8 @@ function updateMovingTexts(newTexts) {
 //     "New message 2",
 //     "New message 3"
 // ]);
+
+    
 </script>
 
 
