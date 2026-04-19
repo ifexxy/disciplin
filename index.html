@@ -12201,6 +12201,132 @@ function updateMovingTexts(newTexts) {
     }
 
 })();
+
+    /* ── FIRESTORE-AWARE DELETE ──────────────────────────────────────
+   Wraps the existing deleteEntry and deleteSelectedEntries
+   functions to also remove documents from Firestore.
+   Paste just before your closing </script> tag.
+   ──────────────────────────────────────────────────────────────── */
+(function () {
+
+    /* ── Helper: delete ONE entry from Firestore by its date ── */
+    function deleteFromFirestore(entryDate) {
+        try {
+            var user = firebase.auth().currentUser;
+            if (!user || !entryDate) return;
+
+            // Your Firestore path: users/{uid}/entries/{date}
+            firebase.firestore()
+                .collection('users')
+                .doc(user.uid)
+                .collection('entries')
+                .doc(entryDate)
+                .delete()
+                .then(function () {
+                    console.log('[Disciplin] Firestore entry deleted:', entryDate);
+                })
+                .catch(function (err) {
+                    console.warn('[Disciplin] Firestore delete failed:', err);
+                });
+
+        } catch (e) {
+            console.warn('[Disciplin] deleteFromFirestore error:', e);
+        }
+    }
+
+    /* ── Helper: delete MULTIPLE entries from Firestore ──────── */
+    function deleteManyFromFirestore(dates) {
+        try {
+            var user = firebase.auth().currentUser;
+            if (!user || !dates || dates.length === 0) return;
+
+            var db  = firebase.firestore();
+            var ref = db.collection('users').doc(user.uid).collection('entries');
+
+            // Firestore batch allows up to 500 operations
+            var batch = db.batch();
+            dates.forEach(function (date) {
+                if (date) batch.delete(ref.doc(date));
+            });
+
+            batch.commit()
+                .then(function () {
+                    console.log('[Disciplin] Firestore batch delete done:', dates.length, 'entries');
+                })
+                .catch(function (err) {
+                    console.warn('[Disciplin] Firestore batch delete failed:', err);
+                });
+
+        } catch (e) {
+            console.warn('[Disciplin] deleteManyFromFirestore error:', e);
+        }
+    }
+
+    /* ── Wait for the page to fully load, then wrap the
+         existing delete functions ──────────────────────────── */
+    window.addEventListener('load', function () {
+
+        /* 1. Wrap single-entry delete ───────────────────────── */
+        var originalDeleteEntry = window.deleteEntry;
+
+        window.deleteEntry = function (index) {
+            // Grab the entry date BEFORE it's removed from localStorage
+            try {
+                var entries = JSON.parse(localStorage.getItem('entries') || '[]');
+                var entry   = entries[index];
+                var date    = entry ? (entry.date || null) : null;
+
+                // Run the original delete (removes from localStorage + re-renders)
+                if (typeof originalDeleteEntry === 'function') {
+                    originalDeleteEntry(index);
+                }
+
+                // Also delete from Firestore
+                deleteFromFirestore(date);
+
+            } catch (e) {
+                // Safety fallback — still run original even if our code errors
+                if (typeof originalDeleteEntry === 'function') {
+                    originalDeleteEntry(index);
+                }
+            }
+        };
+
+        /* 2. Wrap bulk delete ───────────────────────────────── */
+        var originalDeleteSelected = window.deleteSelectedEntries;
+
+        window.deleteSelectedEntries = function () {
+            // Grab dates of all selected entries BEFORE they're removed
+            try {
+                var entries   = JSON.parse(localStorage.getItem('entries') || '[]');
+                var checkboxes = document.querySelectorAll('.history-item-checkbox:checked');
+                var dates     = [];
+
+                checkboxes.forEach(function (cb) {
+                    var idx   = parseInt(cb.getAttribute('data-index') || cb.value, 10);
+                    var entry = entries[idx];
+                    if (entry && entry.date) dates.push(entry.date);
+                });
+
+                // Run the original bulk delete
+                if (typeof originalDeleteSelected === 'function') {
+                    originalDeleteSelected();
+                }
+
+                // Also delete all from Firestore
+                deleteManyFromFirestore(dates);
+
+            } catch (e) {
+                if (typeof originalDeleteSelected === 'function') {
+                    originalDeleteSelected();
+                }
+            }
+        };
+
+        console.log('[Disciplin] Firestore-aware delete patch loaded.');
+    });
+
+})();
     
 </script>
 
