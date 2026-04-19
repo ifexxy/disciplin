@@ -12202,11 +12202,8 @@ function updateMovingTexts(newTexts) {
 
 })();
 
-    /* ── FIRESTORE-AWARE DELETE ──────────────────────────────────────
-   Wraps the existing deleteEntry and deleteSelectedEntries
-   functions to also remove documents from Firestore.
-   Paste just before your closing </script> tag.
-   ──────────────────────────────────────────────────────────────── */
+    /* ── FIRESTORE-AWARE DELETE ──
+    */
 (function () {
 
     /* ── Helper: delete ONE entry from Firestore by its date ── */
