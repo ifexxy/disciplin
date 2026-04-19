@@ -12036,6 +12036,171 @@ function updateMovingTexts(newTexts) {
     goTo(0);
  
 })();   
+
+    /* ── FIREBASE CLOUD MESSAGING ─────────────────────────────── */
+(function () {
+
+    var VAPID_KEY = 'BI6DywIZTQoy2FcqLq_iQRXVMvUQyVz5irxFmVvDRK4XDZtK3pwKZBMJWWvTHzWPIfGNOCpC1DSP0REYuA-iSAc';
+    var messaging = null;
+
+    /* Initialise FCM after Firebase app is ready */
+    function initMessaging() {
+        try {
+            messaging = firebase.messaging();
+
+            // Handle foreground messages (app is open)
+            messaging.onMessage(function(payload) {
+                var n = payload.notification || {};
+                // Show an in-app toast using your existing showNotification pattern
+                var toast = document.getElementById('notification') ||
+                            document.querySelector('.notification');
+                if (toast) {
+                    toast.textContent = n.body || "Don't forget to log today!";
+                    toast.classList.add('show');
+                    setTimeout(function() { toast.classList.remove('show'); }, 4000);
+                }
+            });
+
+        } catch (e) {
+            console.warn('FCM init failed:', e);
+        }
+    }
+
+    /* Request permission + get token */
+    function enableNotifications() {
+        if (!('Notification' in window)) {
+            alert('Your browser does not support notifications.');
+            return;
+        }
+
+        Notification.requestPermission().then(function(permission) {
+            if (permission !== 'granted') {
+                alert('Notification permission denied. Enable it in your browser settings.');
+                return;
+            }
+
+            if (!messaging) initMessaging();
+
+            messaging.getToken({ vapidKey: VAPID_KEY }).then(function(token) {
+                if (token) {
+                    // Save token to localStorage
+                    localStorage.setItem('fcm_token', token);
+
+                    // Mark the bell as enabled
+                    var bell = document.getElementById('floatingNotificationBtn');
+                    if (bell) bell.classList.add('enabled');
+
+                    // Schedule the daily 8pm reminder
+                    scheduleDailyReminder();
+
+                    showToast('Reminders enabled! You will be notified daily at 8pm.');
+                }
+            }).catch(function(err) {
+                console.error('FCM token error:', err);
+            });
+
+        });
+    }
+
+    /* Disable notifications */
+    function disableNotifications() {
+        localStorage.removeItem('fcm_token');
+        localStorage.removeItem('fcm_enabled');
+        var bell = document.getElementById('floatingNotificationBtn');
+        if (bell) bell.classList.remove('enabled');
+        showToast('Reminders disabled.');
+    }
+
+    /* Daily 8pm reminder using the Notification API directly
+       (works without a backend — pure client-side scheduling) */
+    function scheduleDailyReminder() {
+        localStorage.setItem('fcm_enabled', '1');
+        checkAndSchedule();
+    }
+
+    function checkAndSchedule() {
+        if (localStorage.getItem('fcm_enabled') !== '1') return;
+
+        var now   = new Date();
+        var next  = new Date();
+        next.setHours(20, 0, 0, 0); // 8:00 PM
+
+        // If 8pm already passed today, schedule for tomorrow
+        if (now >= next) next.setDate(next.getDate() + 1);
+
+        var msUntil = next - now;
+
+        setTimeout(function() {
+            // Only show if user hasn't logged today
+            var entries = [];
+            try { entries = JSON.parse(localStorage.getItem('entries') || '[]'); } catch(e) {}
+
+            var todayStr = new Date().toISOString().slice(0, 10);
+            var loggedToday = entries.some(function(e) { return e.date === todayStr; });
+
+            if (!loggedToday && Notification.permission === 'granted') {
+                new Notification('Disciplin — Daily Check-in', {
+                    body  : "Have you logged today? Keep your streak alive 🔥",
+                    icon  : 'https://miseducatemen.wordpress.com/wp-content/uploads/2025/08/favicon.jpg',
+                    tag   : 'disciplin-daily',
+                    renotify: true
+                });
+            }
+
+            // Schedule again for tomorrow
+            checkAndSchedule();
+
+        }, msUntil);
+    }
+
+    /* Simple toast helper */
+    function showToast(msg) {
+        var toast = document.getElementById('notification') ||
+                    document.querySelector('.notification');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 3500);
+    }
+
+    /* Hook into your existing bell button toggle */
+    /* Your bell already calls toggleNotifications() — 
+       wire FCM into that function instead of replacing it */
+    var originalToggle = window.toggleNotifications;
+    window.toggleNotifications = function() {
+        var enabled = localStorage.getItem('fcm_enabled') === '1';
+        if (enabled) {
+            disableNotifications();
+        } else {
+            enableNotifications();
+        }
+        // Also call original if it existed
+        if (typeof originalToggle === 'function') originalToggle();
+    };
+
+    /* Show the bell button (it's hidden by default in your CSS) */
+    function showBell() {
+        var bell = document.getElementById('floatingNotificationBtn');
+        if (!bell) return;
+        bell.classList.add('show');
+        // Restore enabled state if previously enabled
+        if (localStorage.getItem('fcm_enabled') === '1') {
+            bell.classList.add('enabled');
+            initMessaging();
+            checkAndSchedule(); // re-arm the timer on page load
+        }
+    }
+
+    /* Init on page load */
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(showBell, 1000);
+        });
+    } else {
+        setTimeout(showBell, 1000);
+    }
+
+})();
     
 </script>
 
