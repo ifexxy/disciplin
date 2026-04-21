@@ -9093,7 +9093,7 @@ container.innerHTML = journalEntries.map(entry => `
             updatePersonalizedInsights();
             
             loadJournalEntries();
-            loadGlobalStats();
+            
             rotateMotiationTexts();
             initializeNotifications();
             setupInactivityTimer();
@@ -9107,6 +9107,52 @@ container.innerHTML = journalEntries.map(entry => `
     window.forumManager = forumManager; 
         
         });
+
+function loadGlobalStats() {
+    var entriesEls = document.querySelectorAll('#globalEntries');
+    var usersEls   = document.querySelectorAll('#activeUsers');
+
+    if (!entriesEls.length) {
+        // Elements not in DOM yet — retry
+        setTimeout(loadGlobalStats, 500);
+        return;
+    }
+
+    firebase.firestore()
+        .collection('stats')
+        .doc('global')
+        .get()
+        .then(function(doc) {
+            if (!doc.exists) {
+                entriesEls.forEach(function(el) { el.textContent = '0'; });
+                usersEls.forEach(function(el)   { el.textContent = '0'; });
+                return;
+            }
+            var data    = doc.data();
+            var entries = data.totalEntries || 0;
+            var users   = data.totalUsers   || 0;
+
+            entriesEls.forEach(function(el) { el.textContent = entries.toLocaleString(); });
+            usersEls.forEach(function(el)   { el.textContent = users.toLocaleString(); });
+        })
+        .catch(function(err) {
+            console.warn('[Stats] read failed:', err.code, err.message);
+            setTimeout(loadGlobalStats, 2000); // retry on failure
+        });
+}
+
+// Wait for Firebase to be ready before calling
+document.addEventListener('DOMContentLoaded', function() {
+    // 1.5s delay gives Firebase auth + Firestore time to initialise
+    setTimeout(loadGlobalStats, 1500);
+});
+
+// Reload every time the home tab is opened
+document.querySelectorAll('.tab[data-tab="home"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        setTimeout(loadGlobalStats, 300);
+    });
+});
 
         // Fixed version checking function
         function checkForUpdates() {
