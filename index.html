@@ -10977,24 +10977,38 @@ class FirebaseManager {
     }
 
     handleAuthStateChange(user) {
-        this.currentUser = user;
-        
-        if (user) {
-            console.log('User signed in:', user.email);
-            this.syncEnabled = true;
-            this.startRealTimeSync();
-            this.updateFirebaseUI();
-            this.showSuccess(`Signed in as ${user.email} - Cloud sync enabled!`);
-        } else {
-            console.log('User signed out');
-            this.syncEnabled = false;
-            this.stopRealTimeSync();
-            this.updateFirebaseUI();
-            this.updateCloudCountDisplay();
+    this.currentUser = user;
+
+    if (user) {
+        console.log('User signed in:', user.email);
+        this.syncEnabled = true;
+        this.startRealTimeSync();
+        this.updateFirebaseUI();
+
+        // Check if this is a fresh sign-in or an auto-restored session
+        var storedUid   = localStorage.getItem('disciplin_auth_uid');
+        var isFreshSignIn = this._pendingSignIn || (storedUid !== user.uid);
+
+        if (isFreshSignIn) {
+            // Only show the notification on a real, user-initiated sign-in
+            this.showSuccess(`Signed in as ${user.email}`);
+            localStorage.setItem('disciplin_auth_uid', user.uid);
+            this._pendingSignIn = false;
         }
+        // Auto-restored session — sync runs silently, no notification
+
+    } else {
+        console.log('User signed out');
+        this.syncEnabled = false;
+        this.stopRealTimeSync();
+        this.updateFirebaseUI();
+        this.updateCloudCountDisplay();
+        localStorage.removeItem('disciplin_auth_uid');
     }
+}
 
     async signInWithGoogle() {
+        this._pendingSignIn = true;
         if (!this.isInitialized) {
             this.showError('Firebase not initialized');
             return false;
