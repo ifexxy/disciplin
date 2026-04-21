@@ -4169,7 +4169,56 @@ body[data-active-tab="resources"] .sos-button {
                 <div class="achievements-grid" id="achievementsGrid"></div>
             </div>
              <!-- Analytics Section -->
-            
+            <div class="analytics-section">
+    <div class="analytics-title">
+        <i class="fas fa-globe" style="margin-right:6px;color:#4F46E5;"></i>
+        Community Stats
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:12px;">
+        Live data from all Disciplin users worldwide
+    </div>
+    <div class="analytics-stats">
+        <div class="analytics-card" style="position:relative;overflow:hidden;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;
+                        letter-spacing:1px;opacity:0.75;margin-bottom:8px;">
+                Total Entries
+            </div>
+            <div class="analytics-number" id="globalEntries"
+                 style="font-size:36px;font-weight:800;letter-spacing:-1px;">
+                ---
+            </div>
+            <div class="analytics-label" style="margin-top:4px;opacity:0.8;">
+                logs submitted
+            </div>
+            <i class="fas fa-clipboard-list"
+               style="position:absolute;right:10px;bottom:10px;
+                      font-size:32px;opacity:0.1;"></i>
+        </div>
+        <div class="analytics-card" style="position:relative;overflow:hidden;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;
+                        letter-spacing:1px;opacity:0.75;margin-bottom:8px;">
+                Active Users
+            </div>
+            <div class="analytics-number" id="activeUsers"
+                 style="font-size:36px;font-weight:800;letter-spacing:-1px;">
+                ---
+            </div>
+            <div class="analytics-label" style="margin-top:4px;opacity:0.8;">
+                people on this journey
+            </div>
+            <i class="fas fa-users"
+               style="position:absolute;right:10px;bottom:10px;
+                      font-size:32px;opacity:0.1;"></i>
+        </div>
+    </div>
+    <!-- Live indicator -->
+    <div style="display:flex;align-items:center;justify-content:center;
+                gap:6px;margin-top:10px;font-size:11px;color:var(--text-muted);">
+        <span style="width:6px;height:6px;border-radius:50%;background:#10b981;
+                     display:inline-block;animation:pulse 2s infinite;"></span>
+        Real-time · Updates on every new entry
+    </div>
+</div>
 <br>        <p style="font-size: 12px; font-style: italic; color: var(--text-muted); margin-top: 20px; text-align: center; transition: color 0.3s ease;">Built with ❤️ by Michael >_<br>1000% Privacy </p>
             <div class="motivational-text" id="motivationalText">
                 Everyday is a new day, to achieve something new
@@ -9539,6 +9588,41 @@ function updateStatsWithTimer() {
                 logForm.addEventListener('submit', handleFormSubmit);
             }
 
+// ── Increment global community stats ──────────────────
+        (function () {
+            try {
+                var user = firebase.auth().currentUser;
+                if (!user) return;
+
+                var userKey   = 'disciplin_counted_' + user.uid;
+                var isNewUser = !localStorage.getItem(userKey);
+
+                var updates = {
+                    totalEntries: firebase.firestore.FieldValue.increment(1)
+                };
+
+                if (isNewUser) {
+                    updates.totalUsers = firebase.firestore.FieldValue.increment(1);
+                    localStorage.setItem(userKey, '1');
+                }
+
+                firebase.firestore()
+                    .collection('stats')
+                    .doc('global')
+                    .update(updates)
+                    .catch(function (err) {
+                        if (err.code === 'not-found') {
+                            firebase.firestore()
+                                .collection('stats')
+                                .doc('global')
+                                .set({ totalEntries: 1, totalUsers: 1 });
+                            localStorage.setItem(userKey, '1');
+                        }
+                    });
+
+            } catch (e) { /* silent fail — never block the main save */ }
+        })();
+        
             // Also add click event listener to the submit button as backup
             const submitBtn = logForm.querySelector('button[type="submit"]');
             if (submitBtn) {
