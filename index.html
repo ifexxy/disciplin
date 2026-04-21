@@ -9588,41 +9588,8 @@ function updateStatsWithTimer() {
                 logForm.addEventListener('submit', handleFormSubmit);
             }
 
-// ── Increment global community stats ──────────────────
-        (function () {
-            try {
-                var user = firebase.auth().currentUser;
-                if (!user) return;
 
-                var userKey   = 'disciplin_counted_' + user.uid;
-                var isNewUser = !localStorage.getItem(userKey);
-
-                var updates = {
-                    totalEntries: firebase.firestore.FieldValue.increment(1)
-                };
-
-                if (isNewUser) {
-                    updates.totalUsers = firebase.firestore.FieldValue.increment(1);
-                    localStorage.setItem(userKey, '1');
-                }
-
-                firebase.firestore()
-                    .collection('stats')
-                    .doc('global')
-                    .update(updates)
-                    .catch(function (err) {
-                        if (err.code === 'not-found') {
-                            firebase.firestore()
-                                .collection('stats')
-                                .doc('global')
-                                .set({ totalEntries: 1, totalUsers: 1 });
-                            localStorage.setItem(userKey, '1');
-                        }
-                    });
-
-            } catch (e) { /* silent fail — never block the main save */ }
-        })();
-        
+    
             // Also add click event listener to the submit button as backup
             const submitBtn = logForm.querySelector('button[type="submit"]');
             if (submitBtn) {
@@ -10062,6 +10029,35 @@ function updateFloatingNotificationButton() {
                 showNotification('Error saving entry. Please try again.');
                 alert('❌ Error saving entry. Please try again.');
             }
+           // ── ADD THIS RIGHT HERE, before the closing } ──────────
+    try {
+        var user = firebase.auth().currentUser;
+        if (user) {
+            var userKey   = 'disciplin_counted_' + user.uid;
+            var isNewUser = !localStorage.getItem(userKey);
+            var updates   = {
+                totalEntries: firebase.firestore.FieldValue.increment(1)
+            };
+            if (isNewUser) {
+                updates.totalUsers = firebase.firestore.FieldValue.increment(1);
+                localStorage.setItem(userKey, '1');
+            }
+            firebase.firestore()
+                .collection('stats')
+                .doc('global')
+                .update(updates)
+                .catch(function(err) {
+                    if (err.code === 'not-found') {
+                        firebase.firestore()
+                            .collection('stats')
+                            .doc('global')
+                            .set({ totalEntries: 1, totalUsers: 1 });
+                        localStorage.setItem(userKey, '1');
+                    }
+                });
+        }
+    } catch(e) { /* silent — never block the main save */ }
+    // ── END ────────────────────────────────────────────────
         }
 
         function saveEntry(entry) {
