@@ -10076,33 +10076,27 @@ function updateFloatingNotificationButton() {
                 alert('❌ Error saving entry. Please try again.');
             }
            // ── ADD THIS RIGHT HERE, before the closing } ──────────
-    try {
-        var user = firebase.auth().currentUser;
-        if (user) {
-            var userKey   = 'disciplin_counted_' + user.uid;
-            var isNewUser = !localStorage.getItem(userKey);
-            var updates   = {
-                totalEntries: firebase.firestore.FieldValue.increment(1)
-            };
-            if (isNewUser) {
-                updates.totalUsers = firebase.firestore.FieldValue.increment(1);
-                localStorage.setItem(userKey, '1');
-            }
-            firebase.firestore()
-                .collection('stats')
-                .doc('global')
-                .update(updates)
-                .catch(function(err) {
-                    if (err.code === 'not-found') {
-                        firebase.firestore()
-                            .collection('stats')
-                            .doc('global')
-                            .set({ totalEntries: 1, totalUsers: 1 });
-                        localStorage.setItem(userKey, '1');
-                    }
-                });
+   try {
+    var user = firebase.auth().currentUser;
+    if (user) {
+        var userKey   = 'disciplin_counted_' + user.uid;
+        var isNewUser = !localStorage.getItem(userKey);
+        var updates   = {
+            totalEntries: firebase.firestore.FieldValue.increment(1)
+        };
+        if (isNewUser) {
+            updates.totalUsers = firebase.firestore.FieldValue.increment(1);
+            localStorage.setItem(userKey, '1');
         }
-    } catch(e) { /* silent — never block the main save */ }
+        firebase.firestore()
+            .collection('stats')
+            .doc('global')
+            .update(updates)
+            .catch(function(err) {
+                console.warn('[Stats] increment failed:', err);
+            });
+    }
+} catch(e) { /* silent */ }
     // ── END ────────────────────────────────────────────────
         }
 
